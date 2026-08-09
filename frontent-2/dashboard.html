@@ -339,8 +339,8 @@
 
     /* Capa decorativa: los mismos polígonos difuminados, para el efecto de calor. */
     .pane-calor {
-      filter: blur(19px) saturate(1.3);
-      opacity: 0.9;
+      filter: blur(19px) saturate(1.15);
+      opacity: 0.62;
       pointer-events: none;
     }
 
@@ -1068,25 +1068,25 @@
 
     const RAMPAS = {
       riesgo: [
-        "oklch(0.90 0.09 105)",
-        "oklch(0.87 0.13 88)",
-        "oklch(0.80 0.16 66)",
-        "oklch(0.72 0.18 50)",
-        "oklch(0.58 0.19 28)"
+        "oklch(0.94 0.06 105)",
+        "oklch(0.90 0.10 88)",
+        "oklch(0.85 0.13 66)",
+        "oklch(0.79 0.15 50)",
+        "oklch(0.70 0.17 28)"
       ],
       animo: [
-        "oklch(0.74 0.17 75)",
-        "oklch(0.70 0.16 140)",
-        "oklch(0.68 0.10 220)",
-        "oklch(0.60 0.16 250)",
-        "oklch(0.52 0.19 285)"
+        "oklch(0.82 0.13 75)",
+        "oklch(0.79 0.12 140)",
+        "oklch(0.77 0.08 220)",
+        "oklch(0.71 0.12 250)",
+        "oklch(0.65 0.14 285)"
       ],
       cobertura: [
-        "oklch(0.54 0.18 258)",
-        "oklch(0.66 0.15 256)",
-        "oklch(0.76 0.11 254)",
-        "oklch(0.86 0.07 252)",
-        "oklch(0.93 0.04 250)"
+        "oklch(0.68 0.13 258)",
+        "oklch(0.76 0.11 256)",
+        "oklch(0.83 0.08 254)",
+        "oklch(0.90 0.05 252)",
+        "oklch(0.95 0.03 250)"
       ]
     };
 
@@ -1366,11 +1366,11 @@
       capaCalor = L.geoJSON(D.zonas, {
         pane: "calor",
         interactive: false,
-        style: { stroke: false, fillOpacity: 0.92 }
+        style: { stroke: false, fillOpacity: 0.75 }
       }).addTo(mapa);
 
       capaZonas = L.geoJSON(D.zonas, {
-        style: { color: "oklch(1 0 0)", weight: 1.4, fillOpacity: 0.32 },
+        style: { color: "oklch(1 0 0)", weight: 1.4, fillOpacity: 0.2 },
         onEachFeature: (feature, capa) => {
           const id = feature.properties.id;
           capasPorZona[id] = capa;
@@ -1386,7 +1386,7 @@
 
     const resaltar = (id, activo) => {
       const capa = capasPorZona[id];
-      if (capa) capa.setStyle({ weight: activo ? 3.4 : 1.4, fillOpacity: activo ? 0.5 : 0.32 });
+      if (capa) capa.setStyle({ weight: activo ? 3.4 : 1.4, fillOpacity: activo ? 0.36 : 0.2 });
       document.querySelectorAll(".rank-item").forEach(item => {
         item.classList.toggle("activo", activo && item.dataset.zona === id);
       });
@@ -1429,7 +1429,7 @@
       if (hayLeaflet && mapa) {
         const pintar = feature => ({ fillColor: colorDe(datos.porZona[feature.properties.id][metrica.id], metrica, cortesActuales) });
         capaCalor.setStyle(pintar);
-        capaZonas.setStyle(feature => ({ ...pintar(feature), color: "oklch(1 0 0)", weight: 1.4, fillOpacity: 0.32 }));
+        capaZonas.setStyle(feature => ({ ...pintar(feature), color: "oklch(1 0 0)", weight: 1.4, fillOpacity: 0.2 }));
         capaZonas.eachLayer(capa => {
           const id = capa.feature.properties.id;
           capa.setTooltipContent(
