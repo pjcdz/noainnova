@@ -48,7 +48,7 @@
       min-height: 100svh;
       place-items: center;
       overflow: hidden;
-      background: oklch(0 0 0);
+      background: oklch(0.79 0.004 270);
       color: oklch(0.16 0 0);
     }
 
@@ -330,6 +330,22 @@
       width: 100%;
       height: 100%;
       overflow: visible;
+    }
+
+    .flower-reference-image {
+      display: none;
+    }
+
+    .flower-host[data-detailed-flower] .flower-reference-image {
+      display: block;
+    }
+
+    .flower-host[data-detailed-flower] .flower-layer,
+    .flower-host[data-detailed-flower] .flower-ray-outer,
+    .flower-host[data-detailed-flower] .flower-ray-inner,
+    .flower-host[data-detailed-flower] .flower-center,
+    .flower-host[data-detailed-flower] .flower-center-star {
+      display: none;
     }
 
     .flower-host .flower-layer,
@@ -770,9 +786,20 @@
       cursor: pointer;
     }
 
+    .mini-flower.logged-flower {
+      position: absolute;
+      top: 43%;
+      left: 50%;
+      width: min(76vw, 300px);
+      height: min(76vw, 300px);
+      margin: 0;
+      transform: translate(-50%, -50%);
+    }
+
     .logged-content {
       position: absolute;
-      top: 52%;
+      z-index: 1;
+      top: 68%;
       left: 50%;
       display: flex;
       align-items: center;
@@ -3028,7 +3055,7 @@
         </header>
 
         <div class="step-scroll">
-          <div class="flower-host mini-flower" data-flower aria-hidden="true"></div>
+          <div class="flower-host mini-flower" data-flower data-detailed-flower aria-hidden="true"></div>
           <p class="step-mood-label" data-mood-label>Agradable</p>
           <div class="question-row">
             <h1 id="describe-heading">¿Qué describe mejor esta sensación?</h1>
@@ -3058,7 +3085,7 @@
         </header>
 
         <div class="step-scroll">
-          <div class="flower-host mini-flower" data-flower aria-hidden="true"></div>
+          <div class="flower-host mini-flower" data-flower data-detailed-flower aria-hidden="true"></div>
           <p class="step-mood-label" data-mood-label>Agradable</p>
           <p class="step-feeling-label" data-feeling-label></p>
           <div class="question-row">
@@ -3073,6 +3100,7 @@
     </section>
 
     <section class="view logged-view mood-theme" data-view="logged" tabindex="0" role="button" aria-label="Registro completado. Continuar.">
+      <div class="flower-host mini-flower logged-flower" data-flower data-detailed-flower aria-hidden="true"></div>
       <div class="logged-content">
         <span class="logged-check" aria-hidden="true">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="m3 7 2.4 2.4L11 3.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -3443,6 +3471,7 @@
           <clipPath id="${id}-outer-clip"><use href="#${id}-shape"/></clipPath>
           <clipPath id="${id}-inner-clip"><use href="#${id}-shape" transform="translate(80 80) scale(.5)"/></clipPath>
         </defs>
+        <image class="flower-reference-image" href="assets/anima-flower/flower-050.webp" x="0" y="0" width="320" height="320" preserveAspectRatio="xMidYMid meet"/>
         <use href="#${id}-shape" class="flower-layer flower-outer" fill="url(#${id}-outer)"/>
         <g clip-path="url(#${id}-outer-clip)" filter="url(#${id}-glow)">
           ${[0,72,144,216,288].map(angle => `<path class="flower-ray-outer" d="M160 162 130 25h60Z" fill="url(#${id}-ray)" transform="rotate(${angle} 160 162)"/>`).join("")}
@@ -3464,7 +3493,9 @@
     const moodFlower = document.querySelector(".mood-flower");
     const miniFlowers = [...document.querySelectorAll(".mini-flower")];
     const moodReferenceFrame = document.querySelector("#mood-reference-frame");
-    const moodFrameSource = value => `assets/anima-mood/mood-${String(Math.round(value)).padStart(3, "0")}.webp`;
+    const frameNumber = value => String(Math.round(value)).padStart(3, "0");
+    const moodFrameSource = value => `assets/anima-mood/mood-${frameNumber(value)}.webp`;
+    const flowerDetailSource = value => `assets/anima-flower/flower-${frameNumber(value)}.webp`;
 
     const closedCurve = points => {
       const count = points.length;
@@ -3553,6 +3584,11 @@
         : [0, 0, 0, 0];
 
       shape.setAttribute("d", proceduralFlowerPath(value, time));
+      if (host.hasAttribute("data-detailed-flower")) {
+        const image = host.querySelector(".flower-reference-image");
+        const source = flowerDetailSource(value);
+        if (image?.getAttribute("href") !== source) image?.setAttribute("href", source);
+      }
       host.querySelector(".flower-outer")?.setAttribute("transform", `rotate(${rotations[0]} 160 160)`);
       host.querySelector(".flower-middle")?.setAttribute("transform", `translate(35.2 35.2) scale(.78) rotate(${rotations[1]} 160 160)`);
       host.querySelector(".flower-inner")?.setAttribute("transform", `translate(80 80) scale(.5) rotate(${rotations[2]} 160 160)`);
@@ -4091,9 +4127,9 @@
         <strong>Sin registro</strong>
       </div>`;
 
-    const flowerHost = (extraClass, tone) => {
+    const flowerHost = (extraClass, tone, value) => {
       flowerSeed += 1;
-      return `<div class="flower-host mood-theme ${extraClass}" style="${toneVars(tone)}" aria-hidden="true">${flowerMarkup(`summary-flower-${flowerSeed}`)}</div>`;
+      return `<div class="flower-host mood-theme ${extraClass}" data-flower-value="${value}" data-detailed-flower style="${toneVars(tone)}" aria-hidden="true">${flowerMarkup(`summary-flower-${flowerSeed}`)}</div>`;
     };
 
     const renderDay = key => {
@@ -4105,7 +4141,7 @@
 
       const moodBlock = tone
         ? `<div class="day-mood">
-            ${flowerHost("day-flower", tone)}
+            ${flowerHost("day-flower", tone, entry.mood)}
             <strong class="day-mood-label">${tone.label}</strong>
             ${entry.factors.length ? `<ul class="day-factors">${entry.factors.map(factor => `<li>${factor}</li>`).join("")}</ul>` : ""}
           </div>`
@@ -4117,7 +4153,7 @@
             ${[...emotions].sort((a, b) => b.time.localeCompare(a.time)).map(emotion => {
               const emotionTone = moodTone(emotion.value);
               return `<div class="momentary-row">
-                ${flowerHost("summary-flower", emotionTone)}
+                ${flowerHost("summary-flower", emotionTone, emotion.value)}
                 <div class="momentary-copy">
                   <strong>${emotion.name}</strong>
                   <span>${emotionTone.label}</span>
@@ -4129,6 +4165,33 @@
         : "";
 
       dayState.innerHTML = moodBlock + momentaryBlock;
+      dayState.querySelectorAll("[data-flower-value]").forEach(host => {
+        renderFlowerGeometry(host, Number(host.dataset.flowerValue));
+      });
+    };
+
+    const saveCurrentEntry = () => {
+      const value = Number(moodRange.value);
+      const entry = MOOD_LOG[TODAY_KEY] || { mood: null, factors: [], emotions: [] };
+
+      if (selectedLogType === "mood") {
+        entry.mood = value;
+        entry.factors = [...impactContainer.querySelectorAll('[data-impact][aria-pressed="true"]')]
+          .map(button => button.dataset.impact);
+      } else {
+        const time = statusTime.textContent.trim();
+        const emotion = {
+          name: selectedFeeling || currentMoodLabel,
+          value,
+          time
+        };
+        const existingIndex = entry.emotions.findIndex(item => item.time === time);
+        if (existingIndex >= 0) entry.emotions[existingIndex] = emotion;
+        else entry.emotions.push(emotion);
+      }
+
+      MOOD_LOG[TODAY_KEY] = entry;
+      renderDay(TODAY_KEY);
     };
 
     const openEmotionModal = () => {
@@ -4213,8 +4276,9 @@
     });
 
     document.querySelector("#finish-log").addEventListener("click", () => {
+      saveCurrentEntry();
       showView("logged");
-      liveStatus.textContent = "Emoción registrada.";
+      liveStatus.textContent = selectedLogType === "mood" ? "Estado de ánimo registrado." : "Emoción registrada.";
       loggedTimer = window.setTimeout(() => showView("reminders"), 1300);
     });
 
