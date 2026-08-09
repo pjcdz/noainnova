@@ -1793,16 +1793,14 @@
     }
 
     .mood-shape {
-      width: 39px;
-      height: 39px;
+      display: block;
+      width: 44px;
+      height: 44px;
       align-self: center;
-      background:
-        radial-gradient(circle at 50% 40%,
-          color-mix(in oklab, var(--day-color) 20%, var(--white)),
-          color-mix(in oklab, var(--day-color) 60%, var(--white)) 44%,
-          var(--day-color) 96%);
-      -webkit-mask: var(--flower-mask) center / 100% 100% no-repeat;
-      mask: var(--flower-mask) center / 100% 100% no-repeat;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
     }
 
     .emotion-dot {
@@ -1908,10 +1906,19 @@
       flex-direction: column;
     }
 
+    .charts-view:not(.has-detail) .detail-chart-block {
+      display: none;
+    }
+
+    .charts-view:not(.has-detail) .chart-plot,
+    .charts-view:not(.has-detail) .chart-ylabels {
+      height: 188px;
+    }
+
     .charts-scroll {
-      flex: 1 1 auto;
+      flex: 0 0 auto;
       min-height: 0;
-      overflow-y: auto;
+      overflow: hidden;
       background: var(--white);
       border-radius: 42px 42px 0 0;
       overscroll-behavior: contain;
@@ -2035,13 +2042,14 @@
 
     .chart-body {
       display: grid;
-      grid-template-columns: 1fr 78px;
-      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) 92px;
+      gap: 14px;
     }
 
     .chart-plot {
       position: relative;
-      height: 78px;
+      height: 92px;
+      overflow: hidden;
       border-right: 1px solid oklch(0.84 0.006 270);
       border-bottom: 1px solid oklch(0.84 0.006 270);
       background:
@@ -2050,15 +2058,14 @@
           transparent 1px 25%);
     }
 
-    /* Verticales punteadas: el degradé dibuja las columnas y la máscara las corta en puntos. */
-    .chart-plot::before {
+    .chart-gridline {
       position: absolute;
-      inset: 0;
-      background:
-        repeating-linear-gradient(to right,
-          oklch(0.83 0.006 270) 0 1px,
-          transparent 1px calc(100% * var(--grid-step, 1) / var(--cols)));
-      content: "";
+      z-index: 0;
+      top: 0;
+      bottom: 0;
+      left: var(--x);
+      width: 1px;
+      background: oklch(0.83 0.006 270);
       pointer-events: none;
       -webkit-mask: repeating-linear-gradient(to bottom, oklch(0 0 0) 0 2px, transparent 2px 5px);
       mask: repeating-linear-gradient(to bottom, oklch(0 0 0) 0 2px, transparent 2px 5px);
@@ -2067,8 +2074,8 @@
     .chart-dot,
     .chart-capsule {
       position: absolute;
+      z-index: 1;
       left: var(--x);
-      background: var(--c);
       transform: translate(-50%, 0);
     }
 
@@ -2077,33 +2084,63 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
+      background: var(--c);
       transform: translate(-50%, -50%);
     }
 
     .chart-capsule {
       top: var(--top);
-      width: 6px;
+      width: 12px;
       height: var(--h);
-      min-height: 6px;
+      min-height: 20px;
       border-radius: 999px;
-      background: linear-gradient(to bottom, var(--c-top), var(--c-bottom));
+      background: linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--c-top) 18%, var(--white)),
+        color-mix(in oklab, var(--c-bottom) 18%, var(--white))
+      );
+      transform: translate(-50%, -3px);
+    }
+
+    .chart-capsule::before,
+    .chart-capsule::after {
+      position: absolute;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      content: "";
+      transform: translateX(-50%);
+    }
+
+    .chart-capsule::before {
+      top: 2px;
+      background: var(--c-top);
+    }
+
+    .chart-capsule::after {
+      bottom: 2px;
+      background: var(--c-bottom);
     }
 
     .chart-ylabels {
-      display: flex;
-      height: 78px;
-      flex-direction: column;
-      justify-content: space-between;
+      display: grid;
+      height: 92px;
+      grid-template-rows: repeat(3, 1fr);
+      align-items: center;
       color: oklch(0.62 0.006 270);
-      font-size: 0.8125rem;
-      line-height: 1.1;
+      font-size: 0.75rem;
+      line-height: 1.15;
     }
+
+    .chart-ylabels span:first-child { align-self: start; }
+    .chart-ylabels span:last-child { align-self: end; }
 
     .chart-axis {
       display: grid;
       padding: 0 16px 12px;
-      grid-template-columns: 1fr 78px;
-      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) 92px;
+      gap: 14px;
     }
 
     .chart-axis-ticks {
@@ -2119,9 +2156,9 @@
 
     .charts-sheet {
       display: flex;
-      flex: 0 0 42%;
+      flex: 1 1 auto;
       min-height: 0;
-      padding: 12px 16px calc(var(--bottom-nav-clearance) + 16px + env(safe-area-inset-bottom));
+      padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
       flex-direction: column;
       gap: 12px;
       background: oklch(0.90 0.008 285);
@@ -2170,47 +2207,70 @@
       min-height: 56px;
       align-items: center;
       padding: 8px 18px;
-      grid-template-columns: 1fr auto 22px;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 12px;
       border: 0;
       border-radius: 16px;
       background: var(--white);
       color: oklch(0.10 0 0);
-      cursor: pointer;
       font-size: 1rem;
       text-align: left;
-    }
-
-    .sheet-row[aria-pressed="true"] {
-      background: var(--row-color, oklch(0.72 0.18 50));
-      color: var(--white);
     }
 
     .sheet-row-value {
       color: oklch(0.52 0.006 270);
       font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
 
-    .sheet-row[aria-pressed="true"] .sheet-row-value {
-      color: oklch(1 0 0 / 0.88);
+    .life-factor-row {
+      padding: 0 12px 0 0;
+      grid-template-columns: minmax(0, 1fr) 30px;
+    }
+
+    .sheet-row-select {
+      display: grid;
+      min-width: 0;
+      min-height: 56px;
+      align-items: center;
+      padding: 8px 0 8px 18px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .life-factor-row.is-selected {
+      background: var(--row-color, oklch(0.68 0.21 35));
+      color: var(--white);
+    }
+
+    .life-factor-row.is-selected .sheet-row-value {
+      color: oklch(1 0 0 / 0.9);
     }
 
     .sheet-row-info {
       display: grid;
-      width: 20px;
-      height: 20px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
       place-items: center;
+      border: 0;
       border-radius: 50%;
-      background: oklch(0.52 0.006 270);
-      color: var(--white);
+      background: oklch(0.95 0.004 270);
+      color: oklch(0.10 0 0);
+      cursor: pointer;
       font-family: Georgia, serif;
-      font-size: 0.75rem;
+      font-size: 1rem;
       font-weight: 700;
     }
 
-    .sheet-row[aria-pressed="true"] .sheet-row-info {
-      background: oklch(1 0 0 / 0.92);
-      color: var(--row-color, oklch(0.72 0.18 50));
+    .life-factor-row.is-selected .sheet-row-info {
+      background: transparent;
+      color: oklch(0.08 0 0);
     }
 
     .sheet-empty {
@@ -2218,6 +2278,85 @@
       margin: 0;
       color: oklch(0.42 0.006 270);
       font-size: 0.9375rem;
+    }
+
+    .factor-info-view {
+      background: oklch(0.90 0.008 285);
+      color: oklch(0.10 0 0);
+    }
+
+    .factor-info-panel {
+      position: absolute;
+      top: var(--status-height);
+      right: 0;
+      bottom: 0;
+      left: 0;
+      overflow: hidden;
+      border-radius: 42px 42px 0 0;
+      background: oklch(0.96 0.006 285);
+    }
+
+    .factor-info-header {
+      display: grid;
+      height: 76px;
+      padding: 16px 16px 8px;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      align-items: start;
+    }
+
+    .factor-info-header h1 {
+      align-self: center;
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+
+    .factor-info-header .icon-button {
+      --ink: oklch(0.10 0 0);
+      --action-edge: oklch(0.92 0.006 270);
+      grid-column: 3;
+      justify-self: end;
+      border-color: oklch(0.92 0.006 270);
+      background: var(--white);
+    }
+
+    .factor-info-card {
+      padding: 18px 13px 16px;
+      margin: 0 13px;
+      border-radius: 24px;
+      background: var(--white);
+    }
+
+    .factor-info-card h2 {
+      margin: 0 0 6px;
+      font-size: 1.25rem;
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+
+    .factor-info-card p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.38;
+      text-wrap: pretty;
+    }
+
+    .factor-info-action {
+      width: 100%;
+      min-height: 52px;
+      margin-top: 20px;
+      border: 0;
+      border-radius: 14px;
+      background: oklch(0.92 0.004 270);
+      color: oklch(0.10 0 0);
+      cursor: pointer;
+      font-weight: 650;
+    }
+
+    .factor-info-action[hidden] {
+      display: none;
     }
 
     .sr-only {
@@ -3662,11 +3801,11 @@
           </div>
         </figure>
 
-        <figure class="chart-block">
-          <figcaption class="chart-caption" id="detail-caption">Trabajo</figcaption>
+        <figure class="chart-block detail-chart-block">
+          <figcaption class="chart-caption" id="detail-caption">Minutos de Ejercicio</figcaption>
           <div class="chart-body">
             <div class="chart-plot" id="detail-plot"></div>
-            <div class="chart-ylabels" id="detail-ylabels"><span>Muy agradable</span><span>Neutral</span><span>Muy desagradable</span></div>
+            <div class="chart-ylabels" id="detail-ylabels"><span>40</span><span>20</span><span>0</span></div>
           </div>
         </figure>
 
@@ -3680,9 +3819,26 @@
         <div class="sheet-tabs" id="sheet-tabs" role="tablist" aria-label="Desglose">
           <button class="sheet-tab" type="button" role="tab" data-sheet="states" aria-selected="true">Estados</button>
           <button class="sheet-tab" type="button" role="tab" data-sheet="associations" aria-selected="false">Asociaciones</button>
-          <button class="sheet-tab" type="button" role="tab" data-sheet="emotions" aria-selected="false">Emociones</button>
+          <button class="sheet-tab" type="button" role="tab" data-sheet="lifeFactors" aria-selected="false">Factores de vida</button>
         </div>
         <div class="sheet-list" id="sheet-list"></div>
+      </div>
+    </section>
+
+    <section class="view factor-info-view" data-view="factor-info" aria-labelledby="factor-info-view-title">
+      <div class="factor-info-panel">
+        <header class="factor-info-header">
+          <span aria-hidden="true"></span>
+          <h1 id="factor-info-view-title">Factor de vida</h1>
+          <button class="icon-button" type="button" data-go="charts" aria-label="Cerrar información del factor de vida">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 4 12 12M16 4 4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+        <article class="factor-info-card" aria-labelledby="factor-info-title">
+          <h2 id="factor-info-title"></h2>
+          <p id="factor-info-copy"></p>
+          <button class="factor-info-action" id="factor-info-action" type="button" hidden></button>
+        </article>
       </div>
     </section>
 
@@ -4071,7 +4227,6 @@
     const summaryView = document.querySelector('[data-view="summary"]');
     const rewardsView = document.querySelector('[data-view="rewards"]');
     const calendarView = document.querySelector('[data-view="calendar"]');
-    const chartsScroll = document.querySelector(".charts-scroll");
     const liveStatus = document.querySelector("#live-status");
     const emotionModal = document.querySelector("#emotion-modal");
     const feelingChips = document.querySelector("#feeling-chips");
@@ -4230,18 +4385,15 @@
       }
 
       const isSummary = name === "summary";
-      const showsBottomNav = ["summary", "calendar", "charts", "chat", "rewards"].includes(name);
-      const selectedTab = name === "charts" ? "summary" : name;
+      const showsBottomNav = ["summary", "calendar", "chat", "rewards"].includes(name);
+      const selectedTab = name;
       bottomNav.hidden = !showsBottomNav;
       if (showsBottomNav) {
         document.querySelectorAll("[data-tab]").forEach(tab => tab.setAttribute("aria-selected", String(tab.dataset.tab === selectedTab)));
       }
       if (isSummary) summaryView.scrollTop = 0;
       if (name === "rewards") rewardsView.scrollTop = 0;
-      if (name === "charts") {
-        renderCharts();
-        chartsScroll.scrollTop = 0;
-      }
+      if (name === "charts") renderCharts();
       if (name === "calendar") requestAnimationFrame(() => scrollToToday("auto"));
       else {
         document.querySelector("#calendar-help").classList.remove("is-open");
@@ -4294,7 +4446,7 @@
           : null;
 
         let shape = '<span aria-hidden="true"></span>';
-        if (dayTone) shape = `<span class="mood-shape" style="--day-color:${dayTone.color}" aria-hidden="true"></span>`;
+        if (dayTone) shape = `<img class="mood-shape" src="${flowerDetailSource(entry.mood)}" alt="" aria-hidden="true">`;
         else if (!isFuture) shape = '<span class="mood-ring" aria-hidden="true"></span>';
 
         const label = dayTone ? `${day} de ${name}, ${dayTone.label.toLocaleLowerCase("es")}` : `${day} de ${name}`;
@@ -4319,192 +4471,271 @@
       ].join("");
     };
 
-    // --- Gráficos: agrupa el MOOD_LOG por período y alimenta las dos series ---
+    // --- Gráficos: reproduce el desglose de la referencia por período calendario. ---
 
     const DAY_MS = 86400000;
-    const MONTH_SHORT = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
     const MONTH_INITIAL = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
-    const WEEKDAY_INITIAL = ["D", "L", "M", "X", "J", "V", "S"];
-    const MOOD_BANDS = ["Muy agradable", "Agradable", "Algo agradable", "Neutral", "Desagradable", "Muy desagradable"];
-    const BAND_SAMPLE = { "Muy agradable": 94, "Agradable": 80, "Algo agradable": 63, "Neutral": 44, "Desagradable": 24, "Muy desagradable": 7 };
 
-    const keyToDate = key => new Date(LOG_YEAR, Number(key.slice(0, 2)) - 1, Number(key.slice(3)));
-    const TODAY_DATE = keyToDate(TODAY_KEY);
-    const addDays = (date, amount) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + amount);
-    const shortDate = date => `${date.getDate()} ${MONTH_SHORT[date.getMonth()]}`;
-    const average = values => (values.length ? values.reduce((total, value) => total + value, 0) / values.length : 50);
+    const dayOffset = (date, start) => Math.round((date - start) / DAY_MS);
 
-    const chartEntries = Object.entries(MOOD_LOG).flatMap(([key, entry]) => {
-      const date = keyToDate(key);
+    const getChartEntries = () => Object.entries(MOOD_LOG).flatMap(([key, entry]) => {
+      const date = new Date(LOG_YEAR, Number(key.slice(0, 2)) - 1, Number(key.slice(3)));
       const daily = entry.mood === null
         ? []
         : [{ date, value: entry.mood, name: "Estado de ánimo diario", kind: "mood", factors: entry.factors }];
-      return daily.concat(entry.emotions.map(emotion => (
-        { date, value: emotion.value, name: emotion.name, kind: "emotion", factors: entry.factors }
-      )));
+      return daily.concat(entry.emotions.map(emotion => ({
+        date,
+        value: emotion.value,
+        name: emotion.name,
+        kind: "emotion",
+        factors: entry.factors
+      })));
     });
 
+    const ASSOCIATION_CATALOG = ["Amistades", "Autocuidado", "Clima", "Comunidad"];
+
+    const LIFE_FACTORS = [
+      {
+        id: "exercise",
+        label: "Minutos de Ejercicio",
+        color: "oklch(0.68 0.21 35)",
+        max: 40,
+        unit: "min",
+        samples: [["07-10", 28], ["07-12", 40], ["07-15", 18], ["07-18", 36], ["07-20", 24], ["07-23", 12], ["07-25", 40], ["07-27", 32], ["07-31", 22], ["08-02", 38], ["08-05", 16], ["08-08", 34]],
+        yLabels: ["40", "20", "0"],
+        infoTitle: "Minutos de ejercicio y salud mental",
+        infoCopy: "Se trata de un cálculo de los minutos de actividad intensa realizados. Ejercitarse por lo menos 30 minutos al día brinda muchos beneficios físicos y mentales. En cuestión de salud mental, el ejercicio puede promover sentimientos positivos y disminuir el estrés, la ansiedad o la depresión.",
+        action: null
+      },
+      {
+        id: "mindfulness",
+        label: "Minutos de conciencia",
+        color: "oklch(0.68 0.21 35)",
+        max: 40,
+        unit: "min",
+        samples: [["07-10", 10], ["07-14", 8], ["07-18", 20], ["07-20", 12], ["07-23", 6], ["07-26", 18], ["07-29", 10], ["08-02", 22], ["08-04", 8], ["08-06", 15], ["08-08", 20]],
+        yLabels: ["40", "20", "0"],
+        infoTitle: "Minutos de atención plena y salud mental",
+        infoCopy: "Representa el número de minutos de atención plena registrados. La atención plena es un estado de atención activa y abierta en el presente. Permite observar los pensamientos y sentimientos desde otra perspectiva, sin juzgarlos. Practicarla unos cuantos minutos diarios puede reducir la ansiedad, disminuir el estrés y mejorar el estado de ánimo.",
+        action: "Registrar minutos de conciencia"
+      },
+      {
+        id: "sleep",
+        label: "Sueño",
+        color: "oklch(0.68 0.21 35)",
+        max: 12,
+        unit: "h",
+        samples: [["07-10", 7.4], ["07-12", 8.1], ["07-15", 6.2], ["07-18", 7.8], ["07-20", 7.1], ["07-23", 5.9], ["07-25", 8.3], ["07-27", 7.6], ["07-31", 6.8], ["08-02", 8], ["08-05", 6.4], ["08-08", 7.7]],
+        yLabels: ["12 h", "6 h", "0"],
+        infoTitle: "Sueño y salud mental",
+        infoCopy: "Este es un cálculo de la cantidad de tiempo que se pasa durmiendo en la cama. El sueño ayuda a reparar el cuerpo y dar mantenimiento a funciones importantes como la memoria y el sistema inmunológico. Dormir bien por la noche puede mejorar el estado de ánimo y la capacidad para tolerar emociones negativas. También facilita responder adecuadamente a los altibajos cotidianos.",
+        action: "Registra tu sueño"
+      },
+      {
+        id: "sunlight",
+        label: "Tiempo de exposición al sol",
+        color: "oklch(0.68 0.21 35)",
+        max: 120,
+        unit: "min",
+        samples: [["07-10", 35], ["07-12", 70], ["07-15", 20], ["07-18", 90], ["07-20", 45], ["07-23", 18], ["07-25", 80], ["07-27", 65], ["07-31", 30], ["08-02", 75], ["08-05", 25], ["08-08", 60]],
+        yLabels: ["120", "60", "0"],
+        infoTitle: "Exposición al sol y salud mental",
+        infoCopy: "Este es un cálculo de la cantidad de tiempo que se pasa bajo la luz del sol. Permanecer 20 minutos al aire libre todos los días puede ser benéfico para la salud física y mental al mejorar el estado de ánimo, reducir el estrés y hacer que sea más fácil conciliar el sueño de noche.",
+        action: "Registrar exposición al sol"
+      }
+    ];
+
+    const getLifeFactorEntries = (factor, scope) => factor.samples
+      .map(([key, rawValue]) => ({
+        date: new Date(LOG_YEAR, Number(key.slice(0, 2)) - 1, Number(key.slice(3))),
+        value: rawValue / factor.max * 100,
+        rawValue
+      }))
+      .filter(entry => scope.indexOf(entry.date) >= 0);
+
+    const lifeFactorSummary = (factor, scope) => {
+      const entries = getLifeFactorEntries(factor, scope);
+      if (!entries.length) return "--";
+      const average = entries.reduce((total, entry) => total + entry.rawValue, 0) / entries.length;
+      return factor.unit === "h" ? `${average.toFixed(1).replace(".", ",")} h` : `${Math.round(average)} min`;
+    };
+
     const buildScope = range => {
-      if (range === "year") {
+      if (range === "week") {
+        const start = new Date(LOG_YEAR, 7, 3);
         return {
-          grouped: true,
-          count: 12,
-          gridStep: 1,
-          span: String(LOG_YEAR),
-          ticks: MONTH_INITIAL,
-          indexOf: date => (date.getFullYear() === LOG_YEAR ? date.getMonth() : -1)
+          count: 7,
+          gridLines: Array.from({ length: 7 }, (_, index) => index),
+          span: "ago 3–9, 2026",
+          ticks: ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"],
+          indexOf: date => {
+            const index = dayOffset(date, start);
+            return index >= 0 && index < 7 ? index : -1;
+          }
         };
       }
+
+      if (range === "month") {
+        const count = 30;
+        const start = new Date(LOG_YEAR, 6, 10);
+        const tickLabels = new Map([[0, "10"], [7, "17"], [14, "24"], [21, "31"], [28, "7"]]);
+        return {
+          count,
+          gridLines: [0, 7, 14, 21, 28],
+          span: "10 jul – 8 ago 2026",
+          ticks: Array.from({ length: count }, (_, index) => tickLabels.get(index) || ""),
+          indexOf: date => {
+            const index = dayOffset(date, start);
+            return index >= 0 && index < count ? index : -1;
+          }
+        };
+      }
+
       if (range === "halfYear") {
         const count = 26;
-        const start = addDays(TODAY_DATE, -(count * 7 - 1));
+        const start = new Date(LOG_YEAR, 5, 29);
+        const tickMonths = new Map([[0, "jul"], [5, "ago"], [10, "sept"], [14, "oct"], [18, "nov"], [23, "dic"]]);
         return {
-          grouped: true,
           count,
-          gridStep: 4,
-          span: `${shortDate(start)} – ${shortDate(TODAY_DATE)} ${LOG_YEAR}`,
-          ticks: Array.from({ length: count }, (_, index) => {
-            const week = addDays(start, index * 7);
-            const previous = index === 0 ? null : addDays(start, (index - 1) * 7);
-            return previous && previous.getMonth() === week.getMonth() ? "" : MONTH_INITIAL[week.getMonth()];
-          }),
+          gridLines: [0.5, 5.5, 10.5, 14.5, 18.5, 23.5],
+          span: "jun 29–dic 27, 2026",
+          ticks: Array.from({ length: count }, (_, index) => tickMonths.get(index) || ""),
           indexOf: date => {
             const index = Math.floor((date - start) / (7 * DAY_MS));
             return index >= 0 && index < count ? index : -1;
           }
         };
       }
-      const count = range === "week" ? 7 : 30;
-      const start = addDays(TODAY_DATE, -(count - 1));
+
       return {
-        grouped: false,
-        count,
-        gridStep: range === "week" ? 1 : 7,
-        span: `${shortDate(start)} – ${shortDate(TODAY_DATE)} ${LOG_YEAR}`,
-        ticks: Array.from({ length: count }, (_, index) => {
-          const day = addDays(start, index);
-          if (range === "week") return WEEKDAY_INITIAL[day.getDay()];
-          return index % 7 === 0 ? String(day.getDate()) : "";
-        }),
-        indexOf: date => {
-          const index = Math.round((date - start) / DAY_MS);
-          return index >= 0 && index < count ? index : -1;
-        }
+        count: 12,
+        gridLines: Array.from({ length: 12 }, (_, index) => index),
+        span: String(LOG_YEAR),
+        ticks: MONTH_INITIAL,
+        indexOf: date => date.getFullYear() === LOG_YEAR ? date.getMonth() : -1
       };
     };
 
     // Deja aire arriba y abajo para que los puntos extremos no queden cortados por el borde.
     const plotY = value => 4 + (100 - value) * 0.92;
 
-    const renderPlot = (node, entries, scope) => {
-      node.style.setProperty("--cols", scope.count);
-      node.style.setProperty("--grid-step", scope.gridStep);
-
+    const renderPlot = (node, entries, scope, seriesColor = null) => {
       const columns = Array.from({ length: scope.count }, () => []);
       entries.forEach(entry => {
         const index = scope.indexOf(entry.date);
         if (index >= 0) columns[index].push(entry.value);
       });
 
-      node.innerHTML = columns.map((values, index) => {
+      const gridLines = scope.gridLines.map(position => {
+        const x = `${(position / scope.count * 100).toFixed(3)}%`;
+        return `<span class="chart-gridline" style="--x:${x}" aria-hidden="true"></span>`;
+      }).join("");
+
+      const marks = columns.map((values, index) => {
         if (!values.length) return "";
         const x = `${((index + 0.5) / scope.count * 100).toFixed(3)}%`;
-        if (!scope.grouped) {
-          return values.map(value =>
-            `<span class="chart-dot" style="--x:${x};--y:${plotY(value).toFixed(2)}%;--c:${moodTone(value).color}"></span>`
-          ).join("");
+        if (values.length === 1) {
+          const value = values[0];
+          const color = seriesColor || moodTone(value).color;
+          return `<span class="chart-dot" style="--x:${x};--y:${plotY(value).toFixed(2)}%;--c:${color}"></span>`;
         }
         const highest = Math.max(...values);
         const lowest = Math.min(...values);
         const top = plotY(highest);
-        return `<span class="chart-capsule" style="--x:${x};--top:${top.toFixed(2)}%;--h:${(plotY(lowest) - top).toFixed(2)}%;--c-top:${moodTone(highest).color};--c-bottom:${moodTone(lowest).color}"></span>`;
+        const topColor = seriesColor || moodTone(highest).color;
+        const bottomColor = seriesColor || moodTone(lowest).color;
+        return `<span class="chart-capsule" style="--x:${x};--top:${top.toFixed(2)}%;--h:${(plotY(lowest) - top).toFixed(2)}%;--c-top:${topColor};--c-bottom:${bottomColor}"></span>`;
       }).join("");
-    };
 
-    const byCount = (a, b) => b.count - a.count || a.label.localeCompare(b.label, "es");
+      node.innerHTML = gridLines + marks;
+    };
 
     const buildSheetItems = (tab, entries) => {
       if (tab === "states") {
-        return MOOD_BANDS.map(label => {
-          const matches = entries.filter(entry => moodName(entry.value) === label);
-          return {
-            id: label,
-            label,
-            count: matches.length,
-            unit: "entrada",
-            color: moodTone(BAND_SAMPLE[label]).color,
-            select: list => list.filter(entry => moodName(entry.value) === label)
-          };
-        }).filter(item => item.count > 0);
+        return [
+          { id: "daily", label: "Estados de ánimo diarios", count: entries.filter(entry => entry.kind === "mood").length },
+          { id: "momentary", label: "Emociones momentáneas", count: entries.filter(entry => entry.kind === "emotion").length }
+        ];
       }
 
       if (tab === "associations") {
-        return [...new Set(entries.flatMap(entry => entry.factors))].map(factor => {
-          const select = list => list.filter(entry => entry.kind === "mood" && entry.factors.includes(factor));
-          const matches = select(entries);
-          return {
-            id: factor,
-            label: factor,
-            count: matches.length,
-            unit: "día",
-            color: moodTone(average(matches.map(entry => entry.value))).color,
-            select
-          };
-        }).filter(item => item.count > 0).sort(byCount);
+        return ASSOCIATION_CATALOG.map(label => ({
+          id: label,
+          label,
+          count: entries.filter(entry => entry.factors.includes(label)).length
+        }));
       }
 
-      return [...new Set(entries.filter(entry => entry.kind === "emotion").map(entry => entry.name))].map(name => {
-        const select = list => list.filter(entry => entry.kind === "emotion" && entry.name === name);
-        const matches = select(entries);
-        return {
-          id: name,
-          label: name,
-          count: matches.length,
-          unit: "entrada",
-          color: moodTone(average(matches.map(entry => entry.value))).color,
-          select
-        };
-      }).sort(byCount);
+      return LIFE_FACTORS;
     };
+
+    const entryCountLabel = count => count > 0 ? `${count} entrada${count === 1 ? "" : "s"}` : "--";
 
     const chartState = {
       range: "month",
       tab: "states",
-      selection: { states: null, associations: null, emotions: null }
+      lifeFactor: LIFE_FACTORS[0].id
     };
 
+    const chartsView = document.querySelector('[data-view="charts"]');
     const moodPlot = document.querySelector("#mood-plot");
     const detailPlot = document.querySelector("#detail-plot");
     const detailCaption = document.querySelector("#detail-caption");
+    const detailYLabels = document.querySelector("#detail-ylabels");
     const axisTicks = document.querySelector("#chart-axis-ticks");
     const sheetList = document.querySelector("#sheet-list");
+    const factorInfoTitle = document.querySelector("#factor-info-title");
+    const factorInfoCopy = document.querySelector("#factor-info-copy");
+    const factorInfoAction = document.querySelector("#factor-info-action");
+
+    const renderFactorInfo = id => {
+      const factor = LIFE_FACTORS.find(item => item.id === id) || LIFE_FACTORS[0];
+      factorInfoTitle.textContent = factor.infoTitle;
+      factorInfoCopy.textContent = factor.infoCopy;
+      factorInfoAction.hidden = !factor.action;
+      factorInfoAction.textContent = factor.action || "";
+    };
 
     const renderCharts = () => {
       const scope = buildScope(chartState.range);
-      const entries = chartEntries.filter(entry => scope.indexOf(entry.date) >= 0);
+      const entries = getChartEntries().filter(entry => scope.indexOf(entry.date) >= 0);
+      const hasDetail = chartState.tab === "lifeFactors";
+      const selectedFactor = LIFE_FACTORS.find(item => item.id === chartState.lifeFactor) || LIFE_FACTORS[0];
+      const factorEntries = hasDetail ? getLifeFactorEntries(selectedFactor, scope) : [];
 
       document.querySelector("#charts-total-count").textContent = entries.length;
       document.querySelector("#charts-total-unit").textContent = entries.length === 1 ? "entrada" : "entradas";
       document.querySelector("#charts-total-range").textContent = scope.span;
 
+      chartsView.classList.toggle("has-detail", hasDetail);
       renderPlot(moodPlot, entries, scope);
       axisTicks.innerHTML = scope.ticks.map(tick => `<span>${tick}</span>`).join("");
 
+      if (hasDetail) {
+        detailCaption.textContent = selectedFactor.label;
+        detailYLabels.innerHTML = selectedFactor.yLabels.map(label => `<span>${label}</span>`).join("");
+        renderPlot(detailPlot, factorEntries, scope, selectedFactor.color);
+      } else {
+        detailPlot.innerHTML = "";
+      }
+
       const items = buildSheetItems(chartState.tab, entries);
-      const selected = items.find(item => item.id === chartState.selection[chartState.tab]) || items[0] || null;
-      chartState.selection[chartState.tab] = selected ? selected.id : null;
-
-      sheetList.innerHTML = items.length
-        ? items.map(item => `
-          <button class="sheet-row" type="button" data-sheet-item="${item.id}" style="--row-color:${item.color}" aria-pressed="${item === selected}">
+      if (hasDetail) {
+        sheetList.innerHTML = items.map(item => `
+          <div class="sheet-row life-factor-row${item.id === selectedFactor.id ? " is-selected" : ""}" style="--row-color:${item.color}">
+            <button class="sheet-row-select" type="button" data-sheet-item="${item.id}" aria-pressed="${item.id === selectedFactor.id}">
+              <span>${item.label}</span>
+              <span class="sheet-row-value">${lifeFactorSummary(item, scope)}</span>
+            </button>
+            <button class="sheet-row-info" type="button" data-factor-info="${item.id}" aria-label="Más información sobre ${item.label}">i</button>
+          </div>`).join("");
+      } else {
+        sheetList.innerHTML = items.map(item => `
+          <div class="sheet-row sheet-row--summary">
             <span>${item.label}</span>
-            <span class="sheet-row-value">${item.count} ${item.unit}${item.count === 1 ? "" : "s"}</span>
-            <span class="sheet-row-info" aria-hidden="true">i</span>
-          </button>`).join("")
-        : '<p class="sheet-empty">Sin registros en este período.</p>';
-
-      detailCaption.textContent = selected ? selected.label : "Sin datos";
-      renderPlot(detailPlot, selected ? selected.select(entries) : [], scope);
+            <span class="sheet-row-value">${entryCountLabel(item.count)}</span>
+          </div>`).join("");
+      }
     };
 
     document.querySelector("#range-segmented").addEventListener("mousedown", event => {
@@ -4519,7 +4750,6 @@
       document.querySelectorAll("[data-range]").forEach(option => {
         option.setAttribute("aria-selected", String(option === button));
       });
-      chartsScroll.scrollTop = 0;
       renderCharts();
     });
 
@@ -4534,9 +4764,16 @@
     });
 
     sheetList.addEventListener("click", event => {
+      const infoButton = event.target.closest("[data-factor-info]");
+      if (infoButton) {
+        renderFactorInfo(infoButton.dataset.factorInfo);
+        showView("factor-info");
+        return;
+      }
+
       const button = event.target.closest("[data-sheet-item]");
-      if (!button) return;
-      chartState.selection[chartState.tab] = button.dataset.sheetItem;
+      if (!button || chartState.tab !== "lifeFactors") return;
+      chartState.lifeFactor = button.dataset.sheetItem;
       renderCharts();
     });
 
@@ -5033,6 +5270,7 @@
       }
       else if (chatHelpOverlay.classList.contains("is-open")) chatHelpOverlay.classList.remove("is-open");
       else if (chatClearBackdrop.classList.contains("is-open")) chatClearBackdrop.classList.remove("is-open");
+      else if (currentView === "factor-info") showView("charts");
       else if (["charts", "rewards"].includes(currentView)) showView("summary");
     });
 
