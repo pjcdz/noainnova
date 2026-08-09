@@ -860,6 +860,12 @@
       background: oklch(0.25 0.006 270);
     }
 
+    .summary-header .icon-button.emergency-button {
+      --ink: oklch(0.5 0.2 28);
+      background: transparent;
+      border: none;
+    }
+
     .summary-header h1 {
       align-self: center;
       margin: 52px 0 0;
@@ -1804,6 +1810,314 @@
       cursor: pointer;
     }
 
+    .charts-view {
+      background: oklch(0.90 0.008 285);
+      color: oklch(0.10 0 0);
+    }
+
+    .charts-view.is-active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .charts-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      background: var(--white);
+      border-radius: 42px 42px 0 0;
+      overscroll-behavior: contain;
+    }
+
+    .charts-header {
+      position: sticky;
+      z-index: var(--z-sticky);
+      top: 0;
+      display: grid;
+      height: 105px;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: end;
+      padding: var(--status-height) 16px 10px;
+      background: oklch(1 0 0 / 0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .charts-header .icon-button {
+      --ink: oklch(0.34 0.006 270);
+      --action-edge: oklch(0.90 0.006 270);
+      border-color: transparent;
+      background: oklch(0.91 0.006 270);
+    }
+
+    .charts-title {
+      margin: 0;
+      font-size: 1.125rem;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+
+    .range-segmented {
+      display: grid;
+      margin: 6px 16px 0;
+      padding: 2px;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: 2px;
+      border-radius: 9px;
+      background: oklch(0.91 0.006 270);
+    }
+
+    .range-option {
+      min-height: 32px;
+      padding: 0;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: oklch(0.14 0 0);
+      cursor: pointer;
+      font-size: 0.8125rem;
+      font-weight: 550;
+    }
+
+    .range-option[aria-selected="true"] {
+      background: var(--white);
+      box-shadow: 0 3px 8px oklch(0 0 0 / 0.12);
+      font-weight: 650;
+    }
+
+    .charts-total {
+      padding: 12px 16px 0;
+    }
+
+    .charts-total-label {
+      margin: 0;
+      color: oklch(0.55 0.006 270);
+      font-size: 0.8125rem;
+      letter-spacing: 0.02em;
+    }
+
+    .charts-total-value {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin: 2px 0 0;
+      font-size: 1.125rem;
+      font-weight: 500;
+    }
+
+    .charts-total-value strong {
+      font-size: 2rem;
+      font-weight: 640;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .charts-total-range {
+      margin: 3px 0 0;
+      color: oklch(0.55 0.006 270);
+      font-size: 1rem;
+    }
+
+    .chart-block {
+      padding: 10px 16px 0;
+      margin: 0;
+    }
+
+    .chart-caption {
+      margin: 0 0 4px;
+      color: oklch(0.42 0.006 270);
+      font-size: 0.9375rem;
+    }
+
+    .chart-body {
+      display: grid;
+      grid-template-columns: 1fr 78px;
+      gap: 8px;
+    }
+
+    .chart-plot {
+      position: relative;
+      height: 78px;
+      border-right: 1px solid oklch(0.84 0.006 270);
+      border-bottom: 1px solid oklch(0.84 0.006 270);
+      background:
+        repeating-linear-gradient(to bottom,
+          oklch(0.91 0.006 270) 0 1px,
+          transparent 1px 25%);
+    }
+
+    /* Verticales punteadas: el degradé dibuja las columnas y la máscara las corta en puntos. */
+    .chart-plot::before {
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(to right,
+          oklch(0.83 0.006 270) 0 1px,
+          transparent 1px calc(100% * var(--grid-step, 1) / var(--cols)));
+      content: "";
+      pointer-events: none;
+      -webkit-mask: repeating-linear-gradient(to bottom, oklch(0 0 0) 0 2px, transparent 2px 5px);
+      mask: repeating-linear-gradient(to bottom, oklch(0 0 0) 0 2px, transparent 2px 5px);
+    }
+
+    .chart-dot,
+    .chart-capsule {
+      position: absolute;
+      left: var(--x);
+      background: var(--c);
+      transform: translate(-50%, 0);
+    }
+
+    .chart-dot {
+      top: var(--y);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .chart-capsule {
+      top: var(--top);
+      width: 6px;
+      height: var(--h);
+      min-height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(to bottom, var(--c-top), var(--c-bottom));
+    }
+
+    .chart-ylabels {
+      display: flex;
+      height: 78px;
+      flex-direction: column;
+      justify-content: space-between;
+      color: oklch(0.62 0.006 270);
+      font-size: 0.8125rem;
+      line-height: 1.1;
+    }
+
+    .chart-axis {
+      display: grid;
+      padding: 0 16px 12px;
+      grid-template-columns: 1fr 78px;
+      gap: 8px;
+    }
+
+    .chart-axis-ticks {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      padding-top: 5px;
+      color: oklch(0.62 0.006 270);
+      font-size: 0.75rem;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .charts-sheet {
+      display: flex;
+      flex: 0 0 42%;
+      min-height: 240px;
+      max-height: 46%;
+      padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+      flex-direction: column;
+      gap: 12px;
+      background: oklch(0.90 0.008 285);
+    }
+
+    .sheet-tabs {
+      display: grid;
+      padding: 2px;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: 2px;
+      border-radius: 9px;
+      background: oklch(0.84 0.008 285);
+    }
+
+    .sheet-tab {
+      min-height: 32px;
+      padding: 0 4px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: oklch(0.14 0 0);
+      cursor: pointer;
+      font-size: 0.8125rem;
+      font-weight: 550;
+    }
+
+    .sheet-tab[aria-selected="true"] {
+      background: var(--white);
+      box-shadow: 0 3px 8px oklch(0 0 0 / 0.12);
+      font-weight: 650;
+    }
+
+    .sheet-list {
+      display: grid;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      align-content: start;
+      gap: 8px;
+      overscroll-behavior: contain;
+    }
+
+    .sheet-row {
+      display: grid;
+      min-height: 56px;
+      align-items: center;
+      padding: 8px 18px;
+      grid-template-columns: 1fr auto 22px;
+      gap: 12px;
+      border: 0;
+      border-radius: 16px;
+      background: var(--white);
+      color: oklch(0.10 0 0);
+      cursor: pointer;
+      font-size: 1rem;
+      text-align: left;
+    }
+
+    .sheet-row[aria-pressed="true"] {
+      background: var(--row-color, oklch(0.72 0.18 50));
+      color: var(--white);
+    }
+
+    .sheet-row-value {
+      color: oklch(0.52 0.006 270);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sheet-row[aria-pressed="true"] .sheet-row-value {
+      color: oklch(1 0 0 / 0.88);
+    }
+
+    .sheet-row-info {
+      display: grid;
+      width: 20px;
+      height: 20px;
+      place-items: center;
+      border-radius: 50%;
+      background: oklch(0.52 0.006 270);
+      color: var(--white);
+      font-family: Georgia, serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .sheet-row[aria-pressed="true"] .sheet-row-info {
+      background: oklch(1 0 0 / 0.92);
+      color: var(--row-color, oklch(0.72 0.18 50));
+    }
+
+    .sheet-empty {
+      padding: 18px 4px;
+      margin: 0;
+      color: oklch(0.42 0.006 270);
+      font-size: 0.9375rem;
+    }
+
     .sr-only {
       position: absolute;
       width: 1px;
@@ -2475,6 +2789,9 @@
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M11.5 3.25 5.75 9l5.75 5.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <h1 id="summary-title">Estado de ánimo</h1>
+        <button class="icon-button emergency-button" id="summary-emergency" type="button" aria-label="Línea de prevención del suicidio">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4.2 2.6 6.4 3c.4.1.7.4.8.8l.5 1.9c.1.4 0 .8-.3 1.1l-1.2 1.2c.7 1.6 2 2.9 3.6 3.6l1.2-1.2c.3-.3.7-.4 1.1-.3l1.9.5c.4.1.7.4.8.8l.4 2.2c.1.5-.3 1-.8 1-5.8.3-10.9-4.8-10.6-10.6 0-.5.5-.9 1-.8Z" fill="oklch(0.965 0.006 270)" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        </button>
       </header>
 
       <div class="summary-content">
@@ -2488,7 +2805,7 @@
           <div id="day-state"></div>
         </section>
 
-        <button class="charts-button" type="button">Ver en gráficos</button>
+        <button class="charts-button" type="button" data-go="charts">Ver en gráficos</button>
 
         <section class="about-section" aria-labelledby="about-title">
           <h2 id="about-title">Acerca del estado de ánimo</h2>
@@ -2597,6 +2914,61 @@
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m3 3 8 8M11 3l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
       </aside>
+    </section>
+
+    <section class="view charts-view" data-view="charts" aria-labelledby="charts-title">
+      <div class="charts-scroll">
+        <header class="charts-header">
+          <span aria-hidden="true"></span>
+          <h1 class="charts-title" id="charts-title" tabindex="-1">Estado de ánimo</h1>
+          <button class="icon-button" type="button" data-go="summary" aria-label="Cerrar gráficos">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 4 12 12M16 4 4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+
+        <div class="range-segmented" id="range-segmented" role="tablist" aria-label="Período">
+          <button class="range-option" type="button" role="tab" data-range="week" aria-selected="false">S</button>
+          <button class="range-option" type="button" role="tab" data-range="month" aria-selected="true">M</button>
+          <button class="range-option" type="button" role="tab" data-range="halfYear" aria-selected="false">6 M</button>
+          <button class="range-option" type="button" role="tab" data-range="year" aria-selected="false">A</button>
+        </div>
+
+        <div class="charts-total">
+          <p class="charts-total-label">TOTAL</p>
+          <p class="charts-total-value"><strong id="charts-total-count">0</strong> <span id="charts-total-unit">entradas</span></p>
+          <p class="charts-total-range" id="charts-total-range"></p>
+        </div>
+
+        <figure class="chart-block">
+          <figcaption class="chart-caption">Estado de ánimo</figcaption>
+          <div class="chart-body">
+            <div class="chart-plot" id="mood-plot"></div>
+            <div class="chart-ylabels"><span>Muy agradable</span><span>Neutral</span><span>Muy desagradable</span></div>
+          </div>
+        </figure>
+
+        <figure class="chart-block">
+          <figcaption class="chart-caption" id="detail-caption">Trabajo</figcaption>
+          <div class="chart-body">
+            <div class="chart-plot" id="detail-plot"></div>
+            <div class="chart-ylabels" id="detail-ylabels"><span>Muy agradable</span><span>Neutral</span><span>Muy desagradable</span></div>
+          </div>
+        </figure>
+
+        <div class="chart-axis">
+          <div class="chart-axis-ticks" id="chart-axis-ticks" aria-hidden="true"></div>
+          <span></span>
+        </div>
+      </div>
+
+      <div class="charts-sheet">
+        <div class="sheet-tabs" id="sheet-tabs" role="tablist" aria-label="Desglose">
+          <button class="sheet-tab" type="button" role="tab" data-sheet="states" aria-selected="true">Estados</button>
+          <button class="sheet-tab" type="button" role="tab" data-sheet="associations" aria-selected="false">Asociaciones</button>
+          <button class="sheet-tab" type="button" role="tab" data-sheet="emotions" aria-selected="false">Emociones</button>
+        </div>
+        <div class="sheet-list" id="sheet-list"></div>
+      </div>
     </section>
 
     <section class="view chat-view" data-view="chat" aria-labelledby="chat-title">
@@ -2767,6 +3139,7 @@
     const bottomNav = document.querySelector("#bottom-nav");
     const summaryView = document.querySelector('[data-view="summary"]');
     const calendarView = document.querySelector('[data-view="calendar"]');
+    const chartsScroll = document.querySelector(".charts-scroll");
     const liveStatus = document.querySelector("#live-status");
     const emotionModal = document.querySelector("#emotion-modal");
     const feelingChips = document.querySelector("#feeling-chips");
@@ -2892,10 +3265,14 @@
       if (showsBottomNav) {
         document.querySelectorAll("[data-tab]").forEach(tab => tab.setAttribute("aria-selected", String(tab.dataset.tab === name)));
       }
-      const lateView = ["summary", "calendar"].includes(name);
+      const lateView = ["summary", "calendar", "charts"].includes(name);
       statusTime.textContent = lateView ? "21:27" : "21:26";
       batteryLevel.textContent = lateView ? "77" : (Number(moodRange.value) <= 55 ? "78" : "77");
       if (isSummary) summaryView.scrollTop = 0;
+      if (name === "charts") {
+        renderCharts();
+        chartsScroll.scrollTop = 0;
+      }
       if (name === "calendar") requestAnimationFrame(() => scrollToToday("auto"));
       else {
         document.querySelector("#calendar-help").classList.remove("is-open");
@@ -2969,6 +3346,221 @@
         renderMonth({ name: "Ago", month: "08", startOffset: 5, firstDay: 1, lastDay: 31 })
       ].join("");
     };
+
+    // --- Gráficos: agrupa el MOOD_LOG por período y alimenta las dos series ---
+
+    const DAY_MS = 86400000;
+    const MONTH_SHORT = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    const MONTH_INITIAL = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+    const WEEKDAY_INITIAL = ["D", "L", "M", "X", "J", "V", "S"];
+    const MOOD_BANDS = ["Muy agradable", "Agradable", "Algo agradable", "Neutral", "Desagradable", "Muy desagradable"];
+    const BAND_SAMPLE = { "Muy agradable": 94, "Agradable": 80, "Algo agradable": 63, "Neutral": 44, "Desagradable": 24, "Muy desagradable": 7 };
+
+    const keyToDate = key => new Date(LOG_YEAR, Number(key.slice(0, 2)) - 1, Number(key.slice(3)));
+    const TODAY_DATE = keyToDate(TODAY_KEY);
+    const addDays = (date, amount) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + amount);
+    const shortDate = date => `${date.getDate()} ${MONTH_SHORT[date.getMonth()]}`;
+    const average = values => (values.length ? values.reduce((total, value) => total + value, 0) / values.length : 50);
+
+    const chartEntries = Object.entries(MOOD_LOG).flatMap(([key, entry]) => {
+      const date = keyToDate(key);
+      const daily = entry.mood === null
+        ? []
+        : [{ date, value: entry.mood, name: "Estado de ánimo diario", kind: "mood", factors: entry.factors }];
+      return daily.concat(entry.emotions.map(emotion => (
+        { date, value: emotion.value, name: emotion.name, kind: "emotion", factors: entry.factors }
+      )));
+    });
+
+    const buildScope = range => {
+      if (range === "year") {
+        return {
+          grouped: true,
+          count: 12,
+          gridStep: 1,
+          span: String(LOG_YEAR),
+          ticks: MONTH_INITIAL,
+          indexOf: date => (date.getFullYear() === LOG_YEAR ? date.getMonth() : -1)
+        };
+      }
+      if (range === "halfYear") {
+        const count = 26;
+        const start = addDays(TODAY_DATE, -(count * 7 - 1));
+        return {
+          grouped: true,
+          count,
+          gridStep: 4,
+          span: `${shortDate(start)} – ${shortDate(TODAY_DATE)} ${LOG_YEAR}`,
+          ticks: Array.from({ length: count }, (_, index) => {
+            const week = addDays(start, index * 7);
+            const previous = index === 0 ? null : addDays(start, (index - 1) * 7);
+            return previous && previous.getMonth() === week.getMonth() ? "" : MONTH_INITIAL[week.getMonth()];
+          }),
+          indexOf: date => {
+            const index = Math.floor((date - start) / (7 * DAY_MS));
+            return index >= 0 && index < count ? index : -1;
+          }
+        };
+      }
+      const count = range === "week" ? 7 : 30;
+      const start = addDays(TODAY_DATE, -(count - 1));
+      return {
+        grouped: false,
+        count,
+        gridStep: range === "week" ? 1 : 7,
+        span: `${shortDate(start)} – ${shortDate(TODAY_DATE)} ${LOG_YEAR}`,
+        ticks: Array.from({ length: count }, (_, index) => {
+          const day = addDays(start, index);
+          if (range === "week") return WEEKDAY_INITIAL[day.getDay()];
+          return index % 7 === 0 ? String(day.getDate()) : "";
+        }),
+        indexOf: date => {
+          const index = Math.round((date - start) / DAY_MS);
+          return index >= 0 && index < count ? index : -1;
+        }
+      };
+    };
+
+    // Deja aire arriba y abajo para que los puntos extremos no queden cortados por el borde.
+    const plotY = value => 4 + (100 - value) * 0.92;
+
+    const renderPlot = (node, entries, scope) => {
+      node.style.setProperty("--cols", scope.count);
+      node.style.setProperty("--grid-step", scope.gridStep);
+
+      const columns = Array.from({ length: scope.count }, () => []);
+      entries.forEach(entry => {
+        const index = scope.indexOf(entry.date);
+        if (index >= 0) columns[index].push(entry.value);
+      });
+
+      node.innerHTML = columns.map((values, index) => {
+        if (!values.length) return "";
+        const x = `${((index + 0.5) / scope.count * 100).toFixed(3)}%`;
+        if (!scope.grouped) {
+          return values.map(value =>
+            `<span class="chart-dot" style="--x:${x};--y:${plotY(value).toFixed(2)}%;--c:${moodTone(value).color}"></span>`
+          ).join("");
+        }
+        const highest = Math.max(...values);
+        const lowest = Math.min(...values);
+        const top = plotY(highest);
+        return `<span class="chart-capsule" style="--x:${x};--top:${top.toFixed(2)}%;--h:${(plotY(lowest) - top).toFixed(2)}%;--c-top:${moodTone(highest).color};--c-bottom:${moodTone(lowest).color}"></span>`;
+      }).join("");
+    };
+
+    const byCount = (a, b) => b.count - a.count || a.label.localeCompare(b.label, "es");
+
+    const buildSheetItems = (tab, entries) => {
+      if (tab === "states") {
+        return MOOD_BANDS.map(label => {
+          const matches = entries.filter(entry => moodName(entry.value) === label);
+          return {
+            id: label,
+            label,
+            count: matches.length,
+            unit: "entrada",
+            color: moodTone(BAND_SAMPLE[label]).color,
+            select: list => list.filter(entry => moodName(entry.value) === label)
+          };
+        }).filter(item => item.count > 0);
+      }
+
+      if (tab === "associations") {
+        return [...new Set(entries.flatMap(entry => entry.factors))].map(factor => {
+          const select = list => list.filter(entry => entry.kind === "mood" && entry.factors.includes(factor));
+          const matches = select(entries);
+          return {
+            id: factor,
+            label: factor,
+            count: matches.length,
+            unit: "día",
+            color: moodTone(average(matches.map(entry => entry.value))).color,
+            select
+          };
+        }).filter(item => item.count > 0).sort(byCount);
+      }
+
+      return [...new Set(entries.filter(entry => entry.kind === "emotion").map(entry => entry.name))].map(name => {
+        const select = list => list.filter(entry => entry.kind === "emotion" && entry.name === name);
+        const matches = select(entries);
+        return {
+          id: name,
+          label: name,
+          count: matches.length,
+          unit: "entrada",
+          color: moodTone(average(matches.map(entry => entry.value))).color,
+          select
+        };
+      }).sort(byCount);
+    };
+
+    const chartState = {
+      range: "month",
+      tab: "states",
+      selection: { states: null, associations: null, emotions: null }
+    };
+
+    const moodPlot = document.querySelector("#mood-plot");
+    const detailPlot = document.querySelector("#detail-plot");
+    const detailCaption = document.querySelector("#detail-caption");
+    const axisTicks = document.querySelector("#chart-axis-ticks");
+    const sheetList = document.querySelector("#sheet-list");
+
+    const renderCharts = () => {
+      const scope = buildScope(chartState.range);
+      const entries = chartEntries.filter(entry => scope.indexOf(entry.date) >= 0);
+
+      document.querySelector("#charts-total-count").textContent = entries.length;
+      document.querySelector("#charts-total-unit").textContent = entries.length === 1 ? "entrada" : "entradas";
+      document.querySelector("#charts-total-range").textContent = scope.span;
+
+      renderPlot(moodPlot, entries, scope);
+      axisTicks.innerHTML = scope.ticks.map(tick => `<span>${tick}</span>`).join("");
+
+      const items = buildSheetItems(chartState.tab, entries);
+      const selected = items.find(item => item.id === chartState.selection[chartState.tab]) || items[0] || null;
+      chartState.selection[chartState.tab] = selected ? selected.id : null;
+
+      sheetList.innerHTML = items.length
+        ? items.map(item => `
+          <button class="sheet-row" type="button" data-sheet-item="${item.id}" style="--row-color:${item.color}" aria-pressed="${item === selected}">
+            <span>${item.label}</span>
+            <span class="sheet-row-value">${item.count} ${item.unit}${item.count === 1 ? "" : "s"}</span>
+            <span class="sheet-row-info" aria-hidden="true">i</span>
+          </button>`).join("")
+        : '<p class="sheet-empty">Sin registros en este período.</p>';
+
+      detailCaption.textContent = selected ? selected.label : "Sin datos";
+      renderPlot(detailPlot, selected ? selected.select(entries) : [], scope);
+    };
+
+    document.querySelector("#range-segmented").addEventListener("click", event => {
+      const button = event.target.closest("[data-range]");
+      if (!button) return;
+      chartState.range = button.dataset.range;
+      document.querySelectorAll("[data-range]").forEach(option => {
+        option.setAttribute("aria-selected", String(option === button));
+      });
+      renderCharts();
+    });
+
+    document.querySelector("#sheet-tabs").addEventListener("click", event => {
+      const button = event.target.closest("[data-sheet]");
+      if (!button) return;
+      chartState.tab = button.dataset.sheet;
+      document.querySelectorAll("[data-sheet]").forEach(tab => {
+        tab.setAttribute("aria-selected", String(tab === button));
+      });
+      renderCharts();
+    });
+
+    sheetList.addEventListener("click", event => {
+      const button = event.target.closest("[data-sheet-item]");
+      if (!button) return;
+      chartState.selection[chartState.tab] = button.dataset.sheetItem;
+      renderCharts();
+    });
 
     const dayState = document.querySelector("#day-state");
     const dateLabelNode = document.querySelector("#date-label");
@@ -3324,7 +3916,7 @@
       const emotion = lastChatEmotion();
       const opening = emotion
         ? openingFor(emotion, "")
-        : "Hola. Contame cómo venís. Escribí lo que quieras, no hay forma correcta.";
+        : "Contame por qué tu día estuvo agradable.";
       chatMessagesEl.innerHTML = [{ role: "bot", text: opening }, ...chatMessages]
         .map(m => `<p class="chat-bubble ${m.role}">${escapeHtml(m.text)}</p>`)
         .join("");
@@ -3383,6 +3975,10 @@
 
     document.querySelector("#chat-help-close").addEventListener("click", () => chatHelpOverlay.classList.remove("is-open"));
     document.querySelector("#chat-help-backdrop").addEventListener("click", () => chatHelpOverlay.classList.remove("is-open"));
+    document.querySelector("#summary-emergency").addEventListener("click", () => {
+      chatHelpOverlay.classList.add("is-open");
+      document.querySelector("#chat-help-close").focus();
+    });
 
     document.addEventListener("keydown", event => {
       if (event.key !== "Escape") return;
@@ -3394,6 +3990,7 @@
       }
       else if (chatHelpOverlay.classList.contains("is-open")) chatHelpOverlay.classList.remove("is-open");
       else if (chatClearBackdrop.classList.contains("is-open")) chatClearBackdrop.classList.remove("is-open");
+      else if (currentView === "charts") showView("summary");
     });
 
     showView("summary");
