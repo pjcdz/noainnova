@@ -8,7 +8,7 @@
   <link rel="preload" as="image" href="assets/chat-mami.png">
   <link rel="preload" as="image" href="assets/salta-bot-notification-banner.png">
   <link rel="preload" as="image" href="assets/chat-joaco.png">
-  <link rel="preload" as="image" href="assets/ministerio-salud-salta.jpg">
+  <link rel="preload" as="image" href="assets/salta-municipalidad.jpg">
   <style>
     :root {
       color-scheme: light;
@@ -217,6 +217,107 @@
       outline-offset: 2px;
     }
 
+    .whatsapp-screen {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #f7f5f0;
+    }
+
+    .health-transition-layer {
+      position: absolute;
+      z-index: 10;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 52px;
+      background: #c1c1c5;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform-origin: 50% 62%;
+    }
+
+    .app-frame.is-transitioning-to-health {
+      background: #c1c1c5;
+    }
+
+    .app-frame.is-transitioning-to-health .whatsapp-screen {
+      pointer-events: none;
+      will-change: border-radius, filter, opacity, transform;
+      animation: ios-source-screen 560ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+
+    .app-frame.is-transitioning-to-health .health-transition-layer {
+      visibility: visible;
+      will-change: border-radius, filter, opacity, transform;
+      animation: ios-health-app-open 560ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+
+    @keyframes ios-source-screen {
+      0% {
+        border-radius: 0;
+        filter: brightness(1);
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      58% {
+        border-radius: 28px;
+        filter: brightness(0.78);
+        opacity: 1;
+        transform: translate3d(0, -1%, 0) scale(0.93);
+      }
+
+      100% {
+        border-radius: 34px;
+        filter: brightness(0.7);
+        opacity: 0;
+        transform: translate3d(0, -1.5%, 0) scale(0.91);
+      }
+    }
+
+    @keyframes ios-health-app-open {
+      0% {
+        border-radius: 52px;
+        filter: brightness(0.96);
+        opacity: 0;
+        transform: translate3d(0, 19%, 0) scale(0.78);
+      }
+
+      12% {
+        opacity: 1;
+      }
+
+      100% {
+        border-radius: 0;
+        filter: brightness(1);
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .app-frame.is-transitioning-to-health .whatsapp-screen {
+        animation: transition-fade-out 120ms linear both;
+      }
+
+      .app-frame.is-transitioning-to-health .health-transition-layer {
+        animation: transition-fade-in 120ms linear both;
+      }
+    }
+
+    @keyframes transition-fade-out {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    @keyframes transition-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
     .sr-only {
       position: absolute;
       width: 1px;
@@ -237,6 +338,7 @@
     data-state="mami"
     aria-label="Chat de WhatsApp con Mami"
   >
+    <div class="whatsapp-screen" id="whatsapp-screen">
     <img
       class="state-image"
       data-state-image="mami"
@@ -276,9 +378,9 @@
     <div class="final-identity" id="final-identity" aria-hidden="true" hidden>
       <img
         class="final-avatar"
-        src="assets/ministerio-salud-salta.jpg"
-        width="1004"
-        height="1004"
+        src="assets/salta-municipalidad.jpg"
+        width="447"
+        height="447"
         alt=""
       >
       <div class="identity-copy">
@@ -313,6 +415,16 @@
     ></button>
 
     <p class="sr-only" id="live-status" aria-live="polite"></p>
+    </div>
+
+    <iframe
+      class="health-transition-layer"
+      src="../frontent-2-extention/index.html"
+      title="HealthApp"
+      tabindex="-1"
+      aria-hidden="true"
+      inert
+    ></iframe>
   </main>
 
   <script>
@@ -323,6 +435,8 @@
     const consentLink = document.querySelector("#consent-link");
     const finalIdentity = document.querySelector("#final-identity");
     const liveStatus = document.querySelector("#live-status");
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    let isTransitioningToHealth = false;
 
     const labels = {
       mami: "Chat de WhatsApp con Mami",
@@ -347,10 +461,29 @@
       history.replaceState(null, "", `${location.pathname}${location.search}`);
     }
 
-    consentLink.addEventListener("click", () => {
+    consentLink.addEventListener("click", event => {
+      event.preventDefault();
+      if (isTransitioningToHealth) return;
+
+      isTransitioningToHealth = true;
+      const destination = consentLink.href;
       const returnUrl = new URL(location.href);
       returnUrl.hash = "salta-bot";
       history.replaceState(null, "", returnUrl);
+
+      app.classList.add("is-transitioning-to-health");
+      app.setAttribute("aria-busy", "true");
+      liveStatus.textContent = "Abriendo HealthApp.";
+
+      window.setTimeout(() => {
+        window.location.href = destination;
+      }, reduceMotion.matches ? 120 : 620);
+    });
+
+    window.addEventListener("pageshow", () => {
+      isTransitioningToHealth = false;
+      app.classList.remove("is-transitioning-to-health");
+      app.removeAttribute("aria-busy");
     });
 
     document.addEventListener("keydown", event => {

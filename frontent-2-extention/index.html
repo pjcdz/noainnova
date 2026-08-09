@@ -3,23 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="oklch(0 0 0)">
-  <title>Compartir datos con tu municipio</title>
+  <meta name="theme-color" content="#c1c1c5">
+  <title>Compartir datos con tu municipalidad</title>
   <style>
     :root {
       color-scheme: light;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
-      background: oklch(0.79 0.004 270);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
       --screen-width: 393px;
       --screen-height: 852px;
-      --status-height: 47px;
-      --white: oklch(1 0 0);
-      --black: oklch(0 0 0);
-      --blue: oklch(0.56 0.18 255);
-      --surface: oklch(0.975 0.004 270);
-      --ink: oklch(0.16 0 0);
-      --muted: oklch(0.46 0.004 270);
-      --divider: oklch(0.85 0.006 270 / 0.72);
+      --background: #c1c1c5;
+      --surface: #ffffff;
+      --ink: #000000;
+      --muted: #8a8a8d;
+      --button-label: #a3fdfe;
     }
 
     * {
@@ -37,18 +33,18 @@
       min-height: 100svh;
       place-items: center;
       overflow: hidden;
-      background: oklch(0.79 0.004 270);
+      background: var(--background);
       color: var(--ink);
+      -webkit-font-smoothing: antialiased;
     }
 
     button {
       font: inherit;
-      color: inherit;
       -webkit-tap-highlight-color: transparent;
     }
 
     button:focus-visible {
-      outline: 3px solid var(--blue);
+      outline: 3px solid #0068d8;
       outline-offset: 3px;
     }
 
@@ -57,314 +53,394 @@
       width: min(100vw, var(--screen-width));
       height: min(100svh, var(--screen-height));
       overflow: hidden;
-      background: oklch(0.79 0.004 270);
+      background: var(--surface);
       isolation: isolate;
     }
 
-    .backdrop {
+    .reference-header {
       position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 14px;
-      padding-top: 96px;
-      filter: blur(6px);
-      opacity: 0.9;
-    }
-
-    .backdrop span {
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-    }
-
-    .backdrop span:first-child {
-      background: oklch(0.62 0.14 265);
-      margin-top: 18px;
-    }
-
-    .backdrop span:last-child {
-      background: oklch(0.66 0.10 300);
-    }
-
-    .status-bar {
-      position: absolute;
-      z-index: 60;
+      z-index: 1;
       top: 0;
       left: 0;
-      display: flex;
+      display: block;
       width: 100%;
-      height: var(--status-height);
-      align-items: center;
-      justify-content: space-between;
-      padding: 7px 48px 0;
-      color: oklch(0.08 0 0);
-      font-size: 1.0625rem;
-      font-weight: 650;
-      letter-spacing: -0.02em;
+      height: auto;
       pointer-events: none;
       user-select: none;
     }
 
-    .status-icons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .status-icons svg {
-      display: block;
-      flex: none;
-    }
-
-    .battery {
-      display: flex;
-      min-width: 28px;
-      height: 14px;
-      align-items: center;
-      justify-content: center;
-      border-radius: 4px;
-      background: oklch(0.14 0.004 260);
-      color: var(--white);
-      font-size: 0.6875rem;
-      font-weight: 750;
-      line-height: 1;
-    }
-
-    .sheet {
+    .close-button {
       position: absolute;
-      top: 156px;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      display: flex;
-      flex-direction: column;
-      border-radius: 36px 36px 0 0;
-      background: var(--surface);
-      box-shadow: 0 -8px 30px oklch(0 0 0 / 0.18);
-      padding: 20px 24px 0;
-    }
-
-    .sheet-close {
-      position: absolute;
-      top: 16px;
+      z-index: 2;
+      top: 75px;
       right: 16px;
-      display: grid;
-      width: 30px;
-      height: 30px;
-      place-items: center;
-      border: none;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 0;
       border-radius: 50%;
-      background: oklch(0.90 0.006 270);
-      color: oklch(0.35 0 0);
+      background: transparent;
       cursor: pointer;
     }
 
-    .sheet-icon {
-      display: grid;
-      width: 64px;
-      height: 64px;
-      margin: 8px auto 18px;
-      place-items: center;
-      color: oklch(0.62 0.01 270);
-    }
-
     .sheet-heading {
-      margin: 0 0 24px;
+      position: absolute;
+      z-index: 2;
+      top: 273px;
+      right: 38px;
+      left: 38px;
+      margin: 0;
       color: var(--ink);
-      font-size: 1.5rem;
-      font-weight: 750;
-      letter-spacing: -0.02em;
-      line-height: 1.15;
-      text-align: left;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 24px;
+      text-wrap: balance;
     }
 
     .feature-list {
+      position: absolute;
+      z-index: 2;
+      top: 346px;
+      right: 38px;
+      left: 38px;
       display: flex;
-      flex: 1;
       flex-direction: column;
-      gap: 22px;
-      margin: 0;
-      overflow-y: auto;
+      gap: 14px;
     }
 
     .feature-item {
       display: grid;
-      grid-template-columns: 44px 1fr;
-      gap: 16px;
+      grid-template-columns: 44px minmax(0, 1fr);
+      column-gap: 14px;
       align-items: start;
     }
 
+    .feature-item:nth-child(3) {
+      margin-top: 1px;
+    }
+
     .feature-icon {
-      display: grid;
-      width: 44px;
-      height: 44px;
-      place-items: center;
-      border-radius: 12px;
-      color: var(--white);
+      display: block;
+      margin-top: 4px;
+      user-select: none;
     }
 
-    .feature-icon.is-round {
-      border-radius: 50%;
+    .feature-icon.connect {
+      width: 36px;
+      height: 36px;
+      margin-left: 6px;
     }
 
-    .feature-icon.tone-blue {
-      background: oklch(0.56 0.18 255);
+    .feature-icon.privacy {
+      width: 32px;
+      height: 38px;
+      margin-left: 9px;
     }
 
-    .feature-icon.tone-dark {
-      background: transparent;
-      color: oklch(0.14 0 0);
+    .feature-icon.records {
+      width: 36px;
+      height: 42px;
+      margin-left: 6px;
     }
 
-    .feature-icon.tone-teal {
-      background: oklch(0.60 0.15 245);
+    .feature-copy h2,
+    .feature-copy p {
+      margin: 0;
     }
 
-    .feature-text h2 {
-      margin: 0 0 4px;
+    .feature-copy h2 {
       color: var(--ink);
-      font-size: 1.0625rem;
+      font-size: 15px;
       font-weight: 700;
       letter-spacing: -0.01em;
-      line-height: 1.2;
+      line-height: 19px;
+      white-space: nowrap;
     }
 
-    .feature-text p {
-      margin: 0;
+    .feature-copy p {
       color: var(--muted);
-      font-size: 0.9375rem;
+      font-size: 15px;
       font-weight: 400;
-      line-height: 1.35;
+      letter-spacing: -0.012em;
+      line-height: 19px;
     }
 
-    .sheet-actions {
-      position: sticky;
-      bottom: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 16px 0 28px;
-      background: linear-gradient(oklch(0.975 0.004 270 / 0), oklch(0.975 0.004 270) 30%);
+    .reference-footer {
+      position: absolute;
+      z-index: 1;
+      right: 0;
+      bottom: 50px;
+      left: 0;
+      display: block;
+      width: 100%;
+      height: auto;
+      pointer-events: none;
+      user-select: none;
     }
 
-    .action-button {
-      min-height: 50px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 1.1875rem;
-      font-weight: 700;
-      letter-spacing: -0.015em;
-      transition: filter 180ms ease-out, transform 180ms ease-out;
-    }
-
-    .action-allow {
-      border: 1px solid oklch(0.56 0.18 255);
-      background: var(--blue);
-      color: var(--white);
-    }
-
-    .action-deny {
-      border: none;
+    .allow-button,
+    .deny-button {
+      position: absolute;
+      z-index: 2;
+      right: 38px;
+      left: 38px;
+      padding: 0 24px;
+      border: 0;
       background: transparent;
-      color: var(--blue);
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1;
     }
 
-    .action-button:hover {
-      filter: brightness(1.06);
+    .allow-button {
+      bottom: 88px;
+      height: 52px;
+      border-radius: 999px;
+      color: var(--button-label);
     }
 
-    .action-button:active {
-      filter: brightness(0.94);
-      transform: scale(0.985);
+    .deny-button {
+      bottom: 28px;
+      height: 50px;
+      color: #3a85f6;
     }
+
+    .allow-button:active {
+      background: rgb(0 0 0 / 0.04);
+    }
+
+    .deny-button:active {
+      opacity: 0.62;
+    }
+
+    .dashboard-transition-layer {
+      --clip-top: 84%;
+      --clip-right: 42%;
+      --clip-bottom: 7%;
+      --clip-left: 42%;
+      --clip-radius: 999px;
+      --origin-x: 50%;
+      --origin-y: 86%;
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #f4f6f8;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform-origin: var(--origin-x) var(--origin-y);
+    }
+
+    body.is-transitioning-to-dashboard .app-frame {
+      pointer-events: none;
+      will-change: filter, opacity, transform;
+      animation: consent-screen-recede 520ms cubic-bezier(0.25, 1, 0.5, 1) both;
+    }
+
+    body.is-transitioning-to-dashboard .dashboard-transition-layer {
+      visibility: visible;
+      will-change: clip-path, opacity, transform;
+      animation: dashboard-expand 680ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes consent-screen-recede {
+      0% {
+        filter: brightness(1) blur(0);
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      45% {
+        filter: brightness(0.78) blur(1px);
+        opacity: 1;
+        transform: scale(0.975);
+      }
+
+      100% {
+        filter: brightness(0.68) blur(3px);
+        opacity: 0;
+        transform: scale(0.94);
+      }
+    }
+
+    @keyframes dashboard-expand {
+      0% {
+        clip-path: inset(var(--clip-top) var(--clip-right) var(--clip-bottom) var(--clip-left) round var(--clip-radius));
+        opacity: 0.25;
+        transform: scale(0.98);
+      }
+
+      100% {
+        clip-path: inset(0 round 0);
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body.is-transitioning-to-dashboard .app-frame {
+        animation: transition-fade-out 120ms linear both;
+      }
+
+      body.is-transitioning-to-dashboard .dashboard-transition-layer {
+        animation: transition-fade-in 120ms linear both;
+      }
+    }
+
+    @keyframes transition-fade-out {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    @keyframes transition-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
   </style>
 </head>
 <body>
-  <main class="app-frame" aria-live="off">
-    <div class="backdrop" aria-hidden="true">
-      <span></span>
-      <span></span>
-    </div>
+  <main class="app-frame">
+    <img
+      class="reference-header"
+      src="assets/sharing-sheet-header.png"
+      width="1179"
+      height="780"
+      alt=""
+      aria-hidden="true"
+    >
 
-    <div class="status-bar" aria-hidden="true">
-      <span>00:11</span>
-      <div class="status-icons">
-        <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
-          <rect x="0" y="7" width="3" height="5" rx="1" fill="currentColor"/>
-          <rect x="5" y="4" width="3" height="8" rx="1" fill="currentColor"/>
-          <rect x="10" y="1" width="3" height="11" rx="1" fill="currentColor"/>
-          <rect x="15" y="0" width="2" height="12" rx="1" fill="currentColor" opacity="0.28"/>
-        </svg>
-        <svg width="17" height="13" viewBox="0 0 17 13" fill="none">
-          <path d="M1 4.3C5.35.55 11.65.55 16 4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M4 7.35C6.55 5.25 10.45 5.25 13 7.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="8.5" cy="10.8" r="1.25" fill="currentColor"/>
-        </svg>
-        <span class="battery">58</span>
-      </div>
-    </div>
+    <button class="close-button" type="button" aria-label="Cerrar">
+      <span class="sr-only">Cerrar</span>
+    </button>
 
-    <section class="sheet" aria-labelledby="sheet-heading">
-      <button class="sheet-close" type="button" aria-label="Cerrar">
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 4 12 12M16 4 4 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-      </button>
+    <h1 class="sheet-heading">Cómo funciona compartir con tu municipalidad</h1>
 
-      <div class="sheet-icon" aria-hidden="true">
-        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-          <rect x="10" y="6" width="30" height="38" rx="7" stroke="currentColor" stroke-width="2.4"/>
-          <rect x="16" y="12" width="30" height="38" rx="7" fill="var(--surface)" stroke="currentColor" stroke-width="2.4"/>
-          <path d="M31 24v14M24 31h14" stroke="oklch(0.62 0.20 20)" stroke-width="3.6" stroke-linecap="round"/>
-        </svg>
-      </div>
-
-      <h1 class="sheet-heading" id="sheet-heading">Información sobre compartir datos con tu municipio</h1>
-
-      <div class="feature-list">
-        <div class="feature-item">
-          <span class="feature-icon is-round tone-blue" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
-          </span>
-          <div class="feature-text">
-            <h2>Conéctate a tu centro de salud</h2>
-            <p>Al iniciar sesión se establece una conexión segura para que puedas compartir datos con tu municipio.</p>
-          </div>
+    <section class="feature-list" aria-label="Cómo se comparten tus datos">
+      <article class="feature-item">
+        <img
+          class="feature-icon connect"
+          src="assets/sharing-connect.png"
+          width="108"
+          height="108"
+          alt=""
+          aria-hidden="true"
+        >
+        <div class="feature-copy">
+          <h2>Conéctate a tu centro de salud</h2>
+          <p>Inicia sesión de forma segura para compartir con tu municipalidad.</p>
         </div>
+      </article>
 
-        <div class="feature-item">
-          <span class="feature-icon tone-dark" aria-hidden="true">
-            <svg width="26" height="30" viewBox="0 0 24 28" fill="currentColor" aria-hidden="true">
-              <rect x="4" y="10" width="2.8" height="10" rx="1.4"/>
-              <rect x="7.6" y="6.5" width="2.8" height="13.5" rx="1.4"/>
-              <rect x="11.2" y="4" width="3" height="16" rx="1.5"/>
-              <rect x="14.8" y="6.5" width="2.8" height="13.5" rx="1.4"/>
-              <rect x="3.6" y="17.5" width="14.4" height="8.5" rx="4.2"/>
-              <rect x="-1" y="-1.4" width="6.5" height="3" rx="1.5" transform="translate(4.2 20) rotate(-35)"/>
-            </svg>
-          </span>
-          <div class="feature-text">
-            <h2>Privacidad: lo primero y más importante</h2>
-            <p>Los datos que elijas compartir se encriptan y mantienen privados en tu dispositivo y en el del municipio.</p>
-          </div>
+      <article class="feature-item">
+        <img
+          class="feature-icon privacy"
+          src="assets/sharing-privacy.png"
+          width="96"
+          height="114"
+          alt=""
+          aria-hidden="true"
+        >
+        <div class="feature-copy">
+          <h2>Tu privacidad es lo primero</h2>
+          <p>Los datos que elijas compartir se encriptan y mantienen privados en tu dispositivo y en el de tu municipalidad.</p>
         </div>
+      </article>
 
-        <div class="feature-item">
-          <span class="feature-icon tone-teal" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2 6 4-12 2 6h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-          <div class="feature-text">
-            <h2>Consulta tu expediente médico</h2>
-            <p>Una vez que te conectes, se descargará tu expediente médico para que puedas ver la información que tu municipio tiene registrada.</p>
-          </div>
+      <article class="feature-item">
+        <img
+          class="feature-icon records"
+          src="assets/sharing-records.png"
+          width="108"
+          height="126"
+          alt=""
+          aria-hidden="true"
+        >
+        <div class="feature-copy">
+          <h2>Consulta tu expediente médico</h2>
+          <p>Una vez que te conectes, se descargará tu expediente médico para que puedas ver la información que tu municipalidad tiene registrada.</p>
         </div>
-      </div>
-
-      <div class="sheet-actions">
-        <button class="action-button action-allow" type="button">Permitir</button>
-        <button class="action-button action-deny" type="button">No permitir</button>
-      </div>
+      </article>
     </section>
+
+    <img
+      class="reference-footer"
+      src="assets/sharing-sheet-footer.png"
+      width="1179"
+      height="396"
+      alt=""
+      aria-hidden="true"
+    >
+
+    <button class="allow-button" type="button">Permitir</button>
+    <button class="deny-button" type="button">No permitir</button>
   </main>
+
+  <iframe
+    class="dashboard-transition-layer"
+    src="../frontent-2/dashboard.html"
+    title="Dashboard del Observatorio de Salud Mental"
+    tabindex="-1"
+    aria-hidden="true"
+    inert
+  ></iframe>
+
+  <script>
+    const app = document.querySelector(".app-frame");
+    const allowButton = document.querySelector(".allow-button");
+    const dashboardTransition = document.querySelector(".dashboard-transition-layer");
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    let isTransitioningToDashboard = false;
+
+    allowButton.addEventListener("click", () => {
+      if (isTransitioningToDashboard) return;
+      isTransitioningToDashboard = true;
+
+      const buttonRect = allowButton.getBoundingClientRect();
+      const clipRight = window.innerWidth - buttonRect.right;
+      const clipBottom = window.innerHeight - buttonRect.bottom;
+      const originX = ((buttonRect.left + buttonRect.width / 2) / window.innerWidth) * 100;
+      const originY = ((buttonRect.top + buttonRect.height / 2) / window.innerHeight) * 100;
+
+      dashboardTransition.style.setProperty("--clip-top", `${buttonRect.top}px`);
+      dashboardTransition.style.setProperty("--clip-right", `${clipRight}px`);
+      dashboardTransition.style.setProperty("--clip-bottom", `${clipBottom}px`);
+      dashboardTransition.style.setProperty("--clip-left", `${buttonRect.left}px`);
+      dashboardTransition.style.setProperty("--clip-radius", `${buttonRect.height / 2}px`);
+      dashboardTransition.style.setProperty("--origin-x", `${originX}%`);
+      dashboardTransition.style.setProperty("--origin-y", `${originY}%`);
+
+      document.body.classList.add("is-transitioning-to-dashboard");
+      app.setAttribute("aria-busy", "true");
+
+      window.setTimeout(() => {
+        window.location.href = "../frontent-2/dashboard.html";
+      }, reduceMotion.matches ? 120 : 720);
+    });
+
+    window.addEventListener("pageshow", () => {
+      isTransitioningToDashboard = false;
+      document.body.classList.remove("is-transitioning-to-dashboard");
+      app.removeAttribute("aria-busy");
+    });
+  </script>
 </body>
 </html>
