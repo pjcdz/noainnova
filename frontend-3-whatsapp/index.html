@@ -327,7 +327,8 @@
       background: #f7f5f0;
     }
 
-    .health-transition-layer {
+    .health-transition-layer,
+    .anima-transition-layer {
       position: absolute;
       z-index: 10;
       inset: 0;
@@ -342,36 +343,43 @@
       transform-origin: 50% 62%;
     }
 
-    .health-transition-layer.is-ready {
+    .health-transition-layer.is-ready,
+    .anima-transition-layer.is-ready {
       visibility: visible;
     }
 
-    .app-frame.is-transitioning-to-health {
+    .app-frame.is-transitioning-to-health,
+    .app-frame.is-transitioning-to-anima {
       background: #c1c1c5;
     }
 
-    .app-frame.is-transitioning-to-health .whatsapp-screen {
+    .app-frame.is-transitioning-to-health .whatsapp-screen,
+    .app-frame.is-transitioning-to-anima .whatsapp-screen {
       pointer-events: none;
       will-change: border-radius, filter, opacity, transform;
       animation: ios-source-screen 560ms cubic-bezier(0.32, 0.72, 0, 1) both;
     }
 
-    .app-frame.is-transitioning-to-health .health-transition-layer {
+    .app-frame.is-transitioning-to-health .health-transition-layer,
+    .app-frame.is-transitioning-to-anima .anima-transition-layer {
       visibility: visible;
       will-change: border-radius, filter, opacity, transform;
       animation: ios-health-app-open 560ms cubic-bezier(0.32, 0.72, 0, 1) both;
     }
 
-    .app-frame.is-health-active {
+    .app-frame.is-health-active,
+    .app-frame.is-anima-active {
       overflow: visible;
       background: #c1c1c5;
     }
 
-    .app-frame.is-health-active .whatsapp-screen {
+    .app-frame.is-health-active .whatsapp-screen,
+    .app-frame.is-anima-active .whatsapp-screen {
       visibility: hidden;
     }
 
-    .app-frame.is-health-active .health-transition-layer {
+    .app-frame.is-health-active .health-transition-layer,
+    .app-frame.is-anima-active .anima-transition-layer {
       position: fixed;
       z-index: 10;
       inset: 0;
@@ -428,11 +436,13 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .app-frame.is-transitioning-to-health .whatsapp-screen {
+      .app-frame.is-transitioning-to-health .whatsapp-screen,
+      .app-frame.is-transitioning-to-anima .whatsapp-screen {
         animation: transition-fade-out 120ms linear both;
       }
 
-      .app-frame.is-transitioning-to-health .health-transition-layer {
+      .app-frame.is-transitioning-to-health .health-transition-layer,
+      .app-frame.is-transitioning-to-anima .anima-transition-layer {
         animation: transition-fade-in 120ms linear both;
       }
     }
@@ -591,6 +601,16 @@
       aria-hidden="true"
       inert
     ></iframe>
+
+    <iframe
+      class="anima-transition-layer"
+      id="anima-transition-layer"
+      data-src="../frontent-2/index.html"
+      title="Anima"
+      tabindex="-1"
+      aria-hidden="true"
+      inert
+    ></iframe>
   </main>
 
   <script>
@@ -602,12 +622,22 @@
     const finalIdentity = document.querySelector("#final-identity");
     const postConsentLayer = document.querySelector("#post-consent-layer");
     const healthTransitionLayer = document.querySelector("#health-transition-layer");
+    const animaTransitionLayer = document.querySelector("#anima-transition-layer");
+    const animaLinks = [...document.querySelectorAll(".download-links a")];
     const liveStatus = document.querySelector("#live-status");
     let isTransitioningToHealth = false;
+    let isTransitioningToAnima = false;
 
     const healthReady = new Promise(resolve => {
       healthTransitionLayer.addEventListener("load", () => {
         healthTransitionLayer.classList.add("is-ready");
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }, { once: true });
+    });
+
+    const animaReady = new Promise(resolve => {
+      animaTransitionLayer.addEventListener("load", () => {
+        animaTransitionLayer.classList.add("is-ready");
         requestAnimationFrame(() => requestAnimationFrame(resolve));
       }, { once: true });
     });
@@ -636,6 +666,9 @@
         healthTransitionLayer.src = healthTransitionLayer.dataset.src;
       } else if (state === "post-consent") {
         healthTransitionLayer.removeAttribute("src");
+        if (!animaTransitionLayer.hasAttribute("src")) {
+          animaTransitionLayer.src = animaTransitionLayer.dataset.src;
+        }
       }
     };
 
@@ -677,9 +710,36 @@
       healthTransitionLayer.focus({ preventScroll: true });
     });
 
+    animaLinks.forEach(link => {
+      link.addEventListener("click", async event => {
+        event.preventDefault();
+        if (isTransitioningToAnima) return;
+
+        isTransitioningToAnima = true;
+        app.setAttribute("aria-busy", "true");
+        liveStatus.textContent = "Abriendo Anima.";
+
+        await animaReady;
+        app.classList.add("is-transitioning-to-anima");
+        await Promise.allSettled(
+          animaTransitionLayer.getAnimations().map(animation => animation.finished)
+        );
+
+        app.classList.replace("is-transitioning-to-anima", "is-anima-active");
+        document.querySelector(".whatsapp-screen").setAttribute("aria-hidden", "true");
+        animaTransitionLayer.removeAttribute("aria-hidden");
+        animaTransitionLayer.removeAttribute("inert");
+        animaTransitionLayer.removeAttribute("tabindex");
+        app.removeAttribute("aria-busy");
+        isTransitioningToAnima = false;
+        animaTransitionLayer.focus({ preventScroll: true });
+      });
+    });
+
     window.addEventListener("pageshow", () => {
       isTransitioningToHealth = false;
-      app.classList.remove("is-transitioning-to-health");
+      isTransitioningToAnima = false;
+      app.classList.remove("is-transitioning-to-health", "is-transitioning-to-anima");
       app.removeAttribute("aria-busy");
     });
 
