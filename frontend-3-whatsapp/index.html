@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f5f0">
+  <title>WhatsApp</title>
+  <link rel="preload" as="image" href="assets/chat-mami.png">
+  <link rel="preload" as="image" href="assets/salta-bot-notification-banner.png">
+  <link rel="preload" as="image" href="assets/chat-joaco.png">
+  <link rel="preload" as="image" href="assets/ministerio-salud-salta.jpg">
+  <style>
+    :root {
+      color-scheme: light;
+      --screen-width: min(100vw, 1179px, 46.1267606svh);
+      --screen-ratio: 2.1679389313;
+      --focus: #0a84ff;
+      background: oklch(0.79 0.004 270);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: grid;
+      min-height: 100svh;
+      place-items: center;
+      overflow: hidden;
+      background: oklch(0.79 0.004 270);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app-frame {
+      position: relative;
+      width: var(--screen-width);
+      height: calc(var(--screen-width) * var(--screen-ratio));
+      overflow: hidden;
+      background: #f7f5f0;
+      isolation: isolate;
+    }
+
+    .state-image {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .state-image[hidden],
+    .notification-banner[hidden],
+    .notification-button[hidden],
+    .consent-link[hidden],
+    .final-identity[hidden] {
+      display: none;
+    }
+
+    .notification-banner {
+      position: absolute;
+      z-index: 1;
+      top: 6.924883%;
+      left: 2.544529%;
+      display: block;
+      width: 94.910941%;
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      animation: notification-enter 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes notification-enter {
+      from {
+        transform: translate3d(0, -175%, 0);
+      }
+
+      to {
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .notification-banner {
+        animation: none;
+      }
+    }
+
+    .final-identity {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .final-avatar {
+      position: absolute;
+      top: 7.120501%;
+      left: 17.472434%;
+      width: calc(var(--screen-width) * 0.1017811705);
+      height: calc(var(--screen-width) * 0.1017811705);
+      border-radius: 50%;
+      box-shadow: 0 0 0 calc(var(--screen-width) * 0.0016963528) #f3f1eb;
+      object-fit: cover;
+    }
+
+    .identity-copy {
+      position: absolute;
+      top: 7.746479%;
+      left: 29.262087%;
+      width: 35.199322%;
+      height: 3.912363%;
+      padding-left: calc(var(--screen-width) * 0.0067854114);
+      background: #f3f1eb;
+      color: #0a0a0a;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      white-space: nowrap;
+    }
+
+    .identity-name {
+      display: flex;
+      align-items: center;
+      gap: calc(var(--screen-width) * 0.0076335878);
+    }
+
+    .identity-name strong {
+      font-size: calc(var(--screen-width) * 0.0407124682);
+      font-weight: 600;
+      letter-spacing: calc(var(--screen-width) * -0.0005089059);
+      line-height: 1.05;
+    }
+
+    .verified-badge {
+      width: calc(var(--screen-width) * 0.0381679389);
+      height: calc(var(--screen-width) * 0.0381679389);
+      flex: none;
+    }
+
+    .identity-copy > span {
+      display: block;
+      margin-top: calc(var(--screen-width) * 0.0016963528);
+      color: #666;
+      font-size: calc(var(--screen-width) * 0.0245971162);
+      line-height: 1.1;
+    }
+
+    .meta-notice {
+      position: absolute;
+      top: 20.970266%;
+      left: 13.65564%;
+      display: flex;
+      width: 72.603902%;
+      height: 7.394366%;
+      align-items: center;
+      justify-content: center;
+      border-radius: calc(var(--screen-width) * 0.0212044105);
+      background: #ddfcee;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
+      color: #0a0a0a;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      font-size: calc(var(--screen-width) * 0.03223070399);
+      font-weight: 400;
+      line-height: 1.16;
+      text-align: center;
+    }
+
+    .notification-button {
+      position: absolute;
+      z-index: 1;
+      top: 7.04%;
+      right: 2.54%;
+      left: 2.54%;
+      height: 9.68%;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 7.78% / 35.17%;
+      background: transparent;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .notification-button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: -4px;
+    }
+
+    .consent-link {
+      position: absolute;
+      z-index: 2;
+      top: 44.131455%;
+      left: 6.276506%;
+      width: 19.338422%;
+      height: 2.1518%;
+      border-radius: calc(var(--screen-width) * 0.0067854114);
+      background: transparent;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .consent-link:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <main
+    class="app-frame"
+    id="app"
+    data-state="mami"
+    aria-label="Chat de WhatsApp con Mami"
+  >
+    <img
+      class="state-image"
+      data-state-image="mami"
+      src="assets/chat-mami.png"
+      width="1179"
+      height="2556"
+      alt="Chat de WhatsApp con Mami"
+    >
+    <img
+      class="state-image"
+      data-state-image="notification"
+      src="assets/chat-mami.png"
+      width="1179"
+      height="2556"
+      alt="Chat con Mami y una notificación de SaltaBot"
+      hidden
+    >
+    <img
+      class="notification-banner"
+      id="notification-banner"
+      src="assets/salta-bot-notification-banner.png"
+      width="1119"
+      height="246"
+      alt=""
+      aria-hidden="true"
+      hidden
+    >
+    <img
+      class="state-image"
+      data-state-image="salta-bot"
+      src="assets/chat-joaco.png"
+      width="1179"
+      height="2556"
+      alt="Chat de WhatsApp con SaltaBot, cuenta de empresa verificada"
+      hidden
+    >
+    <div class="final-identity" id="final-identity" aria-hidden="true" hidden>
+      <img
+        class="final-avatar"
+        src="assets/ministerio-salud-salta.jpg"
+        width="1004"
+        height="1004"
+        alt=""
+      >
+      <div class="identity-copy">
+        <div class="identity-name">
+          <strong>SaltaBot</strong>
+          <svg class="verified-badge" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#65d072" d="m23 12-2.44-2.79.34-3.7-3.61-.81L15.4 1.5 12 2.96 8.6 1.5 6.71 4.7l-3.61.81.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.81 1.89 3.2 3.4-1.46 3.4 1.46 1.89-3.2 3.61-.81-.34-3.7L23 12Z"/>
+            <path fill="#fff" d="m10.09 16.2-3.5-3.5 1.41-1.41 2.09 2.08 5.91-5.9 1.41 1.41-7.32 7.32Z"/>
+          </svg>
+        </div>
+        <span>Cuenta de empresa</span>
+      </div>
+      <div class="meta-notice">
+        <span>Esta empresa usa un servicio seguro de Meta<br>para administrar este chat. Toca para obtener<br>más información</span>
+      </div>
+    </div>
+
+    <a
+      class="consent-link"
+      id="consent-link"
+      href="../frontent-2-extention/index.html"
+      aria-label="Aceptar y abrir HealthApp para autorizar el uso compartido de datos"
+      hidden
+    ></a>
+
+    <button
+      class="notification-button"
+      id="notification-button"
+      type="button"
+      aria-label="Abrir el mensaje de SaltaBot: ¡Hola soy SaltaBot! Nos interesa..."
+      hidden
+    ></button>
+
+    <p class="sr-only" id="live-status" aria-live="polite"></p>
+  </main>
+
+  <script>
+    const app = document.querySelector("#app");
+    const images = [...document.querySelectorAll("[data-state-image]")];
+    const notificationBanner = document.querySelector("#notification-banner");
+    const notificationButton = document.querySelector("#notification-button");
+    const consentLink = document.querySelector("#consent-link");
+    const finalIdentity = document.querySelector("#final-identity");
+    const liveStatus = document.querySelector("#live-status");
+
+    const labels = {
+      mami: "Chat de WhatsApp con Mami",
+      notification: "Chat con Mami y una notificación de SaltaBot",
+      "salta-bot": "Chat de WhatsApp con SaltaBot, cuenta de empresa verificada"
+    };
+
+    const showState = state => {
+      app.dataset.state = state;
+      app.setAttribute("aria-label", labels[state]);
+      images.forEach(image => {
+        image.hidden = image.dataset.stateImage !== state;
+      });
+      notificationBanner.hidden = state !== "notification";
+      notificationButton.hidden = state !== "notification";
+      consentLink.hidden = state !== "salta-bot";
+      finalIdentity.hidden = state !== "salta-bot";
+    };
+
+    if (location.hash === "#salta-bot") {
+      showState("salta-bot");
+      history.replaceState(null, "", `${location.pathname}${location.search}`);
+    }
+
+    consentLink.addEventListener("click", () => {
+      const returnUrl = new URL(location.href);
+      returnUrl.hash = "salta-bot";
+      history.replaceState(null, "", returnUrl);
+    });
+
+    document.addEventListener("keydown", event => {
+      const isSpace = event.code === "Space" || event.key === " ";
+      if (!isSpace || event.repeat || app.dataset.state !== "mami") return;
+
+      event.preventDefault();
+      showState("notification");
+      liveStatus.textContent = "Nueva notificación de SaltaBot: ¡Hola soy SaltaBot! Nos interesa...";
+    });
+
+    notificationButton.addEventListener("click", () => {
+      showState("salta-bot");
+      liveStatus.textContent = "Chat con SaltaBot abierto.";
+    });
+  </script>
+</body>
+</html>
