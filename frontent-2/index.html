@@ -1810,6 +1810,11 @@
       cursor: pointer;
     }
 
+    .app-frame:has(.charts-view.is-active) .status-bar,
+    .app-frame:has(.calendar-view.is-active) .status-bar {
+      background: transparent;
+    }
+
     .charts-view {
       background: oklch(0.90 0.008 285);
       color: oklch(0.10 0 0);
@@ -1834,13 +1839,17 @@
       z-index: var(--z-sticky);
       top: 0;
       display: grid;
-      height: 105px;
-      grid-template-columns: 44px 1fr 44px;
-      align-items: end;
+      grid-template-rows: 56px auto;
       padding: var(--status-height) 16px 10px;
-      background: oklch(1 0 0 / 0.94);
+      background: oklch(1 0 0 / 0.96);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
+    }
+
+    .charts-header-bar {
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: end;
     }
 
     .charts-header .icon-button {
@@ -1859,7 +1868,7 @@
 
     .range-segmented {
       display: grid;
-      margin: 6px 16px 0;
+      margin-top: 8px;
       padding: 2px;
       grid-auto-flow: column;
       grid-auto-columns: 1fr;
@@ -2017,8 +2026,7 @@
     .charts-sheet {
       display: flex;
       flex: 0 0 42%;
-      min-height: 240px;
-      max-height: 46%;
+      min-height: 0;
       padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
       flex-direction: column;
       gap: 12px;
@@ -2919,19 +2927,20 @@
     <section class="view charts-view" data-view="charts" aria-labelledby="charts-title">
       <div class="charts-scroll">
         <header class="charts-header">
-          <span aria-hidden="true"></span>
-          <h1 class="charts-title" id="charts-title" tabindex="-1">Estado de ánimo</h1>
-          <button class="icon-button" type="button" data-go="summary" aria-label="Cerrar gráficos">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 4 12 12M16 4 4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          </button>
+          <div class="charts-header-bar">
+            <span aria-hidden="true"></span>
+            <h1 class="charts-title" id="charts-title" tabindex="-1">Estado de ánimo</h1>
+            <button class="icon-button" type="button" data-go="summary" aria-label="Cerrar gráficos">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 4 12 12M16 4 4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="range-segmented" id="range-segmented" role="tablist" aria-label="Período">
+            <button class="range-option" type="button" role="tab" data-range="week" aria-selected="false">S</button>
+            <button class="range-option" type="button" role="tab" data-range="month" aria-selected="true">M</button>
+            <button class="range-option" type="button" role="tab" data-range="halfYear" aria-selected="false">6 M</button>
+            <button class="range-option" type="button" role="tab" data-range="year" aria-selected="false">A</button>
+          </div>
         </header>
-
-        <div class="range-segmented" id="range-segmented" role="tablist" aria-label="Período">
-          <button class="range-option" type="button" role="tab" data-range="week" aria-selected="false">S</button>
-          <button class="range-option" type="button" role="tab" data-range="month" aria-selected="true">M</button>
-          <button class="range-option" type="button" role="tab" data-range="halfYear" aria-selected="false">6 M</button>
-          <button class="range-option" type="button" role="tab" data-range="year" aria-selected="false">A</button>
-        </div>
 
         <div class="charts-total">
           <p class="charts-total-label">TOTAL</p>
@@ -3535,6 +3544,11 @@
       renderPlot(detailPlot, selected ? selected.select(entries) : [], scope);
     };
 
+    document.querySelector("#range-segmented").addEventListener("mousedown", event => {
+      const button = event.target.closest("[data-range]");
+      if (button) event.preventDefault();
+    });
+
     document.querySelector("#range-segmented").addEventListener("click", event => {
       const button = event.target.closest("[data-range]");
       if (!button) return;
@@ -3542,6 +3556,7 @@
       document.querySelectorAll("[data-range]").forEach(option => {
         option.setAttribute("aria-selected", String(option === button));
       });
+      chartsScroll.scrollTop = 0;
       renderCharts();
     });
 
