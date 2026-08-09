@@ -942,6 +942,42 @@
       font-size: 1.375rem;
     }
 
+    .day-mood {
+      display: grid;
+      height: 314px;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .day-flower {
+      width: 172px;
+      height: 172px;
+    }
+
+    .day-mood-label {
+      margin-top: 10px;
+      font-size: 1.375rem;
+      letter-spacing: -0.02em;
+    }
+
+    .day-factors {
+      display: flex;
+      margin: 12px 0 0;
+      padding: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 7px;
+      list-style: none;
+    }
+
+    .day-factors li {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
     .momentary {
       padding-top: 17px;
       border-top: 1px solid oklch(0.45 0.008 270 / 0.55);
@@ -1439,6 +1475,16 @@
       color: oklch(0.62 0.006 260);
     }
 
+    .day-mood {
+      height: 286px;
+      color: oklch(0.10 0 0);
+    }
+
+    .day-factors li {
+      background: oklch(0.93 0.006 270);
+      color: oklch(0.30 0.006 270);
+    }
+
     .momentary {
       border-top-color: oklch(0.82 0.006 270);
     }
@@ -1652,11 +1698,28 @@
       border-radius: 50%;
     }
 
+    .mood-shape {
+      width: 39px;
+      height: 39px;
+      align-self: center;
+      background:
+        radial-gradient(circle at 50% 40%,
+          color-mix(in oklab, var(--day-color) 20%, var(--white)),
+          color-mix(in oklab, var(--day-color) 60%, var(--white)) 44%,
+          var(--day-color) 96%);
+      -webkit-mask: var(--flower-mask) center / 100% 100% no-repeat;
+      mask: var(--flower-mask) center / 100% 100% no-repeat;
+    }
+
     .emotion-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
       background: oklch(0.75 0.006 270);
+    }
+
+    .calendar-day .emotion-dot {
+      background: var(--dot-color, oklch(0.75 0.006 270));
     }
 
     .calendar-help {
@@ -2232,7 +2295,7 @@
       </div>
     </div>
 
-    <section class="view is-active" data-view="choice" aria-labelledby="choice-heading">
+    <section class="view" data-view="choice" aria-labelledby="choice-heading">
       <div class="flow-panel mood-theme choice-panel">
         <button class="icon-button choice-close" type="button" data-go="summary" aria-label="Cerrar">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 4 12 12M16 4 4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -2420,33 +2483,9 @@
           <button class="log-button" type="button" data-go="choice">Registrar</button>
         </div>
 
-        <section class="state-card" aria-label="Resumen de hoy">
+        <section class="state-card" aria-label="Resumen del día">
           <p class="state-card-label">ESTADO DE ÁNIMO DIARIO</p>
-          <div class="empty-state">
-            <svg width="94" height="86" viewBox="0 0 94 86" fill="none" aria-hidden="true">
-              <path d="M47 69V31M47 47c-6-10-13-16-22-18M47 52c7-11 15-17 24-19M47 58c-10-8-19-11-29-11M47 58c10-8 19-11 29-11" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <circle cx="47" cy="18" r="10" fill="currentColor"/><circle cx="18" cy="31" r="8" fill="currentColor"/><circle cx="76" cy="31" r="8" fill="currentColor"/><circle cx="8" cy="47" r="7" fill="currentColor"/><circle cx="86" cy="47" r="7" fill="currentColor"/>
-            </svg>
-            <strong>Sin registro</strong>
-          </div>
-          <div class="momentary">
-            <p class="momentary-label">EMOCIONES DEL MOMENTO</p>
-            <div class="momentary-row">
-              <div class="flower-host summary-flower mood-theme" data-flower aria-hidden="true"></div>
-              <div class="momentary-copy">
-                <strong data-current-mood>Neutral</strong>
-              </div>
-              <time class="momentary-time">21:26</time>
-            </div>
-            <div class="momentary-row">
-              <div class="flower-host summary-flower mood-theme preset-tone" data-flower aria-hidden="true"></div>
-              <div class="momentary-copy">
-                <strong>Valentía</strong>
-                <span>Agradable</span>
-              </div>
-              <time class="momentary-time">19:32</time>
-            </div>
-          </div>
+          <div id="day-state"></div>
         </section>
 
         <button class="charts-button" type="button">Ver en gráficos</button>
@@ -2654,6 +2693,9 @@
   <script>
     const FLOWER_PATH = "M160 12C195 12 204 73 234 80C271 78 305 96 310 128C315 159 278 177 275 206C279 245 258 281 225 291C198 300 177 278 160 270C141 279 119 301 91 291C56 281 36 245 44 207C39 178 5 161 10 128C15 96 49 78 86 80C116 73 125 12 160 12Z";
 
+    const flowerSilhouette = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><path d="${FLOWER_PATH}" fill="#000"/></svg>`);
+    document.documentElement.style.setProperty("--flower-mask", `url("data:image/svg+xml,${flowerSilhouette}")`);
+
     const flowerMarkup = (id) => `
       <svg viewBox="0 0 320 320" aria-hidden="true">
         <defs>
@@ -2730,7 +2772,7 @@
     const feelingChips = document.querySelector("#feeling-chips");
     const emotionList = document.querySelector("#emotion-list");
     const impactContainer = document.querySelector("#impact-groups");
-    let currentView = "choice";
+    let currentView = "summary";
     let selectedFeeling = "";
     let pendingFeeling = selectedFeeling;
     let selectedLogType = "emotion";
@@ -2755,27 +2797,85 @@
       return "Muy agradable";
     };
 
-    const updateMood = () => {
-      const value = Number(moodRange.value);
+    const moodTone = value => {
       const upperIndex = Math.min(moodStops.length - 1, moodStops.findIndex(stop => stop.at >= value));
       const lowerIndex = Math.max(0, upperIndex - (moodStops[upperIndex].at === value ? 0 : 1));
       const lower = moodStops[lowerIndex];
       const upper = moodStops[upperIndex];
       const span = Math.max(1, upper.at - lower.at);
       const mix = Math.max(0, Math.min(1, (value - lower.at) / span));
-      const label = moodName(value);
+      const aWeight = `${((1 - mix) * 100).toFixed(2)}%`;
+      const bWeight = `${(mix * 100).toFixed(2)}%`;
+      return {
+        label: moodName(value),
+        a: lower.color,
+        b: upper.color,
+        aWeight,
+        bWeight,
+        color: `color-mix(in oklab, ${lower.color} ${aWeight}, ${upper.color} ${bWeight})`
+      };
+    };
+
+    const toneVars = tone => `--tone-a:${tone.a};--tone-b:${tone.b};--tone-a-weight:${tone.aWeight};--tone-b-weight:${tone.bWeight}`;
+
+    const applyTone = (element, tone) => {
+      element.style.setProperty("--tone-a", tone.a);
+      element.style.setProperty("--tone-b", tone.b);
+      element.style.setProperty("--tone-a-weight", tone.aWeight);
+      element.style.setProperty("--tone-b-weight", tone.bWeight);
+    };
+
+    const TODAY_KEY = "08-08";
+    const LOG_YEAR = 2026;
+    const MONTH_LABELS = { "07": "jul", "08": "ago" };
+    const WEEKDAY_LABELS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+
+    const MOOD_LOG = {
+      "07-09": { mood: 52, factors: ["Trabajo"], emotions: [{ name: "Ansiedad", value: 30, time: "09:40" }, { name: "Alivio", value: 64, time: "19:20" }] },
+      "07-10": { mood: 61, factors: ["Amistades", "Tareas"], emotions: [{ name: "Alegría", value: 78, time: "21:05" }] },
+      "07-11": { mood: 74, factors: ["Amistades", "Pasatiempos"], emotions: [{ name: "Diversión", value: 86, time: "17:30" }, { name: "Gratitud", value: 80, time: "23:10" }] },
+      "07-12": { mood: 80, factors: ["Familia", "Autocuidado"], emotions: [{ name: "Paz", value: 84, time: "11:15" }] },
+      "07-14": { mood: 44, factors: ["Trabajo", "Dinero"], emotions: [{ name: "Frustración", value: 26, time: "15:50" }] },
+      "07-15": { mood: 38, factors: ["Trabajo", "Salud"], emotions: [{ name: "Agotamiento", value: 22, time: "08:30" }, { name: "Molestia", value: 30, time: "14:05" }, { name: "Alivio", value: 58, time: "22:40" }] },
+      "07-16": { mood: null, factors: [], emotions: [{ name: "Ansiedad", value: 28, time: "10:10" }] },
+      "07-17": { mood: 47, factors: ["Estudios"], emotions: [] },
+      "07-18": { mood: 63, factors: ["Actividad física", "Autocuidado"], emotions: [{ name: "Satisfacción", value: 76, time: "19:00" }] },
+      "07-19": { mood: 78, factors: ["Familia", "Pasatiempos"], emotions: [{ name: "Calma", value: 72, time: "16:20" }, { name: "Felicidad", value: 88, time: "20:45" }] },
+      "07-20": { mood: 70, factors: ["Trabajo", "Comunidad"], emotions: [{ name: "Orgullo", value: 82, time: "13:35" }] },
+      "07-22": { mood: 55, factors: ["Tareas", "Clima"], emotions: [{ name: "Desánimo", value: 36, time: "18:15" }] },
+      "07-23": { mood: 33, factors: ["Salud", "Trabajo"], emotions: [{ name: "Tristeza", value: 18, time: "09:25" }, { name: "Inseguridad", value: 30, time: "16:40" }] },
+      "07-24": { mood: 41, factors: ["Trabajo", "Amistades"], emotions: [{ name: "Esperanza", value: 66, time: "21:30" }] },
+      "07-25": { mood: 68, factors: ["Amistades", "Pasatiempos"], emotions: [{ name: "Entusiasmo", value: 84, time: "18:05" }, { name: "Alegría", value: 80, time: "22:10" }] },
+      "07-26": { mood: 85, factors: ["Familia", "Viajes"], emotions: [{ name: "Asombro", value: 90, time: "12:40" }, { name: "Gratitud", value: 82, time: "20:00" }] },
+      "07-27": { mood: 72, factors: ["Viajes", "Pareja"], emotions: [{ name: "Confianza", value: 74, time: "15:05" }] },
+      "07-28": { mood: null, factors: [], emotions: [{ name: "Agotamiento", value: 34, time: "07:50" }, { name: "Alivio", value: 60, time: "21:15" }] },
+      "07-29": { mood: 49, factors: ["Trabajo", "Estudios"], emotions: [] },
+      "07-31": { mood: 66, factors: ["Trabajo", "Dinero"], emotions: [{ name: "Alivio", value: 70, time: "18:50" }, { name: "Satisfacción", value: 74, time: "21:40" }] },
+      "08-01": { mood: 82, factors: ["Familia", "Amistades"], emotions: [{ name: "Felicidad", value: 88, time: "14:20" }] },
+      "08-02": { mood: 76, factors: ["Autocuidado", "Pasatiempos"], emotions: [{ name: "Paz", value: 80, time: "10:30" }, { name: "Calma", value: 72, time: "22:05" }] },
+      "08-04": { mood: 45, factors: ["Trabajo", "Actualidad"], emotions: [{ name: "Enojo", value: 20, time: "16:55" }, { name: "Frustración", value: 28, time: "19:10" }] },
+      "08-05": { mood: 39, factors: ["Trabajo", "Salud"], emotions: [{ name: "Ansiedad", value: 26, time: "09:05" }] },
+      "08-06": { mood: 58, factors: ["Salud", "Autocuidado"], emotions: [{ name: "Esperanza", value: 70, time: "20:25" }] },
+      "08-07": { mood: null, factors: [], emotions: [{ name: "Vergüenza", value: 32, time: "13:00" }, { name: "Alivio", value: 64, time: "18:40" }] },
+      "08-08": { mood: 71, factors: ["Amistades", "Pareja"], emotions: [{ name: "Valentía", value: 79, time: "19:32" }, { name: "Gratitud", value: 84, time: "21:26" }] }
+    };
+
+    const dateLabel = key => {
+      const [month, day] = key.split("-");
+      const number = Number(day);
+      if (key === TODAY_KEY) return `Hoy, ${number} ${MONTH_LABELS[month]}`;
+      const weekday = WEEKDAY_LABELS[new Date(LOG_YEAR, Number(month) - 1, number).getDay()];
+      return `${weekday} ${number} ${MONTH_LABELS[month]}`;
+    };
+
+    const updateMood = () => {
+      const value = Number(moodRange.value);
+      const tone = moodTone(value);
+      const label = tone.label;
       currentMoodLabel = label;
 
-      themedElements.forEach(element => {
-        element.style.setProperty("--tone-a", lower.color);
-        element.style.setProperty("--tone-b", upper.color);
-        element.style.setProperty("--tone-a-weight", `${((1 - mix) * 100).toFixed(2)}%`);
-        element.style.setProperty("--tone-b-weight", `${(mix * 100).toFixed(2)}%`);
-      });
+      themedElements.forEach(element => applyTone(element, tone));
       document.querySelectorAll("[data-mood-label]").forEach(element => {
-        element.textContent = label;
-      });
-      document.querySelectorAll("[data-current-mood]").forEach(element => {
         element.textContent = label;
       });
       moodRange.setAttribute("aria-valuetext", label);
@@ -2796,7 +2896,7 @@
       statusTime.textContent = lateView ? "21:27" : "21:26";
       batteryLevel.textContent = lateView ? "77" : (Number(moodRange.value) <= 55 ? "78" : "77");
       if (isSummary) summaryView.scrollTop = 0;
-      if (name === "calendar") requestAnimationFrame(() => { calendarView.scrollTop = 64; });
+      if (name === "calendar") requestAnimationFrame(() => scrollToToday("auto"));
       else {
         document.querySelector("#calendar-help").classList.remove("is-open");
         document.querySelector("#calendar-info").setAttribute("aria-expanded", "false");
@@ -2830,18 +2930,30 @@
       `).join("");
     };
 
-    const renderMonth = ({ name, startOffset, firstDay, lastDay }) => {
+    const renderMonth = ({ name, month, startOffset, firstDay, lastDay }) => {
       const blanks = Array.from({ length: startOffset }, () => '<span class="calendar-day" aria-hidden="true"></span>').join("");
       const days = Array.from({ length: lastDay - firstDay + 1 }, (_, index) => {
         const day = firstDay + index;
-        const isAugust = name === "Ago";
-        const hasRing = !isAugust || day <= 9;
-        const isToday = isAugust && day === 8;
-        const isFuture = isAugust && day > 8;
-        return `<button class="calendar-day${isToday ? " is-today" : ""}${isFuture ? " is-future" : ""}" type="button" data-calendar-day="${day}" aria-label="${day} de ${name}">
+        const key = `${month}-${String(day).padStart(2, "0")}`;
+        const entry = MOOD_LOG[key];
+        const isToday = key === TODAY_KEY;
+        const isFuture = key > TODAY_KEY;
+        const dayTone = entry && entry.mood !== null ? moodTone(entry.mood) : null;
+        const emotions = entry ? entry.emotions : [];
+        const dotTone = emotions.length
+          ? moodTone(emotions.reduce((total, emotion) => total + emotion.value, 0) / emotions.length)
+          : null;
+
+        let shape = '<span aria-hidden="true"></span>';
+        if (dayTone) shape = `<span class="mood-shape" style="--day-color:${dayTone.color}" aria-hidden="true"></span>`;
+        else if (!isFuture) shape = '<span class="mood-ring" aria-hidden="true"></span>';
+
+        const label = dayTone ? `${day} de ${name}, ${dayTone.label.toLocaleLowerCase("es")}` : `${day} de ${name}`;
+
+        return `<button class="calendar-day${isToday ? " is-today" : ""}${isFuture ? " is-future" : ""}" type="button" data-calendar-day="${day}" data-date="${key}" aria-label="${label}">
           <span class="day-number">${day}</span>
-          ${hasRing ? '<span class="mood-ring" aria-hidden="true"></span>' : '<span aria-hidden="true"></span>'}
-          ${isToday ? '<span class="emotion-dot" aria-hidden="true"></span>' : '<span aria-hidden="true"></span>'}
+          ${shape}
+          ${dotTone ? `<span class="emotion-dot" style="--dot-color:${dotTone.color}" aria-hidden="true"></span>` : '<span aria-hidden="true"></span>'}
         </button>`;
       }).join("");
       return `<section class="month-block" aria-label="${name}">
@@ -2853,9 +2965,62 @@
 
     const renderCalendar = () => {
       document.querySelector("#calendar-months").innerHTML = [
-        renderMonth({ name: "Jul", startOffset: 0, firstDay: 20, lastDay: 31 }),
-        renderMonth({ name: "Ago", startOffset: 5, firstDay: 1, lastDay: 31 })
+        renderMonth({ name: "Jul", month: "07", startOffset: 2, firstDay: 1, lastDay: 31 }),
+        renderMonth({ name: "Ago", month: "08", startOffset: 5, firstDay: 1, lastDay: 31 })
       ].join("");
+    };
+
+    const dayState = document.querySelector("#day-state");
+    const dateLabelNode = document.querySelector("#date-label");
+    let flowerSeed = 0;
+
+    const emptyStateMarkup = `
+      <div class="empty-state">
+        <svg width="94" height="86" viewBox="0 0 94 86" fill="none" aria-hidden="true">
+          <path d="M47 69V31M47 47c-6-10-13-16-22-18M47 52c7-11 15-17 24-19M47 58c-10-8-19-11-29-11M47 58c10-8 19-11 29-11" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="47" cy="18" r="10" fill="currentColor"/><circle cx="18" cy="31" r="8" fill="currentColor"/><circle cx="76" cy="31" r="8" fill="currentColor"/><circle cx="8" cy="47" r="7" fill="currentColor"/><circle cx="86" cy="47" r="7" fill="currentColor"/>
+        </svg>
+        <strong>Sin registro</strong>
+      </div>`;
+
+    const flowerHost = (extraClass, tone) => {
+      flowerSeed += 1;
+      return `<div class="flower-host mood-theme ${extraClass}" style="${toneVars(tone)}" aria-hidden="true">${flowerMarkup(`summary-flower-${flowerSeed}`)}</div>`;
+    };
+
+    const renderDay = key => {
+      const entry = MOOD_LOG[key];
+      const tone = entry && entry.mood !== null ? moodTone(entry.mood) : null;
+      const emotions = entry ? entry.emotions : [];
+
+      dateLabelNode.textContent = dateLabel(key);
+
+      const moodBlock = tone
+        ? `<div class="day-mood">
+            ${flowerHost("day-flower", tone)}
+            <strong class="day-mood-label">${tone.label}</strong>
+            ${entry.factors.length ? `<ul class="day-factors">${entry.factors.map(factor => `<li>${factor}</li>`).join("")}</ul>` : ""}
+          </div>`
+        : emptyStateMarkup;
+
+      const momentaryBlock = emotions.length
+        ? `<div class="momentary">
+            <p class="momentary-label">EMOCIONES DEL MOMENTO</p>
+            ${[...emotions].sort((a, b) => b.time.localeCompare(a.time)).map(emotion => {
+              const emotionTone = moodTone(emotion.value);
+              return `<div class="momentary-row">
+                ${flowerHost("summary-flower", emotionTone)}
+                <div class="momentary-copy">
+                  <strong>${emotion.name}</strong>
+                  <span>${emotionTone.label}</span>
+                </div>
+                <time class="momentary-time">${emotion.time}</time>
+              </div>`;
+            }).join("")}
+          </div>`
+        : "";
+
+      dayState.innerHTML = moodBlock + momentaryBlock;
     };
 
     const openEmotionModal = () => {
@@ -2881,6 +3046,7 @@
     renderFeelings();
     renderImpacts();
     renderCalendar();
+    renderDay(TODAY_KEY);
     updateMood();
 
     moodRange.addEventListener("input", updateMood);
@@ -2967,14 +3133,19 @@
       calendarInfo.setAttribute("aria-expanded", "false");
       calendarInfo.focus();
     });
+    const scrollToToday = behavior => {
+      const today = document.querySelector(".calendar-day.is-today");
+      today?.scrollIntoView({ block: "center", behavior });
+    };
+
     document.querySelector("#today-button").addEventListener("click", () => {
-      calendarView.scrollTop = calendarView.scrollHeight * 0.26;
+      scrollToToday(matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
       liveStatus.textContent = "Se mostró la fecha de hoy.";
     });
     document.querySelector("#calendar-months").addEventListener("click", event => {
-      const day = event.target.closest("[data-calendar-day]");
+      const day = event.target.closest("[data-date]");
       if (!day) return;
-      document.querySelector("#date-label").textContent = `${day.dataset.calendarDay} ago`;
+      renderDay(day.dataset.date);
       showView("summary");
     });
 
@@ -3224,6 +3395,8 @@
       else if (chatHelpOverlay.classList.contains("is-open")) chatHelpOverlay.classList.remove("is-open");
       else if (chatClearBackdrop.classList.contains("is-open")) chatClearBackdrop.classList.remove("is-open");
     });
+
+    showView("summary");
   </script>
 </body>
 </html>
