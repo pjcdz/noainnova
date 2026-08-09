@@ -237,6 +237,10 @@
       transform-origin: var(--origin-x) var(--origin-y);
     }
 
+    .dashboard-transition-layer.is-ready {
+      visibility: visible;
+    }
+
     body.is-transitioning-to-dashboard .app-frame {
       pointer-events: none;
       will-change: filter, opacity, transform;
@@ -247,6 +251,23 @@
       visibility: visible;
       will-change: clip-path, opacity, transform;
       animation: dashboard-expand 680ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    body.is-dashboard-active {
+      overflow: hidden;
+      background: #f4f6f8;
+    }
+
+    body.is-dashboard-active .app-frame {
+      visibility: hidden;
+    }
+
+    body.is-dashboard-active .dashboard-transition-layer {
+      clip-path: inset(0 round 0);
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: none;
     }
 
     @keyframes consent-screen-recede {
@@ -396,7 +417,7 @@
 
   <iframe
     class="dashboard-transition-layer"
-    src="../frontent-2/dashboard.html"
+    data-src="../frontent-2/dashboard.html"
     title="Dashboard del Observatorio de Salud Mental"
     tabindex="-1"
     aria-hidden="true"
@@ -407,12 +428,22 @@
     const app = document.querySelector(".app-frame");
     const allowButton = document.querySelector(".allow-button");
     const dashboardTransition = document.querySelector(".dashboard-transition-layer");
-    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     let isTransitioningToDashboard = false;
 
-    allowButton.addEventListener("click", () => {
+    const dashboardReady = new Promise(resolve => {
+      dashboardTransition.addEventListener("load", () => {
+        dashboardTransition.classList.add("is-ready");
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }, { once: true });
+      dashboardTransition.src = dashboardTransition.dataset.src;
+    });
+
+    allowButton.addEventListener("click", async () => {
       if (isTransitioningToDashboard) return;
       isTransitioningToDashboard = true;
+      app.setAttribute("aria-busy", "true");
+
+      await dashboardReady;
 
       const buttonRect = allowButton.getBoundingClientRect();
       const clipRight = window.innerWidth - buttonRect.right;
@@ -429,11 +460,18 @@
       dashboardTransition.style.setProperty("--origin-y", `${originY}%`);
 
       document.body.classList.add("is-transitioning-to-dashboard");
-      app.setAttribute("aria-busy", "true");
+      await Promise.allSettled(
+        dashboardTransition.getAnimations().map(animation => animation.finished)
+      );
 
-      window.setTimeout(() => {
-        window.location.href = "../frontent-2/dashboard.html";
-      }, reduceMotion.matches ? 120 : 720);
+      document.body.classList.replace("is-transitioning-to-dashboard", "is-dashboard-active");
+      app.setAttribute("aria-hidden", "true");
+      app.removeAttribute("aria-busy");
+      dashboardTransition.removeAttribute("aria-hidden");
+      dashboardTransition.removeAttribute("inert");
+      dashboardTransition.removeAttribute("tabindex");
+      isTransitioningToDashboard = false;
+      dashboardTransition.focus({ preventScroll: true });
     });
 
     window.addEventListener("pageshow", () => {

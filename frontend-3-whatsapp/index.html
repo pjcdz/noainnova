@@ -342,6 +342,10 @@
       transform-origin: 50% 62%;
     }
 
+    .health-transition-layer.is-ready {
+      visibility: visible;
+    }
+
     .app-frame.is-transitioning-to-health {
       background: #c1c1c5;
     }
@@ -356,6 +360,28 @@
       visibility: visible;
       will-change: border-radius, filter, opacity, transform;
       animation: ios-health-app-open 560ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+
+    .app-frame.is-health-active {
+      overflow: visible;
+      background: #c1c1c5;
+    }
+
+    .app-frame.is-health-active .whatsapp-screen {
+      visibility: hidden;
+    }
+
+    .app-frame.is-health-active .health-transition-layer {
+      position: fixed;
+      z-index: 10;
+      inset: 0;
+      width: 100vw;
+      height: 100svh;
+      border-radius: 0;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: none;
     }
 
     @keyframes ios-source-screen {
@@ -577,8 +603,14 @@
     const postConsentLayer = document.querySelector("#post-consent-layer");
     const healthTransitionLayer = document.querySelector("#health-transition-layer");
     const liveStatus = document.querySelector("#live-status");
-    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     let isTransitioningToHealth = false;
+
+    const healthReady = new Promise(resolve => {
+      healthTransitionLayer.addEventListener("load", () => {
+        healthTransitionLayer.classList.add("is-ready");
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }, { once: true });
+    });
 
     const labels = {
       mami: "Chat de WhatsApp con Mami",
@@ -621,23 +653,28 @@
       }
     }
 
-    consentLink.addEventListener("click", event => {
+    consentLink.addEventListener("click", async event => {
       event.preventDefault();
       if (isTransitioningToHealth) return;
 
       isTransitioningToHealth = true;
-      const destination = consentLink.href;
-      const returnUrl = new URL(location.href);
-      returnUrl.hash = "salta-bot";
-      history.replaceState(null, "", returnUrl);
-
-      app.classList.add("is-transitioning-to-health");
       app.setAttribute("aria-busy", "true");
       liveStatus.textContent = "Abriendo HealthApp.";
 
-      window.setTimeout(() => {
-        window.location.href = destination;
-      }, reduceMotion.matches ? 120 : 620);
+      await healthReady;
+      app.classList.add("is-transitioning-to-health");
+      await Promise.allSettled(
+        healthTransitionLayer.getAnimations().map(animation => animation.finished)
+      );
+
+      app.classList.replace("is-transitioning-to-health", "is-health-active");
+      document.querySelector(".whatsapp-screen").setAttribute("aria-hidden", "true");
+      healthTransitionLayer.removeAttribute("aria-hidden");
+      healthTransitionLayer.removeAttribute("inert");
+      healthTransitionLayer.removeAttribute("tabindex");
+      app.removeAttribute("aria-busy");
+      isTransitioningToHealth = false;
+      healthTransitionLayer.focus({ preventScroll: true });
     });
 
     window.addEventListener("pageshow", () => {
