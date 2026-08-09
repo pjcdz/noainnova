@@ -1105,6 +1105,25 @@
       color: oklch(0.76 0.008 270);
     }
 
+    .day-chat {
+      padding-top: 17px;
+      margin-top: 17px;
+      border-top: 1px solid oklch(0.45 0.008 270 / 0.55);
+    }
+
+    .day-chat-label {
+      margin: 0 0 15px;
+      color: oklch(0.80 0.018 260);
+      font-size: 0.75rem;
+      letter-spacing: 0.025em;
+    }
+
+    .day-chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     .charts-button {
       width: 100%;
       min-height: 48px;
@@ -1574,6 +1593,14 @@
 
     .momentary-row + .momentary-row {
       margin-top: 16px;
+    }
+
+    .day-chat {
+      border-top-color: oklch(0.82 0.006 270);
+    }
+
+    .day-chat-label {
+      color: oklch(0.56 0.012 250);
     }
 
     .preset-tone {
@@ -2468,6 +2495,11 @@
       background: var(--white);
     }
 
+    .chat-typing {
+      opacity: 0.6;
+      font-style: italic;
+    }
+
     .chat-bubble.user {
       align-self: flex-end;
       border-radius: 20px 20px 6px 20px;
@@ -3296,7 +3328,7 @@
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 10 16.5 3.5 12 17l-2.6-5.6L3 10Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.4 11.4 16.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           </button>
         </form>
-        <p class="chat-privacy">Todo lo que escribís queda guardado solo en este dispositivo. No se envía a ningún servidor.</p>
+        <p class="chat-privacy">Tus mensajes se guardan solo en este dispositivo. Para generar la respuesta se envían a un servicio de IA, que no los almacena.</p>
       </div>
 
       <div class="chat-clear-backdrop" id="chat-clear-backdrop">
@@ -4058,6 +4090,115 @@
       return `<div class="flower-host mood-theme ${extraClass}" style="${toneVars(tone)}" aria-hidden="true">${flowerMarkup(`summary-flower-${flowerSeed}`)}</div>`;
     };
 
+    const EMOTION_INFO = {
+      alegria: { label: "Alegría", gloss: "El cuerpo liviano, ganas de compartirlo con alguien." },
+      confianza: { label: "Confianza", gloss: "Sentís que podés con esto, o que alguien te banca." },
+      calma: { label: "Calma", gloss: "Nada tira de vos. El pecho respira despacio." },
+      sorpresa: { label: "Sorpresa", gloss: "Algo se salió del guion y todavía lo estás procesando." },
+      tristeza: { label: "Tristeza", gloss: "Pesa. Cuesta arrancar y las cosas pierden color." },
+      miedo: { label: "Miedo", gloss: "Algo puede salir mal y el cuerpo ya se preparó." },
+      enojo: { label: "Enojo", gloss: "Algo no está bien y hay energía queriendo salir." },
+      verguenza: { label: "Vergüenza", gloss: "Ganas de que nadie te esté mirando ahora mismo." },
+    };
+
+    // Traduce los feelings libres de este mockup a una de las 8 emociones del motor de chat.
+    const FEELING_TO_EMOTION = {
+      Alegría: "alegria", Diversión: "alegria", Entusiasmo: "alegria", Felicidad: "alegria",
+      Gratitud: "alegria", Pasión: "alegria", Satisfacción: "alegria",
+      Confianza: "confianza", Valentía: "confianza", Esperanza: "confianza", Orgullo: "confianza",
+      Calma: "calma", "A gusto": "calma", Alivio: "calma", Paz: "calma",
+      Asombro: "sorpresa", Sorpresa: "sorpresa",
+      Decepción: "tristeza", Desánimo: "tristeza", Agotamiento: "tristeza", Tristeza: "tristeza",
+      Ansiedad: "miedo", Inseguridad: "miedo",
+      Enojo: "enojo", Molestia: "enojo", Frustración: "enojo", Asco: "enojo",
+      Vergüenza: "verguenza",
+    };
+
+    const escapeHtml = text => text.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+    // Conversación guionada (mockup) para el detalle de día, 3 mensajes de usuario + 3 respuestas por emoción.
+    const SIMULATED_CHATS = {
+      alegria: [
+        { role: "user", text: "Hoy me desperté con una energía rara, todo me sale bien y no sé bien por qué." },
+        { role: "bot", text: "Qué lindo leer esto. A veces los días buenos no necesitan una razón grande, alcanza con que se alineen un par de cosas chicas." },
+        { role: "user", text: "Sí, fue una juntada con amigos que no esperaba que saliera tan bien." },
+        { role: "bot", text: "Los vínculos que te sorprenden para bien dejan ese resto lindo todo el día. ¿Hay algo de hoy que quieras guardar para un día más gris?" },
+        { role: "user", text: "Nunca pensé en eso, pero me gusta la idea." },
+        { role: "bot", text: "Anotalo en una línea, aunque sea. Sirve para volver a leerlo cuando haga falta." },
+      ],
+      confianza: [
+        { role: "user", text: "Hoy sentí que puedo con lo que se viene, no sé si me dura." },
+        { role: "bot", text: "Aunque no dure, vale la pena usarlo mientras está. ¿Qué fue lo que te hizo sentir así?" },
+        { role: "user", text: "Terminé algo que venía postergando hace semanas." },
+        { role: "bot", text: "Eso pesa más de lo que parece. Sacarte una postergación de encima cambia cómo ves todo lo demás." },
+        { role: "user", text: "Ahora tengo ganas de encarar otra cosa que me daba nervios." },
+        { role: "bot", text: "Aprovechá el envión para esa, mientras tenés el impulso. Una sola, la más chica, no hace falta resolver todo hoy." },
+      ],
+      calma: [
+        { role: "user", text: "No sé bien cómo explicarlo, pero hoy estoy tranquilo. Nada me está apretando." },
+        { role: "bot", text: "Qué bueno tener un día así. No hace falta explicarlo del todo, alcanza con notarlo." },
+        { role: "user", text: "Es raro, casi no confío en que dure." },
+        { role: "bot", text: "Es normal desconfiar de la calma cuando no estás acostumbrado a ella. No tenés que llenarla de tareas para que valga." },
+        { role: "user", text: "Voy a tratar de quedarme un rato más así, sin hacer nada." },
+        { role: "bot", text: "Buena decisión. Fijate qué de hoy te trajo hasta acá, para poder volver a este lugar a propósito." },
+      ],
+      sorpresa: [
+        { role: "user", text: "Pasó algo hoy que no vi venir para nada, todavía lo estoy procesando." },
+        { role: "bot", text: "Lo inesperado necesita su tiempo para asentarse, no hace falta que lo resuelvas ya." },
+        { role: "user", text: "Es que no sé si fue bueno o malo, todavía no lo tengo claro." },
+        { role: "bot", text: "Podés separarlo en dos columnas: qué sabés con certeza y qué estás suponiendo. Ayuda a ordenar." },
+        { role: "user", text: "Buena idea, creo que estoy suponiendo más de lo que sé." },
+        { role: "bot", text: "Pasa seguido con lo inesperado. Contáselo a alguien en voz alta, suele ordenar más rápido que pensarlo solo." },
+      ],
+      tristeza: [
+        { role: "user", text: "Hoy no tengo ganas de nada, todo pesa más de lo normal." },
+        { role: "bot", text: "Te leo. No hace falta que tenga sentido ordenado para que sea real." },
+        { role: "user", text: "Ni siquiera sé bien por qué, simplemente estoy bajón." },
+        { role: "bot", text: "A veces no hay un motivo grande y puntual, y también cuenta. ¿Desde cuándo venís sintiéndolo así?" },
+        { role: "user", text: "Un par de días, creo. No le presté mucha atención." },
+        { role: "bot", text: "Bajá la vara de hoy a una sola cosa, que esa cuente como suficiente. Y si podés, escribile a alguien aunque sea «ando bajón»." },
+      ],
+      miedo: [
+        { role: "user", text: "Estoy nervioso, siento que algo puede salir mal y no puedo bajar el cuerpo." },
+        { role: "bot", text: "El cuerpo ya se preparó para algo que todavía no pasó. Probemos bajarlo un poco: inhalá 4, sostené 7, soltá 8." },
+        { role: "user", text: "Ok, lo hice un par de veces, ayuda un poco." },
+        { role: "bot", text: "Bien ahí. ¿Qué es puntualmente lo que temés que pase?" },
+        { role: "user", text: "Que se complique algo del trabajo que tengo pendiente." },
+        { role: "bot", text: "Escribí eso que temés y al lado qué harías si pasara. El plan achica el monstruo, aunque no lo saque del todo." },
+      ],
+      enojo: [
+        { role: "user", text: "Estoy re enojado, tengo ganas de mandar un mensaje que después me voy a arrepentir." },
+        { role: "bot", text: "Ese impulso tiene sentido, pero probemos frenarlo un momento. ¿Qué límite sentís que se cruzó?" },
+        { role: "user", text: "Que no me tuvieron en cuenta para algo importante, otra vez." },
+        { role: "bot", text: "El enojo casi siempre marca eso, un límite que no se respetó. Gastá esa energía en el cuerpo antes que en palabras: caminá rápido, subí escaleras." },
+        { role: "user", text: "Voy a salir a caminar un rato antes de escribir nada." },
+        { role: "bot", text: "Buena decisión. Escribí el mensaje si querés, pero no lo mandes hoy. Mañana lo releés con otra cabeza." },
+      ],
+      verguenza: [
+        { role: "user", text: "Hice algo hoy que me da mucha vergüenza, no quiero que nadie se entere." },
+        { role: "bot", text: "Gracias por contarlo acá. La vergüenza se achica cuando sale del encierro, aunque sea con una sola persona." },
+        { role: "user", text: "No sé, siento que me van a juzgar si lo cuento." },
+        { role: "bot", text: "Separá lo que hiciste de lo que sos, son cosas distintas aunque hoy no lo parezca." },
+        { role: "user", text: "Nunca lo pensé así, la verdad." },
+        { role: "bot", text: "Escribí qué le dirías a un amigo en tu misma situación, y leelo como si te lo dijeran a vos. Suele cambiar bastante la mirada." },
+      ],
+    };
+
+    const emotionForDay = entry => {
+      if (entry.emotions.length) {
+        const latest = [...entry.emotions].sort((a, b) => b.time.localeCompare(a.time))[0];
+        const mapped = FEELING_TO_EMOTION[latest.name];
+        if (mapped) return mapped;
+      }
+      if (typeof entry.mood === "number") {
+        if (entry.mood < 44) return "tristeza";
+        if (entry.mood < 55) return "calma";
+        if (entry.mood < 78) return "confianza";
+        return "alegria";
+      }
+      return "calma";
+    };
+
     const renderDay = key => {
       const entry = MOOD_LOG[key];
       const tone = entry && entry.mood !== null ? moodTone(entry.mood) : null;
@@ -4090,7 +4231,16 @@
           </div>`
         : "";
 
-      dayState.innerHTML = moodBlock + momentaryBlock;
+      const chatBlock = entry
+        ? `<div class="day-chat">
+            <p class="day-chat-label">CONVERSACIÓN SIMULADA</p>
+            <div class="day-chat-messages">
+              ${SIMULATED_CHATS[emotionForDay(entry)].map(m => `<p class="chat-bubble ${m.role}">${escapeHtml(m.text)}</p>`).join("")}
+            </div>
+          </div>`
+        : "";
+
+      dayState.innerHTML = moodBlock + momentaryBlock + chatBlock;
     };
 
     const openEmotionModal = () => {
@@ -4236,7 +4386,8 @@
       });
     });
 
-    // --- Chat: motor de respuestas por reglas, corre entero en el dispositivo ---
+    // --- Chat: respuestas de OpenAI vía /api/chat; el motor de reglas de abajo
+    // queda como fallback si la llamada al servidor falla ---
 
     const normalizeText = text => text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
@@ -4327,17 +4478,6 @@
       verguenza: ["Contáselo a una sola persona de confianza. La vergüenza se achica cuando sale del encierro.", "Escribí qué le dirías a un amigo en tu misma situación, y leelo como si te lo dijeran a vos.", "Separá lo que hiciste de lo que sos. Son cosas distintas aunque hoy no lo parezcan."],
     };
 
-    const EMOTION_INFO = {
-      alegria: { label: "Alegría", gloss: "El cuerpo liviano, ganas de compartirlo con alguien." },
-      confianza: { label: "Confianza", gloss: "Sentís que podés con esto, o que alguien te banca." },
-      calma: { label: "Calma", gloss: "Nada tira de vos. El pecho respira despacio." },
-      sorpresa: { label: "Sorpresa", gloss: "Algo se salió del guion y todavía lo estás procesando." },
-      tristeza: { label: "Tristeza", gloss: "Pesa. Cuesta arrancar y las cosas pierden color." },
-      miedo: { label: "Miedo", gloss: "Algo puede salir mal y el cuerpo ya se preparó." },
-      enojo: { label: "Enojo", gloss: "Algo no está bien y hay energía queriendo salir." },
-      verguenza: { label: "Vergüenza", gloss: "Ganas de que nadie te esté mirando ahora mismo." },
-    };
-
     const RISK_REPLY = "Paro acá con lo demás. Lo que acabás de escribir importa más que cualquier otra cosa que estemos hablando, y no quiero que lo atravieses solo. Estas son las tres cosas que podés hacer ahora mismo.";
 
     const respond = (text, { emotion, turn }) => {
@@ -4359,19 +4499,6 @@
       return `Anotaste ${e.label.toLowerCase()}. ${e.gloss} ¿Querés contarme un poco más, ${nick || "che"}?`;
     };
 
-    // Traduce los feelings libres de este mockup a una de las 8 emociones del motor de chat.
-    const FEELING_TO_EMOTION = {
-      Alegría: "alegria", Diversión: "alegria", Entusiasmo: "alegria", Felicidad: "alegria",
-      Gratitud: "alegria", Pasión: "alegria", Satisfacción: "alegria",
-      Confianza: "confianza", Valentía: "confianza", Esperanza: "confianza", Orgullo: "confianza",
-      Calma: "calma", "A gusto": "calma", Alivio: "calma", Paz: "calma",
-      Asombro: "sorpresa", Sorpresa: "sorpresa",
-      Decepción: "tristeza", Desánimo: "tristeza", Agotamiento: "tristeza", Tristeza: "tristeza",
-      Ansiedad: "miedo", Inseguridad: "miedo",
-      Enojo: "enojo", Molestia: "enojo", Frustración: "enojo", Asco: "enojo",
-      Vergüenza: "verguenza",
-    };
-
     const lastChatEmotion = () => FEELING_TO_EMOTION[selectedFeeling] || null;
 
     const CHAT_STORAGE_KEY = "chat-messages.v1";
@@ -4387,8 +4514,6 @@
     const chatSend = document.querySelector("#chat-send");
     const chatClearBackdrop = document.querySelector("#chat-clear-backdrop");
     const chatHelpOverlay = document.querySelector("#chat-help-overlay");
-
-    const escapeHtml = text => text.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
     const renderChat = () => {
       const emotion = lastChatEmotion();
@@ -4407,27 +4532,62 @@
       renderChat();
     };
 
-    const sendChatMessage = () => {
+    const respondWithRules = input => {
+      const turn = chatMessages.filter(m => m.role === "user").length;
+      const reply = respond(input, { emotion: lastChatEmotion(), turn });
+      const parts = [reply.empathy];
+      if (reply.followUp) parts.push(reply.followUp);
+      if (reply.tools) parts.push("Algunas opciones, por si alguna te sirve. Elegís vos:\n" + reply.tools.map(t => `· ${t}`).join("\n"));
+      return parts.join("\n\n");
+    };
+
+    const showTyping = () => {
+      const p = document.createElement("p");
+      p.className = "chat-bubble bot chat-typing";
+      p.textContent = "Escribiendo…";
+      chatMessagesEl.appendChild(p);
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      return p;
+    };
+
+    const sendChatMessage = async () => {
       const input = chatInput.value.trim();
       if (!input) return;
       chatInput.value = "";
       chatSend.disabled = true;
       addChatMessage("user", input);
 
-      const turn = chatMessages.filter(m => m.role === "user").length;
-      const reply = respond(input, { emotion: lastChatEmotion(), turn });
-
-      if (reply.kind === "risk") {
+      if (detectRisk(input)) {
         addChatMessage("bot", RISK_REPLY);
         chatHelpOverlay.classList.add("is-open");
         document.querySelector("#chat-help-close").focus();
         return;
       }
 
-      const parts = [reply.empathy];
-      if (reply.followUp) parts.push(reply.followUp);
-      if (reply.tools) parts.push("Algunas opciones, por si alguna te sirve. Elegís vos:\n" + reply.tools.map(t => `· ${t}`).join("\n"));
-      addChatMessage("bot", parts.join("\n\n"));
+      chatInput.disabled = true;
+      const typingEl = showTyping();
+      try {
+        const history = chatMessages.slice(-20).map(m => ({
+          role: m.role === "user" ? "user" : "assistant",
+          content: m.text,
+        }));
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: history }),
+        });
+        if (!res.ok) throw new Error(`api/chat ${res.status}`);
+        const { reply } = await res.json();
+        if (!reply) throw new Error("api/chat: respuesta vacía");
+        addChatMessage("bot", reply);
+      } catch (err) {
+        console.error("Fallo la llamada a /api/chat, uso respuesta por reglas.", err);
+        addChatMessage("bot", respondWithRules(input));
+      } finally {
+        typingEl.remove();
+        chatInput.disabled = false;
+        chatInput.focus();
+      }
     };
 
     chatInput.addEventListener("input", () => { chatSend.disabled = !chatInput.value.trim(); });

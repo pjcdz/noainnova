@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anima</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    background: #fff;
+  }
+
+  h1 {
+    margin: 0;
+    color: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    font-size: clamp(2.25rem, 9vw, 4.5rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
+
+  /* Same flower geometry/tone system as the mood-picker step in index.html (renderFlowerGeometry),
+     rendered live as SVG so there is no baked-in background square, just the shape on white. */
+  .mood-theme {
+    --tone-a: oklch(0.68 0.10 220);
+    --tone-b: oklch(0.68 0.10 220);
+    --tone-a-weight: 100%;
+    --tone-b-weight: 0%;
+    --mood-color: color-mix(in oklab, var(--tone-a) var(--tone-a-weight), var(--tone-b) var(--tone-b-weight));
+    --panel-center: color-mix(in oklab, var(--mood-color) 15%, #fff);
+    --flower-deep: var(--mood-color);
+    --flower-mid: color-mix(in oklab, var(--mood-color) 72%, #fff);
+    --flower-light: color-mix(in oklab, var(--mood-color) 34%, #fff);
+    --flower-edge: color-mix(in oklab, var(--mood-color) 14%, #fff);
+  }
+
+  .flower-host {
+    width: min(82vw, 320px);
+    aspect-ratio: 1;
+    color: var(--flower-deep);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .flower-host svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 12px 22px color-mix(in oklab, var(--flower-deep) 22%, transparent));
+  }
+
+  .flower-host .flower-layer,
+  .flower-host .flower-center {
+    vector-effect: non-scaling-stroke;
+    transition: fill 220ms cubic-bezier(0.22, 1, 0.36, 1), stroke 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .flower-host .flower-outer { stroke: color-mix(in oklab, var(--flower-edge) 48%, transparent); stroke-width: 2; opacity: 0.42; }
+  .flower-host .flower-middle { stroke: var(--flower-edge); stroke-width: 2.1; opacity: 0.6; }
+  .flower-host .flower-inner { stroke: var(--flower-edge); stroke-width: 1.8; opacity: 0.82; }
+  .flower-host .flower-core { stroke: var(--flower-edge); stroke-width: 1.5; opacity: 0.94; }
+
+  .flower-host .flower-ray-outer { opacity: 0.34; }
+  .flower-host .flower-ray-inner { opacity: 0.58; }
+
+  .flower-host .flower-center {
+    fill: var(--panel-center);
+    stroke: color-mix(in oklab, var(--flower-deep) 78%, var(--flower-edge));
+    stroke-width: 1.3;
+  }
+
+  .flower-host .flower-center-star {
+    fill: var(--panel-center);
+    stroke: color-mix(in oklab, var(--flower-deep) 78%, var(--flower-edge));
+    stroke-width: 1.1;
+    opacity: 0;
+    transition: opacity 160ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flower-host { display: none; }
+  }
+</style>
+</head>
+<body>
+  <h1>Anima</h1>
+  <div class="flower-host mood-theme" data-flower aria-hidden="true"></div>
+
+<script>
+  const FLOWER_PATH = "M160 12C195 12 204 73 234 80C271 78 305 96 310 128C315 159 278 177 275 206C279 245 258 281 225 291C198 300 177 278 160 270C141 279 119 301 91 291C56 281 36 245 44 207C39 178 5 161 10 128C15 96 49 78 86 80C116 73 125 12 160 12Z";
+
+  const flowerMarkup = id => `
+    <svg viewBox="0 0 320 320" aria-hidden="true">
+      <defs>
+        <radialGradient id="${id}-outer" cx="50%" cy="46%" r="62%">
+          <stop offset="0" style="stop-color:var(--flower-light);stop-opacity:.88"/>
+          <stop offset=".46" style="stop-color:var(--flower-mid);stop-opacity:.72"/>
+          <stop offset="1" style="stop-color:var(--flower-deep);stop-opacity:.18"/>
+        </radialGradient>
+        <radialGradient id="${id}-middle" cx="50%" cy="44%" r="62%">
+          <stop offset="0" style="stop-color:var(--flower-light);stop-opacity:.96"/>
+          <stop offset=".52" style="stop-color:var(--flower-mid);stop-opacity:.9"/>
+          <stop offset="1" style="stop-color:var(--flower-deep);stop-opacity:.66"/>
+        </radialGradient>
+        <radialGradient id="${id}-inner" cx="50%" cy="38%" r="68%">
+          <stop offset="0" style="stop-color:var(--flower-edge)"/>
+          <stop offset=".48" style="stop-color:var(--flower-light)"/>
+          <stop offset="1" style="stop-color:var(--flower-mid)"/>
+        </radialGradient>
+        <linearGradient id="${id}-ray" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" style="stop-color:var(--flower-edge);stop-opacity:0"/>
+          <stop offset=".65" style="stop-color:var(--flower-edge);stop-opacity:.7"/>
+          <stop offset="1" style="stop-color:var(--flower-edge);stop-opacity:0"/>
+        </linearGradient>
+        <filter id="${id}-glow" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="5"/></filter>
+        <path id="${id}-shape" d="${FLOWER_PATH}"/>
+        <clipPath id="${id}-outer-clip"><use href="#${id}-shape"/></clipPath>
+        <clipPath id="${id}-inner-clip"><use href="#${id}-shape" transform="translate(80 80) scale(.5)"/></clipPath>
+      </defs>
+      <use href="#${id}-shape" class="flower-layer flower-outer" fill="url(#${id}-outer)"/>
+      <g clip-path="url(#${id}-outer-clip)" filter="url(#${id}-glow)">
+        ${[0,72,144,216,288].map(angle => `<path class="flower-ray-outer" d="M160 162 130 25h60Z" fill="url(#${id}-ray)" transform="rotate(${angle} 160 162)"/>`).join("")}
+      </g>
+      <use href="#${id}-shape" class="flower-layer flower-middle" fill="url(#${id}-middle)" transform="translate(35.2 35.2) scale(.78)"/>
+      <use href="#${id}-shape" class="flower-layer flower-inner" fill="url(#${id}-inner)" transform="translate(80 80) scale(.5)"/>
+      <use href="#${id}-shape" class="flower-layer flower-core" fill="url(#${id}-inner)" transform="translate(112 112) scale(.3)"/>
+      <g clip-path="url(#${id}-inner-clip)" filter="url(#${id}-glow)">
+        ${[0,72,144,216,288].map(angle => `<path class="flower-ray-inner" d="M160 161 145 88h30Z" fill="url(#${id}-ray)" transform="rotate(${angle} 160 161)"/>`).join("")}
+      </g>
+      <circle class="flower-center" cx="160" cy="161" r="7"/>
+      <path class="flower-center-star" d="M160 153 162.4 157.1 167 158 163.6 161.3 164.5 166 160 163.8 155.5 166 156.4 161.3 153 158 157.6 157.1Z"/>
+    </svg>`;
+
+  const moodFlower = document.querySelector("[data-flower]");
+  moodFlower.innerHTML = flowerMarkup("flower-0");
+
+  const closedCurve = points => {
+    const count = points.length;
+    const commands = [`M${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`];
+    for (let index = 0; index < count; index += 1) {
+      const previous = points[(index - 1 + count) % count];
+      const current = points[index];
+      const next = points[(index + 1) % count];
+      const after = points[(index + 2) % count];
+      const controlA = { x: current.x + (next.x - previous.x) / 6, y: current.y + (next.y - previous.y) / 6 };
+      const controlB = { x: next.x - (after.x - current.x) / 6, y: next.y - (after.y - current.y) / 6 };
+      commands.push(`C${controlA.x.toFixed(2)} ${controlA.y.toFixed(2)} ${controlB.x.toFixed(2)} ${controlB.y.toFixed(2)} ${next.x.toFixed(2)} ${next.y.toFixed(2)}`);
+    }
+    return `${commands.join(" ")} Z`;
+  };
+
+  const pointCount = 120;
+  const logoProbe = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  logoProbe.setAttribute("d", FLOWER_PATH);
+  const logoLength = logoProbe.getTotalLength();
+  const logoSamples = Array.from({ length: 1200 }, (_, index) => {
+    const point = logoProbe.getPointAtLength((index / 1200) * logoLength);
+    return { angle: Math.atan2(point.y - 160, point.x - 160), radius: Math.hypot(point.x - 160, point.y - 160) };
+  });
+  const angularDistance = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+  const logoRadii = Array.from({ length: pointCount }, (_, index) => {
+    const angle = (index / pointCount) * Math.PI * 2 - Math.PI / 2;
+    return logoSamples.reduce((closest, sample) => (
+      angularDistance(sample.angle, angle) < angularDistance(closest.angle, angle) ? sample : closest
+    )).radius;
+  });
+
+  const proceduralFlowerPath = (value, time = 0) => {
+    const normalized = Math.max(-1, Math.min(1, (value - 50) / 50));
+    const magnitude = Math.abs(normalized);
+    const easedMagnitude = magnitude * magnitude * (3 - 2 * magnitude);
+    const breath = Math.sin(time / 760) * 0.008;
+    const phase = Math.sin(time / 1450) * 0.035;
+    const points = [];
+
+    for (let index = 0; index < pointCount; index += 1) {
+      const angle = (index / pointCount) * Math.PI * 2 - Math.PI / 2;
+      const aligned = angle + Math.PI / 2;
+      let radius = 145 * (1 + breath + Math.sin(aligned * 3 + phase) * 0.009 * (1 - magnitude));
+
+      if (normalized < -0.001) {
+        const frequency = 6 + easedMagnitude * 4;
+        const lower = Math.floor(frequency);
+        const mix = frequency - lower;
+        const wave = Math.cos(lower * aligned + phase) * (1 - mix) + Math.cos((lower + 1) * aligned + phase) * mix;
+        const targetRadius = 145 * (1 - 0.36 * ((1 - wave) / 2));
+        radius += (targetRadius - 145) * easedMagnitude;
+      } else if (normalized > 0.001) {
+        radius += (logoRadii[index] - 145) * easedMagnitude;
+      }
+
+      points.push({ x: 160 + Math.cos(angle) * radius, y: 160 + Math.sin(angle) * radius });
+    }
+
+    return closedCurve(points);
+  };
+
+  const renderFlowerGeometry = (host, value, time = 0) => {
+    const shape = host.querySelector('defs path[id$="-shape"]');
+    if (!shape) return;
+
+    const normalized = Math.max(-1, Math.min(1, (value - 50) / 50));
+    const magnitude = Math.abs(normalized);
+    const direction = normalized < 0 ? -1 : 1;
+    const rotations = normalized < 0 ? [-6, 4, -3, 2].map(rotation => rotation * magnitude) : [0, 0, 0, 0];
+
+    shape.setAttribute("d", proceduralFlowerPath(value, time));
+    host.querySelector(".flower-outer")?.setAttribute("transform", `rotate(${rotations[0]} 160 160)`);
+    host.querySelector(".flower-middle")?.setAttribute("transform", `translate(35.2 35.2) scale(.78) rotate(${rotations[1]} 160 160)`);
+    host.querySelector(".flower-inner")?.setAttribute("transform", `translate(80 80) scale(.5) rotate(${rotations[2]} 160 160)`);
+    host.querySelector(".flower-core")?.setAttribute("transform", `translate(112 112) scale(.3) rotate(${rotations[3]} 160 160)`);
+    const centerCircle = host.querySelector(".flower-center");
+    const centerStar = host.querySelector(".flower-center-star");
+    if (centerCircle) centerCircle.style.opacity = String(1 - magnitude);
+    if (centerStar) centerStar.style.opacity = String(magnitude);
+    host.querySelectorAll(".flower-ray-outer, .flower-ray-inner").forEach((ray, index) => {
+      const baseOpacity = ray.classList.contains("flower-ray-inner") ? 0.58 : 0.34;
+      ray.style.opacity = String(baseOpacity + (normalized < 0 ? magnitude * 0.18 : magnitude * 0.06) + index * 0.002 * direction);
+    });
+  };
+
+  const moodStops = [
+    { at: 0, color: "oklch(0.45 0.22 300)" },
+    { at: 28, color: "oklch(0.53 0.20 263)" },
+    { at: 45, color: "oklch(0.62 0.15 238)" },
+    { at: 50, color: "oklch(0.68 0.11 210)" },
+    { at: 66, color: "oklch(0.70 0.19 132)" },
+    { at: 84, color: "oklch(0.79 0.18 92)" },
+    { at: 100, color: "oklch(0.74 0.19 55)" }
+  ];
+
+  const moodTone = value => {
+    const upperIndex = Math.min(moodStops.length - 1, moodStops.findIndex(stop => stop.at >= value));
+    const lowerIndex = Math.max(0, upperIndex - (moodStops[upperIndex].at === value ? 0 : 1));
+    const lower = moodStops[lowerIndex];
+    const upper = moodStops[upperIndex];
+    const span = Math.max(1, upper.at - lower.at);
+    const mix = Math.max(0, Math.min(1, (value - lower.at) / span));
+    return { a: lower.color, b: upper.color, aWeight: `${((1 - mix) * 100).toFixed(2)}%`, bWeight: `${(mix * 100).toFixed(2)}%` };
+  };
+
+  const applyTone = (element, tone) => {
+    element.style.setProperty("--tone-a", tone.a);
+    element.style.setProperty("--tone-b", tone.b);
+    element.style.setProperty("--tone-a-weight", tone.aWeight);
+    element.style.setProperty("--tone-b-weight", tone.bWeight);
+  };
+
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+  window.addEventListener("keydown", event => {
+    if (event.code === "Space") {
+      event.preventDefault();
+      window.location.href = "presentacion.html";
+    }
+  });
+
+  const tick = time => {
+    if (!reduceMotion.matches) {
+      const value = 50 + 50 * Math.sin(time / 4000);
+      applyTone(moodFlower, moodTone(value));
+      renderFlowerGeometry(moodFlower, value, time);
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+</script>
+</body>
+</html>
