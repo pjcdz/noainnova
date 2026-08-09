@@ -9,15 +9,11 @@
     color-scheme: light;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
     --white: oklch(1 0 0);
-    --blue: oklch(0.56 0.18 255);
-    --naranja: oklch(0.72 0.18 50);
-    --alarma: oklch(0.58 0.22 28);
-    --fondo: oklch(0.965 0.006 270);
+    --acento: oklch(0.58 0.22 28);
+    --fondo: oklch(0.975 0.004 80);
     --tinta: oklch(0.14 0.004 270);
-    --tenue: oklch(0.42 0.02 260);
     --divider: oklch(0.90 0.005 270);
-    --sombra: 0 1px 2px oklch(0.4 0.01 270 / 0.06), 0 8px 24px oklch(0.4 0.01 270 / 0.07);
-    --sombra-fuerte: 0 2px 4px oklch(0.4 0.01 270 / 0.08), 0 20px 48px oklch(0.4 0.01 270 / 0.14);
+    --sombra: 0 1px 2px oklch(0.4 0.01 270 / 0.05), 0 8px 24px oklch(0.4 0.01 270 / 0.05);
   }
 
   * { box-sizing: border-box; }
@@ -30,10 +26,7 @@
     justify-content: center;
     min-height: 100vh;
     padding: 4vh 4vw;
-    background:
-      radial-gradient(circle at 12% 8%, oklch(0.95 0.05 50 / 0.9), transparent 42%),
-      radial-gradient(circle at 88% 92%, oklch(0.93 0.05 255 / 0.8), transparent 45%),
-      var(--fondo);
+    background: var(--fondo);
     color: var(--tinta);
     -webkit-font-smoothing: antialiased;
   }
@@ -48,67 +41,27 @@
     text-align: center;
   }
 
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-    padding: 10px 22px;
-    border-radius: 999px;
-    background: var(--white);
-    box-shadow: var(--sombra);
-    color: var(--blue);
-    font-size: clamp(0.9375rem, 1.4vw, 1.125rem);
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    will-change: opacity, transform;
-    animation: subir 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .eyebrow::before {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: var(--alarma);
-    content: "";
-  }
-
   .hero {
     display: flex;
     flex-direction: column;
     gap: 14px;
     will-change: opacity, transform;
-    animation: subir 620ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
-  }
-
-  .hero-num {
-    margin: 0;
-    background: linear-gradient(135deg, var(--alarma), var(--naranja));
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    font-size: clamp(7rem, 22vw, 13.5rem);
-    font-weight: 850;
-    letter-spacing: -0.04em;
-    line-height: 0.95;
-  }
-
-  .hero-num span {
-    font-size: 0.32em;
-    font-weight: 780;
-    letter-spacing: -0.01em;
-    vertical-align: middle;
+    animation: subir 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .hero p {
     margin: 0 auto;
-    max-width: 34ch;
+    max-width: 22ch;
     color: var(--tinta);
-    font-size: clamp(1.5rem, 3vw, 2.125rem);
-    font-weight: 680;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .hero p b {
+    color: var(--acento);
+    font-weight: 800;
   }
 
   .comparacion {
@@ -116,9 +69,9 @@
     width: 100%;
     align-items: stretch;
     justify-content: center;
-    border-radius: 32px;
+    border-radius: 24px;
     background: var(--white);
-    box-shadow: var(--sombra-fuerte);
+    box-shadow: var(--sombra);
     overflow: hidden;
     will-change: opacity, transform;
     animation: subir 620ms cubic-bezier(0.16, 1, 0.3, 1) 160ms both;
@@ -133,22 +86,20 @@
     padding: 5vh 3vw;
   }
 
-  .cifra.salta { background: oklch(0.95 0.06 28); }
-  .cifra.nacional { background: oklch(0.94 0.045 255); }
-
   .cifra .num {
-    font-size: clamp(3.25rem, 8vw, 6rem);
+    color: var(--tinta);
+    font-size: clamp(3rem, 6.5vw, 5rem);
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1;
   }
 
-  .cifra.salta .num { color: var(--alarma); }
-  .cifra.nacional .num { color: var(--blue); }
+  .cifra.nacional .num,
+  .cifra.nacional .label { color: var(--tinta); }
 
   .cifra .label {
     color: var(--tinta);
-    font-size: clamp(1rem, 1.6vw, 1.1875rem);
+    font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
     font-weight: 700;
     letter-spacing: -0.01em;
   }
@@ -161,26 +112,22 @@
     justify-content: center;
     gap: 10px;
     padding: 3vh 2.2vw;
-    background: var(--white);
+    border-left: 1px solid var(--divider);
+    border-right: 1px solid var(--divider);
   }
 
-  .delta {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 20px;
-    border-radius: 999px;
-    background: var(--alarma);
-    box-shadow: var(--sombra);
-    color: var(--white);
-    font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+  .separador .delta {
+    color: var(--acento);
+    font-size: clamp(3rem, 6.5vw, 5rem);
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    line-height: 1;
     white-space: nowrap;
   }
 
   .separador span {
     max-width: 13ch;
-    color: var(--tenue);
+    color: var(--tinta);
     font-size: clamp(0.8125rem, 1.1vw, 0.9375rem);
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -188,14 +135,10 @@
   }
 
   .pill {
-    padding: 16px 32px;
-    border-radius: 999px;
-    background: var(--naranja);
-    box-shadow: var(--sombra-fuerte);
-    color: var(--white);
-    font-size: clamp(1.25rem, 2.6vw, 1.75rem);
-    font-weight: 750;
-    letter-spacing: -0.02em;
+    color: var(--tinta);
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
     will-change: opacity, transform;
     animation: subir 620ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
   }
@@ -206,7 +149,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .eyebrow, .hero, .comparacion, .pill { animation: none; }
+    .hero, .comparacion, .pill { animation: none; }
   }
 
   @media (max-width: 720px) {
@@ -214,6 +157,10 @@
     .separador {
       width: 100%;
       padding: 20px 0;
+      border-left: none;
+      border-right: none;
+      border-top: 1px solid var(--divider);
+      border-bottom: 1px solid var(--divider);
     }
   }
 
@@ -239,11 +186,8 @@
 </head>
 <body>
   <main class="stage">
-    <p class="eyebrow">Observatorio de Salud Mental — Provincia de Salta</p>
-
     <div class="hero">
-      <p class="hero-num">36<span>hs</span></p>
-      <p>Cada 36 horas, Salta pierde una vida a causa del suicidio.</p>
+      <p>Cada <b>36 horas</b>, Salta pierde una vida a causa del suicidio.</p>
     </div>
 
     <div class="comparacion">
