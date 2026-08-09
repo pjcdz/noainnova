@@ -359,8 +359,6 @@
       serie.push({
         fecha,
         animo,
-        p25: clamp(animo - 12 - azar(`${id}-p25`, dia) * 9, 2, 96),
-        p75: clamp(animo + 11 + azar(`${id}-p75`, dia) * 9, 5, 99),
         sueno,
         ejercicio,
         conciencia,
@@ -489,12 +487,11 @@
     const serieAgregada = [];
     for (let indice = 0; indice < largo; indice += 1) {
       let animo = 0;
-      let p25 = 0;
-      let p75 = 0;
       let riesgo = 0;
       let registros = 0;
       let alertas = 0;
       let peso = 0;
+      let negativoRegistros = 0;
       let fecha = null;
 
       BARRIOS.forEach(barrio => {
@@ -504,21 +501,22 @@
         if (!dia) return;
         const pesoBarrio = barrio.poblacion;
         fecha = dia.fecha;
-        animo += aplicar(dia.animo, "animo", defEdad, defSexo) * pesoBarrio;
-        p25 += aplicar(dia.p25, "animo", defEdad, defSexo) * pesoBarrio;
-        p75 += aplicar(dia.p75, "animo", defEdad, defSexo) * pesoBarrio;
+        const animoDia = aplicar(dia.animo, "animo", defEdad, defSexo);
+        animo += animoDia * pesoBarrio;
         riesgo += aplicar(dia.riesgo, "riesgo", defEdad, defSexo) * pesoBarrio;
         registros += dia.registros;
         alertas += dia.alertas;
         peso += pesoBarrio;
+        // % de registros del día en los estados "desagradable" o "muy desagradable".
+        const [muyDesagradable, desagradable] = pesosEstados(animoDia);
+        negativoRegistros += (muyDesagradable + desagradable) * dia.registros;
       });
 
       if (!peso || !fecha) continue;
       serieAgregada.push({
         fecha,
         animo: animo / peso,
-        p25: p25 / peso,
-        p75: p75 / peso,
+        negativo: registros ? (negativoRegistros / registros) * 100 : 0,
         riesgo: riesgo / peso,
         registros: Math.round(registros * escalaPoblacion),
         alertas: Math.round(alertas * escalaPoblacion)
@@ -541,6 +539,8 @@
       ...estado,
       porcentaje: (estado.valor / totalEstados) * 100
     }));
+    // Estados 0 y 1 = "muy desagradable" y "desagradable": ánimo bajo.
+    provincia.negativo = estados[0].porcentaje + estados[1].porcentaje;
 
     // Estados por grupo etario, para el desglose de la pestaña.
     const estadosPorEdad = EDADES.filter(item => item.id !== "todas").map(grupo => {

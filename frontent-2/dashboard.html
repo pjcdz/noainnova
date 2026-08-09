@@ -57,14 +57,19 @@
       position: sticky;
       z-index: 500;
       top: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 32px;
       border-bottom: 1px solid var(--divider);
       background: oklch(1 0 0 / 0.97);
       backdrop-filter: blur(20px) saturate(1.2);
       -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 14px 32px;
       gap: 24px;
     }
 
@@ -210,8 +215,8 @@
     }
 
     .card-head p {
-      max-width: 62ch;
       margin: 5px 0 0;
+      white-space: nowrap;
       color: var(--tenue);
       font-size: 0.875rem;
       letter-spacing: -0.01em;
@@ -401,6 +406,37 @@
       padding-top: 10px;
       border-top: 1px solid var(--divider);
       font-size: 0.8125rem;
+    }
+
+    .opacidad-control {
+      display: flex;
+      align-items: center;
+      margin-top: 14px;
+      gap: 10px;
+    }
+
+    .opacidad-control label {
+      color: var(--tenue);
+      font-size: 0.75rem;
+      font-weight: 580;
+      letter-spacing: -0.005em;
+      white-space: nowrap;
+    }
+
+    .opacidad-control input[type="range"] {
+      width: 128px;
+      height: 16px;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    .opacidad-control output {
+      min-width: 34px;
+      color: var(--tenue);
+      font-size: 0.75rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 620;
+      text-align: right;
     }
 
     .leyenda {
@@ -907,36 +943,37 @@
     }
 
     @media (max-width: 1080px) {
-      .topbar { flex-wrap: wrap; padding: 14px 20px; }
+      .topbar-inner { flex-wrap: wrap; padding: 14px 20px; }
       .dash, .pie { padding-left: 20px; padding-right: 20px; }
       .factor-item { grid-template-columns: minmax(0, 1fr) auto; }
       .factor-corr { grid-column: 1 / -1; justify-items: start; }
+      .card-head p { white-space: normal; }
     }
   </style>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <img class="crest" src="assets/salta-municipalidad.png" alt="Municipalidad de Salta">
-      <div>
-        <h1>Observatorio de Salud Mental</h1>
-        <p>Provincia de Salta · Ministerio de Salud Pública · Detección temprana</p>
+    <div class="topbar-inner">
+      <div class="brand">
+        <img class="crest" src="assets/salta-municipalidad.png" alt="Municipalidad de Salta">
+        <div>
+          <h1>Observatorio de Salud Mental</h1>
+          <p>Provincia de Salta · Ministerio de Salud Pública · Detección temprana</p>
+        </div>
       </div>
-    </div>
 
-    <div class="filtros">
-      <div class="segmented" id="periodos" role="group" aria-label="Período"></div>
-      <label class="sr-only" for="filtro-edad">Grupo etario</label>
-      <div class="campo"><select id="filtro-edad"></select></div>
-      <label class="sr-only" for="filtro-sexo">Sexo</label>
-      <div class="campo"><select id="filtro-sexo"></select></div>
-      <button class="btn-exportar" id="exportar" type="button">Exportar CSV</button>
+      <div class="filtros">
+        <div class="segmented" id="periodos" role="group" aria-label="Período"></div>
+        <label class="sr-only" for="filtro-edad">Grupo etario</label>
+        <div class="campo"><select id="filtro-edad"></select></div>
+        <label class="sr-only" for="filtro-sexo">Sexo</label>
+        <div class="campo"><select id="filtro-sexo"></select></div>
+        <button class="btn-exportar" id="exportar" type="button">Exportar CSV</button>
+      </div>
     </div>
   </header>
 
   <main class="dash">
-    <section class="kpis" id="kpis" aria-label="Indicadores generales"></section>
-
     <section class="card" aria-labelledby="mapa-titulo">
       <div class="card-head">
         <div>
@@ -949,6 +986,11 @@
         <div class="mapa-layout">
           <div class="mapa-col">
             <div id="mapa" role="application" aria-label="Mapa de calor de Salta Capital"></div>
+            <div class="opacidad-control">
+              <label for="opacidad-mapa">Opacidad del mapa de calor</label>
+              <input type="range" id="opacidad-mapa" min="20" max="100" step="5" value="65" aria-describedby="opacidad-valor">
+              <output id="opacidad-valor" for="opacidad-mapa">65%</output>
+            </div>
             <div class="leyenda" id="leyenda"></div>
             <p class="mapa-nota">La división por barrios es esquemática y se usa con fines ilustrativos: no representa límites administrativos oficiales. Los valores son simulados sobre la base de la estructura poblacional de Salta Capital.</p>
           </div>
@@ -963,20 +1005,45 @@
       </div>
     </section>
 
+    <section class="card" aria-labelledby="zonas-titulo">
+      <div class="card-head">
+        <div>
+          <h2 id="zonas-titulo">Zonas priorizadas</h2>
+          <p>Barrios con mayor índice de riesgo en el período. Al hacer clic se centra el mapa en la zona.</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Barrio</th>
+              <th class="num" scope="col">Población monitoreada</th>
+              <th class="num" scope="col">Índice de riesgo</th>
+              <th class="num" scope="col">Variación</th>
+              <th scope="col">Tendencia</th>
+              <th class="num" scope="col">Alertas</th>
+              <th scope="col">Acción sugerida</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-zonas"></tbody>
+        </table>
+      </div>
+    </section>
+
     <section class="card" aria-labelledby="tendencias-titulo">
       <div class="card-head">
         <div>
           <h2 id="tendencias-titulo">Tendencias</h2>
-          <p>Evolución del estado de ánimo declarado y del volumen de registros recibidos en el período seleccionado.</p>
+          <p>Evolución del ánimo bajo declarado y del volumen de registros recibidos en el período seleccionado.</p>
         </div>
       </div>
       <div class="card-body charts">
         <div class="chart-box">
           <div class="chart-titulo">
-            <h3>Mediana de estado de ánimo</h3>
-            <span id="animo-resumen"></span>
+            <h3>Registros con ánimo bajo</h3>
+            <span id="negativo-resumen"></span>
           </div>
-          <div class="chart-host" id="chart-animo"></div>
+          <div class="chart-host" id="chart-negativo"></div>
         </div>
         <div class="chart-box">
           <div class="chart-titulo">
@@ -1007,30 +1074,6 @@
       </div>
     </section>
 
-    <section class="card" aria-labelledby="zonas-titulo">
-      <div class="card-head">
-        <div>
-          <h2 id="zonas-titulo">Zonas priorizadas</h2>
-          <p>Barrios con mayor índice de riesgo en el período. Al hacer clic se centra el mapa en la zona.</p>
-        </div>
-      </div>
-      <div class="card-body">
-        <table class="tabla">
-          <thead>
-            <tr>
-              <th scope="col">Barrio</th>
-              <th class="num" scope="col">Población monitoreada</th>
-              <th class="num" scope="col">Índice de riesgo</th>
-              <th class="num" scope="col">Variación</th>
-              <th scope="col">Tendencia</th>
-              <th class="num" scope="col">Alertas</th>
-              <th scope="col">Acción sugerida</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-zonas"></tbody>
-        </table>
-      </div>
-    </section>
   </main>
 
   <footer class="pie">
@@ -1042,7 +1085,12 @@
   <script>
     const D = window.SALTA_DATA;
 
-    const estado = { periodo: "M", edad: "todas", sexo: "todos", metrica: "riesgo", tab: "factores" };
+    const estado = { periodo: "M", edad: "todas", sexo: "todos", metrica: "riesgo", tab: "factores", opacidad: 0.65 };
+
+    // Opacidades de referencia con el control al 100%; el slider las escala.
+    const OPACIDAD_CALOR_BASE = 0.75;
+    const OPACIDAD_ZONA_BASE = 0.2;
+    const OPACIDAD_ZONA_HOVER = 0.36;
     let datos = null;
 
     // --- Formato ---
@@ -1126,9 +1174,7 @@
         const promedio = clave => bloque.reduce((total, dia) => total + dia[clave], 0) / bloque.length;
         grupos.push({
           fecha: bloque[Math.floor(bloque.length / 2)].fecha,
-          animo: promedio("animo"),
-          p25: promedio("p25"),
-          p75: promedio("p75"),
+          negativo: promedio("negativo"),
           registros: promedio("registros")
         });
       }
@@ -1149,36 +1195,39 @@
       </svg>`;
     };
 
-    /** Área de la mediana de ánimo con banda de percentiles 25–75. */
-    const graficoAnimo = (host, serie) => {
+    /** Área del % de registros con ánimo bajo (desagradable o muy desagradable). */
+    const graficoNegativo = (host, serie) => {
       const ancho = Math.max(320, host.clientWidth);
       const alto = 260;
       const margen = { arriba: 12, derecha: 12, abajo: 26, izquierda: 34 };
       const anchoUtil = ancho - margen.izquierda - margen.derecha;
       const altoUtil = alto - margen.arriba - margen.abajo;
       const puntos = agrupar(serie, 180);
+      const valores = puntos.map(punto => punto.negativo);
+      const piso = Math.max(0, Math.floor(Math.min(...valores) - 5));
+      const tope = Math.ceil(Math.max(...valores) + 5);
       const x = indice => margen.izquierda + escala(indice, 0, Math.max(1, puntos.length - 1), 0, anchoUtil);
-      const y = valor => margen.arriba + escala(valor, 0, 100, altoUtil, 0);
+      const y = valor => margen.arriba + escala(valor, piso, tope, altoUtil, 0);
 
-      const grilla = [0, 25, 50, 75, 100]
+      const pasoGrilla = (tope - piso) / 4;
+      const grilla = [0, 1, 2, 3, 4]
+        .map(paso => piso + paso * pasoGrilla)
         .map(
           valor => `<line x1="${margen.izquierda}" y1="${y(valor)}" x2="${ancho - margen.derecha}" y2="${y(valor)}"
             stroke="oklch(0.88 0.004 270)" stroke-width="1" stroke-dasharray="2 4"/>
-            <text x="${margen.izquierda - 8}" y="${y(valor) + 4}" text-anchor="end" font-size="11" fill="oklch(0.6 0.01 260)">${valor}</text>`
+            <text x="${margen.izquierda - 8}" y="${y(valor) + 4}" text-anchor="end" font-size="11" fill="oklch(0.6 0.01 260)">${num(valor, 0)}%</text>`
         )
         .join("");
 
-      const areaBanda = [
-        ...puntos.map((punto, indice) => `${indice === 0 ? "M" : "L"}${x(indice).toFixed(1)},${y(punto.p75).toFixed(1)}`),
-        ...puntos
-          .slice()
-          .reverse()
-          .map((punto, indice) => `L${x(puntos.length - 1 - indice).toFixed(1)},${y(punto.p25).toFixed(1)}`),
+      const area = [
+        `M${x(0).toFixed(1)},${y(piso).toFixed(1)}`,
+        ...puntos.map((punto, indice) => `L${x(indice).toFixed(1)},${y(punto.negativo).toFixed(1)}`),
+        `L${x(puntos.length - 1).toFixed(1)},${y(piso).toFixed(1)}`,
         "Z"
       ].join("");
 
       const linea = puntos
-        .map((punto, indice) => `${indice === 0 ? "M" : "L"}${x(indice).toFixed(1)},${y(punto.animo).toFixed(1)}`)
+        .map((punto, indice) => `${indice === 0 ? "M" : "L"}${x(indice).toFixed(1)},${y(punto.negativo).toFixed(1)}`)
         .join("");
 
       const pasoEtiqueta = Math.max(1, Math.floor(puntos.length / 6));
@@ -1191,14 +1240,10 @@
         .join("");
 
       host.innerHTML = `<svg width="${ancho}" height="${alto}" viewBox="0 0 ${ancho} ${alto}" role="img"
-        aria-label="Evolución de la mediana de estado de ánimo">
-        <rect x="${margen.izquierda}" y="${y(34)}" width="${anchoUtil}" height="${y(0) - y(34)}" fill="oklch(0.6 0.16 25 / 0.05)"/>
+        aria-label="Evolución del porcentaje de registros con ánimo bajo">
         ${grilla}
-        <line x1="${margen.izquierda}" y1="${y(34)}" x2="${ancho - margen.derecha}" y2="${y(34)}"
-          stroke="oklch(0.62 0.17 28)" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.55"/>
-        <text x="${margen.izquierda + 7}" y="${y(34) - 7}" font-size="11" fill="oklch(0.55 0.15 28)">Umbral de alerta</text>
-        <path d="${areaBanda}" fill="oklch(0.56 0.18 255 / 0.14)"/>
-        <path d="${linea}" fill="none" stroke="oklch(0.56 0.18 255)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="${area}" fill="oklch(0.62 0.17 28 / 0.14)"/>
+        <path d="${linea}" fill="none" stroke="oklch(0.62 0.17 28)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
         ${etiquetas}
       </svg>`;
     };
@@ -1261,72 +1306,6 @@
       };
     };
 
-    const renderKpis = () => {
-      const { provincia, provinciaPrevio, serie } = datos;
-      const serieAnimo = serie.map(dia => dia.animo);
-      const serieRegistros = serie.map(dia => dia.registros);
-      const serieAlertas = serie.map(dia => dia.alertas);
-      const serieRiesgo = serie.map(dia => dia.riesgo);
-
-      const tarjetas = [
-        {
-          label: "Población monitoreada",
-          valor: num(provincia.poblacionMonitoreada),
-          unidad: "",
-          delta: delta(provincia.cobertura, provinciaPrevio.cobertura, true),
-          spark: sparkline(serieRegistros, "oklch(0.56 0.18 255)")
-        },
-        {
-          label: `Registros · ${datos.periodo.nombre.toLowerCase()}`,
-          valor: num(provincia.registros),
-          unidad: "",
-          delta: delta(provincia.registros, provinciaPrevio.registros, true),
-          spark: sparkline(serieRegistros, "oklch(0.56 0.18 255)")
-        },
-        {
-          label: "Alertas tempranas",
-          valor: num(provincia.alertasTotales),
-          unidad: "",
-          delta: delta(provincia.alertasTotales, provinciaPrevio.alertasTotales, false),
-          spark: sparkline(serieAlertas, "oklch(0.72 0.18 50)")
-        },
-        {
-          label: "Índice de riesgo",
-          valor: num(provincia.riesgo, 1),
-          unidad: "/100",
-          delta: delta(provincia.riesgo, provinciaPrevio.riesgo, false),
-          spark: sparkline(serieRiesgo, "oklch(0.58 0.19 28)")
-        },
-        {
-          label: "Mediana de ánimo",
-          valor: num(provincia.animo, 1),
-          unidad: `/100 · ${D.nombreEstado(provincia.animo)}`,
-          delta: delta(provincia.animo, provinciaPrevio.animo, true),
-          spark: sparkline(serieAnimo, "oklch(0.60 0.14 155)")
-        },
-        {
-          label: "Señal → contacto",
-          valor: num(provincia.diasHastaContacto, 1),
-          unidad: " días",
-          delta: delta(provincia.diasHastaContacto, provinciaPrevio.diasHastaContacto, false),
-          spark: sparkline(serieRiesgo, "oklch(0.50 0.10 268)")
-        }
-      ];
-
-      document.querySelector("#kpis").innerHTML = tarjetas
-        .map(
-          tarjeta => `<article class="kpi">
-            <p class="kpi-label">${tarjeta.label}</p>
-            <p class="kpi-valor">${tarjeta.valor}<span class="kpi-unidad">${tarjeta.unidad}</span></p>
-            <div class="kpi-pie">
-              <span class="delta ${tarjeta.delta.clase}">${tarjeta.delta.flecha} ${tarjeta.delta.texto}</span>
-              ${tarjeta.spark}
-            </div>
-          </article>`
-        )
-        .join("");
-    };
-
     // --- Mapa ---
 
     let mapa = null;
@@ -1366,11 +1345,11 @@
       capaCalor = L.geoJSON(D.zonas, {
         pane: "calor",
         interactive: false,
-        style: { stroke: false, fillOpacity: 0.75 }
+        style: { stroke: false, fillOpacity: OPACIDAD_CALOR_BASE * estado.opacidad }
       }).addTo(mapa);
 
       capaZonas = L.geoJSON(D.zonas, {
-        style: { color: "oklch(1 0 0)", weight: 1.4, fillOpacity: 0.2 },
+        style: { color: "oklch(1 0 0)", weight: 1.4, fillOpacity: OPACIDAD_ZONA_BASE * estado.opacidad },
         onEachFeature: (feature, capa) => {
           const id = feature.properties.id;
           capasPorZona[id] = capa;
@@ -1386,10 +1365,22 @@
 
     const resaltar = (id, activo) => {
       const capa = capasPorZona[id];
-      if (capa) capa.setStyle({ weight: activo ? 3.4 : 1.4, fillOpacity: activo ? 0.36 : 0.2 });
+      if (capa) {
+        capa.setStyle({
+          weight: activo ? 3.4 : 1.4,
+          fillOpacity: (activo ? OPACIDAD_ZONA_HOVER : OPACIDAD_ZONA_BASE) * estado.opacidad
+        });
+      }
       document.querySelectorAll(".rank-item").forEach(item => {
         item.classList.toggle("activo", activo && item.dataset.zona === id);
       });
+    };
+
+    /** Aplica el multiplicador del slider a las dos capas del mapa sin repintar colores. */
+    const aplicarOpacidadMapa = () => {
+      if (!hayLeaflet || !mapa) return;
+      capaCalor.setStyle({ fillOpacity: OPACIDAD_CALOR_BASE * estado.opacidad });
+      capaZonas.setStyle({ fillOpacity: OPACIDAD_ZONA_BASE * estado.opacidad });
     };
 
     const popupZona = (id, metrica) => {
@@ -1429,7 +1420,12 @@
       if (hayLeaflet && mapa) {
         const pintar = feature => ({ fillColor: colorDe(datos.porZona[feature.properties.id][metrica.id], metrica, cortesActuales) });
         capaCalor.setStyle(pintar);
-        capaZonas.setStyle(feature => ({ ...pintar(feature), color: "oklch(1 0 0)", weight: 1.4, fillOpacity: 0.2 }));
+        capaZonas.setStyle(feature => ({
+          ...pintar(feature),
+          color: "oklch(1 0 0)",
+          weight: 1.4,
+          fillOpacity: OPACIDAD_ZONA_BASE * estado.opacidad
+        }));
         capaZonas.eachLayer(capa => {
           const id = capa.feature.properties.id;
           capa.setTooltipContent(
@@ -1460,7 +1456,7 @@
           const id = feature.properties.id;
           const color = colorDe(datos.porZona[id][metrica.id], metrica, cortesActuales);
           const puntos = feature.geometry.coordinates[0].map(proyectar).join(" ");
-          return `<polygon points="${puntos}" fill="${color}" stroke="oklch(1 0 0)" stroke-width="1.5">
+          return `<polygon points="${puntos}" fill="${color}" fill-opacity="${estado.opacidad.toFixed(2)}" stroke="oklch(1 0 0)" stroke-width="1.5">
             <title>${feature.properties.nombre}: ${conUnidad(datos.porZona[id][metrica.id], metrica)}</title>
           </polygon>`;
         })
@@ -1530,12 +1526,12 @@
       const primera = serie[0];
       const ultima = serie[serie.length - 1];
 
-      document.querySelector("#animo-resumen").textContent =
-        `${fechaCorta.format(primera.fecha)} – ${fechaLarga.format(ultima.fecha)} · mediana ${num(provincia.animo, 1)} (${D.nombreEstado(provincia.animo)})`;
+      document.querySelector("#negativo-resumen").textContent =
+        `${fechaCorta.format(primera.fecha)} – ${fechaLarga.format(ultima.fecha)} · ${num(provincia.negativo, 1)}% de los registros reportó ánimo bajo`;
       document.querySelector("#registros-resumen").textContent =
         `${num(provincia.registros)} registros · ${num(provincia.registros - provinciaPrevio.registros)} respecto del período anterior`;
 
-      graficoAnimo(document.querySelector("#chart-animo"), serie);
+      graficoNegativo(document.querySelector("#chart-negativo"), serie);
       graficoRegistros(document.querySelector("#chart-registros"), serie);
     };
 
@@ -1688,7 +1684,6 @@
 
     const refrescar = () => {
       datos = D.agregado(estado);
-      renderKpis();
       renderMapa();
       renderRanking();
       renderTendencias();
@@ -1747,6 +1742,16 @@
       });
       renderMapa();
       renderRanking();
+    });
+
+    document.querySelector("#opacidad-mapa").addEventListener("input", evento => {
+      estado.opacidad = Number(evento.target.value) / 100;
+      document.querySelector("#opacidad-valor").textContent = `${evento.target.value}%`;
+      if (hayLeaflet) {
+        aplicarOpacidadMapa();
+      } else {
+        renderMapa();
+      }
     });
 
     document.querySelector("#ranking").addEventListener("mouseover", evento => {
