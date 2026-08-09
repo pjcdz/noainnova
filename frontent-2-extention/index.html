@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="oklch(0 0 0)">
+  <title>Compartir datos con tu municipio</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      background: oklch(0.79 0.004 270);
+      --screen-width: 393px;
+      --screen-height: 852px;
+      --status-height: 47px;
+      --white: oklch(1 0 0);
+      --black: oklch(0 0 0);
+      --blue: oklch(0.56 0.18 255);
+      --surface: oklch(0.975 0.004 270);
+      --ink: oklch(0.16 0 0);
+      --muted: oklch(0.46 0.004 270);
+      --divider: oklch(0.85 0.006 270 / 0.72);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: grid;
+      min-height: 100svh;
+      place-items: center;
+      overflow: hidden;
+      background: oklch(0.79 0.004 270);
+      color: var(--ink);
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+    }
+
+    .app-frame {
+      position: relative;
+      width: min(100vw, var(--screen-width));
+      height: min(100svh, var(--screen-height));
+      overflow: hidden;
+      background: oklch(0.90 0.006 270);
+      isolation: isolate;
+    }
+
+    .backdrop {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 14px;
+      padding-top: 96px;
+      filter: blur(6px);
+      opacity: 0.9;
+    }
+
+    .backdrop span {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+    }
+
+    .backdrop span:first-child {
+      background: oklch(0.62 0.14 265);
+      margin-top: 18px;
+    }
+
+    .backdrop span:last-child {
+      background: oklch(0.66 0.10 300);
+    }
+
+    .status-bar {
+      position: absolute;
+      z-index: 60;
+      top: 0;
+      left: 0;
+      display: flex;
+      width: 100%;
+      height: var(--status-height);
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 48px 0;
+      color: oklch(0.08 0 0);
+      font-size: 1.0625rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-icons svg {
+      display: block;
+      flex: none;
+    }
+
+    .battery {
+      display: flex;
+      min-width: 28px;
+      height: 14px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      background: oklch(0.14 0.004 260);
+      color: var(--white);
+      font-size: 0.6875rem;
+      font-weight: 750;
+      line-height: 1;
+    }
+
+    .sheet {
+      position: absolute;
+      top: 156px;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      border-radius: 36px 36px 0 0;
+      background: var(--surface);
+      box-shadow: 0 -8px 30px oklch(0 0 0 / 0.18);
+      padding: 20px 24px 0;
+    }
+
+    .sheet-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: none;
+      border-radius: 50%;
+      background: oklch(0.90 0.006 270);
+      color: oklch(0.35 0 0);
+      cursor: pointer;
+    }
+
+    .sheet-icon {
+      display: grid;
+      width: 64px;
+      height: 64px;
+      margin: 8px auto 18px;
+      place-items: center;
+      color: oklch(0.62 0.01 270);
+    }
+
+    .sheet-heading {
+      margin: 0 0 24px;
+      color: var(--ink);
+      font-size: 1.5rem;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      text-align: left;
+    }
+
+    .feature-list {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 22px;
+      margin: 0;
+      overflow-y: auto;
+    }
+
+    .feature-item {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .feature-icon {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 12px;
+      color: var(--white);
+    }
+
+    .feature-icon.is-round {
+      border-radius: 50%;
+    }
+
+    .feature-icon.tone-blue {
+      background: oklch(0.56 0.18 255);
+    }
+
+    .feature-icon.tone-dark {
+      background: transparent;
+      color: oklch(0.14 0 0);
+    }
+
+    .feature-icon.tone-teal {
+      background: oklch(0.60 0.15 245);
+    }
+
+    .feature-text h2 {
+      margin: 0 0 4px;
+      color: var(--ink);
+      font-size: 1.0625rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .feature-text p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9375rem;
+      font-weight: 400;
+      line-height: 1.35;
+    }
+
+    .sheet-actions {
+      position: sticky;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 16px 0 28px;
+      background: linear-gradient(oklch(0.975 0.004 270 / 0), oklch(0.975 0.004 270) 30%);
+    }
+
+    .action-button {
+      min-height: 50px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 1.1875rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      transition: filter 180ms ease-out, transform 180ms ease-out;
+    }
+
+    .action-allow {
+      border: 1px solid oklch(0.56 0.18 255);
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    .action-deny {
+      border: none;
+      background: transparent;
+      color: var(--blue);
+    }
+
+    .action-button:hover {
+      filter: brightness(1.06);
+    }
+
+    .action-button:active {
+      filter: brightness(0.94);
+      transform: scale(0.985);
+    }
+  </style>
+</head>
+<body>
+  <main class="app-frame" aria-live="off">
+    <div class="backdrop" aria-hidden="true">
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="status-bar" aria-hidden="true">
+      <span>00:11</span>
+      <div class="status-icons">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+          <rect x="0" y="7" width="3" height="5" rx="1" fill="currentColor"/>
+          <rect x="5" y="4" width="3" height="8" rx="1" fill="currentColor"/>
+          <rect x="10" y="1" width="3" height="11" rx="1" fill="currentColor"/>
+          <rect x="15" y="0" width="2" height="12" rx="1" fill="currentColor" opacity="0.28"/>
+        </svg>
+        <svg width="17" height="13" viewBox="0 0 17 13" fill="none">
+          <path d="M1 4.3C5.35.55 11.65.55 16 4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 7.35C6.55 5.25 10.45 5.25 13 7.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="8.5" cy="10.8" r="1.25" fill="currentColor"/>
+        </svg>
+        <span class="battery">58</span>
+      </div>
+    </div>
+
+    <section class="sheet" aria-labelledby="sheet-heading">
+      <button class="sheet-close" type="button" aria-label="Cerrar">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 4 12 12M16 4 4 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+
+      <div class="sheet-icon" aria-hidden="true">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <rect x="10" y="6" width="30" height="38" rx="7" stroke="currentColor" stroke-width="2.4"/>
+          <rect x="16" y="12" width="30" height="38" rx="7" fill="var(--surface)" stroke="currentColor" stroke-width="2.4"/>
+          <path d="M31 24v14M24 31h14" stroke="oklch(0.62 0.20 20)" stroke-width="3.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <h1 class="sheet-heading" id="sheet-heading">Información sobre compartir datos con tu municipio</h1>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="feature-icon is-round tone-blue" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+          </span>
+          <div class="feature-text">
+            <h2>Conéctate a tu centro de salud</h2>
+            <p>Al iniciar sesión se establece una conexión segura para que puedas compartir datos con tu médico.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <span class="feature-icon tone-dark" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11m0-.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5v5.5a1.5 1.5 0 0 1 3 0v3m0-1.5a1.5 1.5 0 0 1 3 0V15c0 4-2.5 7-6.5 7-3 0-4.6-1.1-6-2.7L4 15.8c-.6-.8-.4-1.9.5-2.4.7-.4 1.6-.2 2.1.4L8 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <div class="feature-text">
+            <h2>Privacidad: lo primero y más importante</h2>
+            <p>Los datos que elijas compartir se encriptan y mantienen privados en tu dispositivo y en el del municipio.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <span class="feature-icon tone-teal" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2 6 4-12 2 6h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <div class="feature-text">
+            <h2>Consulta tu expediente médico</h2>
+            <p>Una vez que te conectes, se descargará tu expediente médico para que puedas ver la información que tu municipio tiene registrada.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sheet-actions">
+        <button class="action-button action-allow" type="button">Permitir</button>
+        <button class="action-button action-deny" type="button">No permitir</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
