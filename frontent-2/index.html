@@ -4,7 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="oklch(0 0 0)">
-  <title>Registro emocional</title>
+  <title>Anima</title>
+  <link rel="icon" type="image/svg+xml" href="assets/anima-logo.svg">
+  <link rel="preload" as="image" href="assets/anima-mood/mood-050.webp">
   <style>
     :root {
       color-scheme: light;
@@ -12,7 +14,7 @@
       background: oklch(0.79 0.004 270);
       --screen-width: 393px;
       --screen-height: 852px;
-      --status-height: 47px;
+      --status-height: 59px;
       --white: oklch(1 0 0);
       --black: oklch(0 0 0);
       --blue: oklch(0.56 0.18 255);
@@ -41,7 +43,7 @@
       min-height: 100svh;
       place-items: center;
       overflow: hidden;
-      background: oklch(0.79 0.004 270);
+      background: oklch(0 0 0);
       color: oklch(0.16 0 0);
     }
 
@@ -154,7 +156,7 @@
       height: var(--status-height);
       align-items: center;
       justify-content: space-between;
-      padding: 7px 48px 0;
+      padding: 0 40px 1px 50px;
       background: oklch(0.79 0.004 270);
       color: oklch(0.08 0 0);
       font-size: 1.0625rem;
@@ -177,7 +179,7 @@
 
     .battery {
       display: flex;
-      min-width: 28px;
+      min-width: 20px;
       height: 14px;
       align-items: center;
       justify-content: center;
@@ -2673,6 +2675,195 @@
       font-size: 0.75rem;
       font-weight: 500;
     }
+
+    /* Reference-accurate Anima emotion flow. */
+    .mood-reference-frame {
+      position: absolute;
+      z-index: 10;
+      top: var(--status-height);
+      left: 0;
+      display: block;
+      width: 100%;
+      height: calc(100% - var(--status-height));
+      object-fit: fill;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    [data-view="mood"] .flow-panel {
+      --panel-edge: color-mix(in oklab, var(--mood-color) 44%, var(--white));
+      --panel-center: color-mix(in oklab, var(--mood-color) 16%, var(--white));
+      --action: var(--mood-color);
+      --action-edge: color-mix(in oklab, var(--mood-color) 72%, var(--white));
+      background:
+        radial-gradient(circle at 50% 49%, color-mix(in oklab, var(--white) 42%, transparent) 0%, transparent 38%),
+        linear-gradient(180deg, var(--panel-center) 0%, var(--panel-edge) 100%);
+    }
+
+    [data-view="mood"] .flow-header {
+      height: 44px;
+      margin: 16px 16px 0;
+    }
+
+    [data-view="mood"] .mood-prompt {
+      max-width: 320px;
+      margin-top: 49px;
+      font-size: 24px;
+      font-weight: 710;
+      letter-spacing: -0.035em;
+      line-height: 1.08;
+    }
+
+    [data-view="mood"] .mood-flower {
+      width: min(82vw, 320px);
+      margin-top: 31px;
+    }
+
+    [data-view="mood"] .mood-label {
+      margin-top: 28px;
+      font-size: 28px;
+      font-weight: 730;
+    }
+
+    [data-view="mood"] .mood-next {
+      min-height: 48px;
+      box-shadow: 0 11px 22px color-mix(in oklab, var(--action) 26%, transparent);
+    }
+
+    [data-view="mood"] .range-labels {
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: 0.015em;
+    }
+
+    [data-view="mood"] .icon-button:focus-visible,
+    [data-view="mood"] .mood-next:focus-visible {
+      position: relative;
+      z-index: 11;
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+      color: transparent;
+      outline: 3px solid #0a84ff;
+      outline-offset: 3px;
+    }
+
+    [data-view="mood"] .range-group:focus-within {
+      position: relative;
+      z-index: 11;
+      border-radius: 999px;
+      outline: 3px solid #0a84ff;
+      outline-offset: 3px;
+    }
+
+    [data-view="mood"] .range-group:focus-within .range-shell {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    [data-view="mood"] .range-group:focus-within .range-labels {
+      opacity: 0;
+    }
+
+    [data-view="mood"] .range-group:focus-within .mood-range {
+      outline: 0;
+    }
+
+    [data-view="mood"] .range-group:focus-within .mood-range::-webkit-slider-thumb {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    [data-view="mood"] .range-group:focus-within .mood-range::-moz-range-thumb {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .mood-flower svg {
+      filter: drop-shadow(0 12px 22px color-mix(in oklab, var(--flower-deep) 22%, transparent));
+    }
+
+    .mood-flower .flower-outer,
+    .mini-flower .flower-outer { opacity: 0.42; }
+
+    .mood-flower .flower-middle,
+    .mini-flower .flower-middle { opacity: 0.6; }
+
+    .mood-flower .flower-inner,
+    .mini-flower .flower-inner { opacity: 0.82; }
+
+    .mood-flower .flower-core,
+    .mini-flower .flower-core { opacity: 0.94; }
+
+    .flower-host .flower-core {
+      stroke: var(--flower-edge);
+      stroke-width: 1.5;
+    }
+
+    .flower-host .flower-center-star {
+      fill: var(--panel-center);
+      stroke: color-mix(in oklab, var(--flower-deep) 78%, var(--flower-edge));
+      stroke-width: 1.1;
+      opacity: 0;
+      transition: opacity 160ms ease-out;
+    }
+
+    [data-view="describe"] .question-help {
+      display: none;
+    }
+
+    [data-view="describe"] .chip-list {
+      gap: 8px 6px;
+      margin-top: 16px;
+    }
+
+    [data-view="describe"] .chip-button {
+      min-height: 30px;
+      padding: 4px 10px 5px;
+      background: color-mix(in oklab, var(--white) 76%, var(--panel-center));
+      font-size: 14px;
+    }
+
+    [data-view="describe"] .show-more {
+      margin-top: 13px;
+      padding-left: 8px;
+      color: color-mix(in oklab, var(--ink) 70%, var(--panel-edge));
+    }
+
+    .view.flow-leaving,
+    .view.flow-entering {
+      display: block;
+      pointer-events: none;
+      will-change: filter, opacity, transform;
+    }
+
+    .view.flow-leaving {
+      z-index: 4;
+      animation: emotion-view-leave 360ms cubic-bezier(0.25, 1, 0.5, 1) both;
+    }
+
+    .view.flow-entering {
+      z-index: 5;
+      animation: emotion-view-enter 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes emotion-view-leave {
+      from { filter: blur(0); opacity: 1; transform: translateY(0) scale(1); }
+      to { filter: blur(3px); opacity: 0; transform: translateY(-3%) scale(0.96); }
+    }
+
+    @keyframes emotion-view-enter {
+      from { filter: blur(3px); opacity: 0; transform: translateY(5%) scale(0.98); }
+      to { filter: blur(0); opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .view.flow-leaving,
+      .view.flow-entering {
+        animation-duration: 0.01ms;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2743,6 +2934,15 @@
     </section>
 
     <section class="view" data-view="mood" aria-labelledby="mood-heading">
+      <img
+        class="mood-reference-frame"
+        id="mood-reference-frame"
+        src="assets/anima-mood/mood-050.webp"
+        width="786"
+        height="1586"
+        alt=""
+        aria-hidden="true"
+      >
       <div class="flow-panel mood-panel mood-theme">
         <header class="flow-header">
           <button class="icon-button" type="button" data-go="choice" aria-label="Volver">
@@ -2754,18 +2954,18 @@
           </button>
         </header>
 
-        <h1 class="mood-prompt" id="mood-heading">Elige cómo te sientes ahora</h1>
+        <h1 class="mood-prompt" id="mood-heading">Elige cómo te sientes ahora mismo</h1>
         <div class="flower-host mood-flower" data-flower aria-hidden="true"></div>
         <p class="mood-label" data-mood-label>Neutral</p>
 
         <div class="range-group">
-          <label class="sr-only" for="mood-range">¿Qué tan agradable o desagradable te sientes?</label>
+          <label class="sr-only" for="mood-range">¿Qué tan bien o mal te sientes?</label>
           <div class="range-shell">
             <input class="mood-range" id="mood-range" type="range" min="0" max="100" value="50" aria-describedby="range-description">
           </div>
           <div class="range-labels" id="range-description" aria-hidden="true">
-            <span>Muy desagradable</span>
-            <span>Muy agradable</span>
+            <span>Muy mal</span>
+            <span>Muy bien</span>
           </div>
         </div>
 
@@ -3207,28 +3407,152 @@
         </g>
         <use href="#${id}-shape" class="flower-layer flower-middle" fill="url(#${id}-middle)" transform="translate(35.2 35.2) scale(.78)"/>
         <use href="#${id}-shape" class="flower-layer flower-inner" fill="url(#${id}-inner)" transform="translate(80 80) scale(.5)"/>
+        <use href="#${id}-shape" class="flower-layer flower-core" fill="url(#${id}-inner)" transform="translate(112 112) scale(.3)"/>
         <g clip-path="url(#${id}-inner-clip)" filter="url(#${id}-glow)">
           ${[0,72,144,216,288].map(angle => `<path class="flower-ray-inner" d="M160 161 145 88h30Z" fill="url(#${id}-ray)" transform="rotate(${angle} 160 161)"/>`).join("")}
         </g>
         <circle class="flower-center" cx="160" cy="161" r="7"/>
+        <path class="flower-center-star" d="M160 153 162.4 157.1 167 158 163.6 161.3 164.5 166 160 163.8 155.5 166 156.4 161.3 153 158 157.6 157.1Z"/>
       </svg>`;
 
     document.querySelectorAll("[data-flower]").forEach((host, index) => {
       host.innerHTML = flowerMarkup(`flower-${index}`);
     });
 
-    const quickFeelings = [
-      "Asombro", "Entusiasmo", "Sorpresa", "Pasión", "Feliz", "Alegría",
-      "Valentía", "Orgullo", "Confianza", "Esperanza", "Diversión", "Satisfacción",
-      "Alivio", "Gratitud", "A gusto", "Calma", "Paz"
-    ];
+    const moodFlower = document.querySelector(".mood-flower");
+    const miniFlowers = [...document.querySelectorAll(".mini-flower")];
+    const moodReferenceFrame = document.querySelector("#mood-reference-frame");
+    const moodFrameSource = value => `assets/anima-mood/mood-${String(Math.round(value)).padStart(3, "0")}.webp`;
 
-    const allFeelings = [
-      "Asombro", "Diversión", "Enojo", "Molestia", "Ansiedad", "Vergüenza", "Valentía",
-      "Calma", "Confianza", "A gusto", "Decepción", "Desánimo", "Asco", "Agotamiento",
-      "Alegría", "Alivio", "Entusiasmo", "Esperanza", "Felicidad", "Frustración", "Gratitud",
-      "Inseguridad", "Orgullo", "Pasión", "Paz", "Satisfacción", "Sorpresa", "Tristeza"
-    ];
+    const closedCurve = points => {
+      const count = points.length;
+      const commands = [`M${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`];
+      for (let index = 0; index < count; index += 1) {
+        const previous = points[(index - 1 + count) % count];
+        const current = points[index];
+        const next = points[(index + 1) % count];
+        const after = points[(index + 2) % count];
+        const controlA = {
+          x: current.x + (next.x - previous.x) / 6,
+          y: current.y + (next.y - previous.y) / 6
+        };
+        const controlB = {
+          x: next.x - (after.x - current.x) / 6,
+          y: next.y - (after.y - current.y) / 6
+        };
+        commands.push(`C${controlA.x.toFixed(2)} ${controlA.y.toFixed(2)} ${controlB.x.toFixed(2)} ${controlB.y.toFixed(2)} ${next.x.toFixed(2)} ${next.y.toFixed(2)}`);
+      }
+      return `${commands.join(" ")} Z`;
+    };
+
+    const pointCount = 120;
+    const logoProbe = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    logoProbe.setAttribute("d", FLOWER_PATH);
+    const logoLength = logoProbe.getTotalLength();
+    const logoSamples = Array.from({ length: 1200 }, (_, index) => {
+      const point = logoProbe.getPointAtLength((index / 1200) * logoLength);
+      return {
+        angle: Math.atan2(point.y - 160, point.x - 160),
+        radius: Math.hypot(point.x - 160, point.y - 160)
+      };
+    });
+    const angularDistance = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+    const logoRadii = Array.from({ length: pointCount }, (_, index) => {
+      const angle = (index / pointCount) * Math.PI * 2 - Math.PI / 2;
+      return logoSamples.reduce((closest, sample) => (
+        angularDistance(sample.angle, angle) < angularDistance(closest.angle, angle) ? sample : closest
+      )).radius;
+    });
+
+    const proceduralFlowerPath = (value, time = 0) => {
+      const normalized = Math.max(-1, Math.min(1, (value - 50) / 50));
+      const magnitude = Math.abs(normalized);
+      const easedMagnitude = magnitude * magnitude * (3 - 2 * magnitude);
+      const breath = Math.sin(time / 760) * 0.008;
+      const phase = Math.sin(time / 1450) * 0.035;
+      const points = [];
+
+      for (let index = 0; index < pointCount; index += 1) {
+        const angle = (index / pointCount) * Math.PI * 2 - Math.PI / 2;
+        const aligned = angle + Math.PI / 2;
+        let radius = 145 * (1 + breath + Math.sin(aligned * 3 + phase) * 0.009 * (1 - magnitude));
+
+        if (normalized < -0.001) {
+          const frequency = 6 + easedMagnitude * 4;
+          const lower = Math.floor(frequency);
+          const mix = frequency - lower;
+          const wave = Math.cos(lower * aligned + phase) * (1 - mix)
+            + Math.cos((lower + 1) * aligned + phase) * mix;
+          const targetRadius = 145 * (1 - 0.36 * ((1 - wave) / 2));
+          radius += (targetRadius - 145) * easedMagnitude;
+        } else if (normalized > 0.001) {
+          radius += (logoRadii[index] - 145) * easedMagnitude;
+        }
+
+        points.push({
+          x: 160 + Math.cos(angle) * radius,
+          y: 160 + Math.sin(angle) * radius
+        });
+      }
+
+      return closedCurve(points);
+    };
+
+    const renderFlowerGeometry = (host, value, time = 0) => {
+      if (!host) return;
+      const shape = host.querySelector('defs path[id$="-shape"]');
+      if (!shape) return;
+
+      const normalized = Math.max(-1, Math.min(1, (value - 50) / 50));
+      const magnitude = Math.abs(normalized);
+      const direction = normalized < 0 ? -1 : 1;
+      const rotations = normalized < 0
+        ? [-6, 4, -3, 2].map(rotation => rotation * magnitude)
+        : [0, 0, 0, 0];
+
+      shape.setAttribute("d", proceduralFlowerPath(value, time));
+      host.querySelector(".flower-outer")?.setAttribute("transform", `rotate(${rotations[0]} 160 160)`);
+      host.querySelector(".flower-middle")?.setAttribute("transform", `translate(35.2 35.2) scale(.78) rotate(${rotations[1]} 160 160)`);
+      host.querySelector(".flower-inner")?.setAttribute("transform", `translate(80 80) scale(.5) rotate(${rotations[2]} 160 160)`);
+      host.querySelector(".flower-core")?.setAttribute("transform", `translate(112 112) scale(.3) rotate(${rotations[3]} 160 160)`);
+      const centerCircle = host.querySelector(".flower-center");
+      const centerStar = host.querySelector(".flower-center-star");
+      if (centerCircle) centerCircle.style.opacity = String(1 - magnitude);
+      if (centerStar) centerStar.style.opacity = String(magnitude);
+      host.querySelectorAll(".flower-ray-outer, .flower-ray-inner").forEach((ray, index) => {
+        const baseOpacity = ray.classList.contains("flower-ray-inner") ? 0.58 : 0.34;
+        ray.style.opacity = String(baseOpacity + (normalized < 0 ? magnitude * 0.18 : magnitude * 0.06) + index * 0.002 * direction);
+      });
+    };
+
+    const animateMoodFlower = time => {
+      if (currentView === "mood") {
+        renderFlowerGeometry(moodFlower, Number(moodRange.value), reduceMotion.matches ? 0 : time);
+      }
+      requestAnimationFrame(animateMoodFlower);
+    };
+
+    const quickFeelingGroups = {
+      negative: [
+        "Enojo", "Molestia", "Ansiedad", "Vergüenza", "Decepción", "Desánimo",
+        "Asco", "Agotamiento", "Frustración", "Inseguridad", "Tristeza", "Miedo",
+        "Culpa", "Soledad", "Estrés", "Abrumado", "Irritado"
+      ],
+      neutral: [
+        "Calma", "A gusto", "Confusión", "Curiosidad", "Indiferencia", "Serenidad",
+        "Cansancio", "Expectativa", "Concentración", "Aceptación", "Duda", "Tranquilidad",
+        "Pensativo", "Desconectado", "Estable", "Reservado", "En pausa"
+      ],
+      positive: [
+        "Asombro", "Entusiasmo", "Sorpresa", "Pasión", "Feliz", "Alegría",
+        "Valentía", "Orgullo", "Confianza", "Esperanza", "Diversión", "Satisfacción",
+        "Alivio", "Gratitud", "A gusto", "Calma", "Paz"
+      ]
+    };
+    let quickFeelingGroup = "neutral";
+    let quickFeelings = quickFeelingGroups[quickFeelingGroup];
+
+    const allFeelings = [...new Set(Object.values(quickFeelingGroups).flat())].sort((a, b) => a.localeCompare(b, "es"));
 
     const impactGroups = [
       ["Salud", "Actividad física", "Autocuidado", "Pasatiempos", "Identidad", "Espiritualidad"],
@@ -3239,6 +3563,7 @@
     const views = [...document.querySelectorAll("[data-view]")];
     const themedElements = [...document.querySelectorAll(".mood-theme:not(.preset-tone)")];
     const moodRange = document.querySelector("#mood-range");
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     const statusTime = document.querySelector("#status-time");
     const batteryLevel = document.querySelector("#battery-level");
     const bottomNav = document.querySelector("#bottom-nav");
@@ -3251,6 +3576,7 @@
     const emotionList = document.querySelector("#emotion-list");
     const impactContainer = document.querySelector("#impact-groups");
     let currentView = "summary";
+    let viewTransitionTimer;
     let selectedFeeling = "";
     let pendingFeeling = selectedFeeling;
     let selectedLogType = "emotion";
@@ -3258,21 +3584,23 @@
     let loggedTimer;
 
     const moodStops = [
-      { at: 0, label: "Muy desagradable", color: "oklch(0.48 0.20 300)" },
-      { at: 20, label: "Desagradable", color: "oklch(0.56 0.18 260)" },
-      { at: 50, label: "Neutral", color: "oklch(0.68 0.10 220)" },
-      { at: 65, label: "Algo agradable", color: "oklch(0.66 0.18 130)" },
-      { at: 82, label: "Agradable", color: "oklch(0.72 0.16 92)" },
-      { at: 100, label: "Muy agradable", color: "oklch(0.72 0.18 50)" }
+      { at: 0, label: "Muy mal", color: "oklch(0.45 0.22 300)" },
+      { at: 28, label: "Mal", color: "oklch(0.53 0.20 263)" },
+      { at: 45, label: "Ligeramente mal", color: "oklch(0.62 0.15 238)" },
+      { at: 50, label: "Neutral", color: "oklch(0.68 0.11 210)" },
+      { at: 66, label: "Ligeramente bien", color: "oklch(0.70 0.19 132)" },
+      { at: 84, label: "Bien", color: "oklch(0.79 0.18 92)" },
+      { at: 100, label: "Muy bien", color: "oklch(0.74 0.19 55)" }
     ];
 
     const moodName = value => {
-      if (value < 14) return "Muy desagradable";
-      if (value < 34) return "Desagradable";
+      if (value < 19) return "Muy mal";
+      if (value < 30) return "Mal";
+      if (value < 44) return "Ligeramente mal";
       if (value < 55) return "Neutral";
-      if (value < 72) return "Algo agradable";
-      if (value < 88) return "Agradable";
-      return "Muy agradable";
+      if (value < 68) return "Ligeramente bien";
+      if (value < 78) return "Bien";
+      return "Muy bien";
     };
 
     const moodTone = value => {
@@ -3356,14 +3684,50 @@
       document.querySelectorAll("[data-mood-label]").forEach(element => {
         element.textContent = label;
       });
+      renderFlowerGeometry(moodFlower, value, reduceMotion.matches ? 0 : performance.now());
+      miniFlowers.forEach(host => renderFlowerGeometry(host, value));
+      const frameSource = moodFrameSource(value);
+      if (moodReferenceFrame.getAttribute("src") !== frameSource) moodReferenceFrame.src = frameSource;
+      const nextFeelingGroup = value < 44 ? "negative" : value < 55 ? "neutral" : "positive";
+      if (nextFeelingGroup !== quickFeelingGroup) {
+        quickFeelingGroup = nextFeelingGroup;
+        quickFeelings = quickFeelingGroups[quickFeelingGroup];
+        renderFeelings();
+      }
       moodRange.setAttribute("aria-valuetext", label);
       batteryLevel.textContent = value <= 55 ? "78" : "77";
     };
 
     const showView = name => {
       clearTimeout(loggedTimer);
+      clearTimeout(viewTransitionTimer);
+
+      const previousView = currentView;
+      const previousElement = document.querySelector(`[data-view="${previousView}"]`);
+      const nextElement = document.querySelector(`[data-view="${name}"]`);
+      const animateStep = previousView === "mood" && name === "describe" && !reduceMotion.matches;
       currentView = name;
-      views.forEach(view => view.classList.toggle("is-active", view.dataset.view === name));
+
+      views.forEach(view => view.classList.remove("flow-leaving", "flow-entering"));
+      if (animateStep && previousElement && nextElement) {
+        views.forEach(view => {
+          view.classList.toggle("is-active", view === previousElement || view === nextElement);
+          view.inert = view !== nextElement;
+        });
+        previousElement.classList.add("flow-leaving");
+        nextElement.classList.add("flow-entering");
+        viewTransitionTimer = window.setTimeout(() => {
+          previousElement.classList.remove("is-active", "flow-leaving");
+          nextElement.classList.remove("flow-entering");
+        }, 430);
+      } else {
+        views.forEach(view => {
+          const isActive = view.dataset.view === name;
+          view.classList.toggle("is-active", isActive);
+          view.inert = !isActive;
+        });
+      }
+
       const isSummary = name === "summary";
       const showsBottomNav = isSummary || name === "chat";
       bottomNav.hidden = !showsBottomNav;
@@ -3385,7 +3749,10 @@
       }
       if (name === "chat") renderChat();
       const heading = document.querySelector(`[data-view="${name}"] h1, [data-view="${name}"] [role="button"]`);
-      if (heading && name !== "logged") requestAnimationFrame(() => heading.focus?.({ preventScroll: true }));
+      if (heading && name !== "logged") {
+        if (!heading.matches("button, a, input, select, textarea, [tabindex]")) heading.setAttribute("tabindex", "-1");
+        requestAnimationFrame(() => heading.focus({ preventScroll: true }));
+      }
     };
 
     const selectFeeling = value => {
@@ -3766,7 +4133,7 @@
     document.querySelector(".choice-next").addEventListener("click", () => {
       const isMood = selectedLogType === "mood";
       document.querySelector('[data-view="mood"] .flow-title').textContent = isMood ? "Estado de ánimo" : "Emoción";
-      document.querySelector("#mood-heading").textContent = isMood ? "¿Cómo te sentiste en general hoy?" : "Elige cómo te sientes ahora";
+      document.querySelector("#mood-heading").textContent = isMood ? "¿Cómo te sentiste en general hoy?" : "Elige cómo te sientes ahora mismo";
     });
 
     feelingChips.addEventListener("click", event => {
@@ -4110,7 +4477,7 @@
       splash.addEventListener("transitionend", () => splash.remove(), { once: true });
     });
 
-    showView("summary");
+    showView("mood");
   </script>
 </body>
 </html>

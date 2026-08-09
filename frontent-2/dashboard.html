@@ -51,6 +51,85 @@
       white-space: nowrap;
     }
 
+    .return-to-chat-layer {
+      position: fixed;
+      z-index: 1200;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: oklch(0.79 0.004 270);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    body.is-returning-to-chat {
+      overflow: hidden;
+    }
+
+    body.is-returning-to-chat > .topbar,
+    body.is-returning-to-chat > .dash,
+    body.is-returning-to-chat > .pie {
+      pointer-events: none;
+      will-change: filter, opacity, transform;
+      animation: dashboard-exit 420ms cubic-bezier(0.25, 1, 0.5, 1) both;
+    }
+
+    body.is-returning-to-chat > .return-to-chat-layer {
+      visibility: visible;
+      will-change: opacity, transform;
+      animation: whatsapp-return 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes dashboard-exit {
+      from {
+        filter: blur(0);
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      to {
+        filter: blur(3px);
+        opacity: 0;
+        transform: scale(0.985);
+      }
+    }
+
+    @keyframes whatsapp-return {
+      from {
+        opacity: 0;
+        transform: scale(0.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body.is-returning-to-chat > .topbar,
+      body.is-returning-to-chat > .dash,
+      body.is-returning-to-chat > .pie {
+        animation: dashboard-fade-out 100ms linear both;
+      }
+
+      body.is-returning-to-chat > .return-to-chat-layer {
+        animation: dashboard-fade-in 100ms linear both;
+      }
+    }
+
+    @keyframes dashboard-fade-out {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    @keyframes dashboard-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
     /* --- Barra superior --- */
 
     .topbar {
@@ -1079,6 +1158,55 @@
   <footer class="pie">
     <p>Datos simulados con fines de demostración. Las señales provienen de integraciones con Apple Health y Samsung Health, con consentimiento explícito de la persona usuaria y agregación por zona: el tablero nunca expone registros individuales.</p>
   </footer>
+
+  <p class="sr-only" id="flow-status" aria-live="polite"></p>
+
+  <iframe
+    class="return-to-chat-layer"
+    id="return-to-chat-layer"
+    data-src="../frontend-3-whatsapp/index.html#post-consent"
+    title="Chat de WhatsApp con SaltaBot"
+    tabindex="-1"
+    aria-hidden="true"
+    inert
+  ></iframe>
+
+  <script>
+    (() => {
+      const destination = new URL("../frontend-3-whatsapp/index.html#post-consent", location.href).href;
+      const returnToChatLayer = document.querySelector("#return-to-chat-layer");
+      const flowStatus = document.querySelector("#flow-status");
+      const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      const interactiveSelector = "a, button, input, select, textarea, [contenteditable='true']";
+      let isReturningToChat = false;
+
+      if (window.top === window.self) {
+        returnToChatLayer.src = returnToChatLayer.dataset.src;
+      }
+
+      document.addEventListener("keydown", event => {
+        const isSpace = event.code === "Space" || event.key === " ";
+        const hasInteractiveTarget = event.target instanceof Element && event.target.closest(interactiveSelector);
+        if (!isSpace || event.repeat || isReturningToChat || hasInteractiveTarget) return;
+
+        event.preventDefault();
+        isReturningToChat = true;
+        document.body.classList.add("is-returning-to-chat");
+        document.body.setAttribute("aria-busy", "true");
+        flowStatus.textContent = "Volviendo al chat con SaltaBot.";
+
+        window.setTimeout(() => {
+          window.location.href = destination;
+        }, reduceMotion.matches ? 100 : 520);
+      });
+
+      window.addEventListener("pageshow", () => {
+        isReturningToChat = false;
+        document.body.classList.remove("is-returning-to-chat");
+        document.body.removeAttribute("aria-busy");
+      });
+    })();
+  </script>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="data/salta-zonas.js"></script>

@@ -9,6 +9,7 @@
   <link rel="preload" as="image" href="assets/salta-bot-notification-banner.png">
   <link rel="preload" as="image" href="assets/chat-joaco.png">
   <link rel="preload" as="image" href="assets/salta-municipalidad.jpg">
+  <link rel="preload" as="image" href="assets/post-consent-thread.png">
   <style>
     :root {
       color-scheme: light;
@@ -65,7 +66,8 @@
     .notification-banner[hidden],
     .notification-button[hidden],
     .consent-link[hidden],
-    .final-identity[hidden] {
+    .final-identity[hidden],
+    .post-consent-layer[hidden] {
       display: none;
     }
 
@@ -175,6 +177,107 @@
       font-weight: 400;
       line-height: 1.16;
       text-align: center;
+    }
+
+    .app-frame[data-state="post-consent"] .meta-notice {
+      display: none;
+    }
+
+    .post-consent-layer {
+      position: absolute;
+      z-index: 2;
+      top: 13.3%;
+      right: 0;
+      bottom: 43.9%;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: calc(var(--screen-width) * 0.0152671756);
+      padding: calc(var(--screen-width) * 0.0305343511) calc(var(--screen-width) * 0.0407124682) calc(var(--screen-width) * 0.0458015267);
+      overflow: hidden;
+      background: #f7f2ea url("assets/post-consent-thread.png") center / 100% 100% no-repeat;
+      color: #111;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    }
+
+    .unread-divider {
+      align-self: center;
+      flex: none;
+      padding: calc(var(--screen-width) * 0.0152671756) calc(var(--screen-width) * 0.0356234097);
+      border-radius: calc(var(--screen-width) * 0.0508905852);
+      background: #fff;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+      color: #111;
+      font-size: calc(var(--screen-width) * 0.0305343511);
+      font-weight: 600;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .post-message {
+      position: relative;
+      width: fit-content;
+      max-width: 94%;
+      padding: calc(var(--screen-width) * 0.0254452926) calc(var(--screen-width) * 0.0305343511) calc(var(--screen-width) * 0.0178117048);
+      border-radius: calc(var(--screen-width) * 0.0407124682) calc(var(--screen-width) * 0.0407124682) calc(var(--screen-width) * 0.0407124682) calc(var(--screen-width) * 0.010178117);
+      background: #fff;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+    }
+
+    .post-message::before {
+      position: absolute;
+      bottom: 0;
+      left: calc(var(--screen-width) * -0.0152671756);
+      width: calc(var(--screen-width) * 0.0254452926);
+      height: calc(var(--screen-width) * 0.0330788804);
+      background: #fff;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      content: "";
+    }
+
+    .post-message p {
+      margin: 0;
+      font-size: calc(var(--screen-width) * 0.0356234097);
+      letter-spacing: calc(var(--screen-width) * -0.0004240882);
+      line-height: 1.35;
+      text-wrap: pretty;
+    }
+
+    .post-message time {
+      display: block;
+      margin-top: calc(var(--screen-width) * 0.010178117);
+      color: #66707a;
+      font-size: calc(var(--screen-width) * 0.0254452926);
+      line-height: 1;
+      text-align: right;
+    }
+
+    .post-message .download-links {
+      margin-top: calc(var(--screen-width) * 0.0203562341);
+    }
+
+    .download-links a {
+      border-radius: calc(var(--screen-width) * 0.0050890585);
+      color: #287f50;
+      font-weight: 500;
+      text-decoration-line: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: calc(var(--screen-width) * 0.0050890585);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .download-links a:hover {
+      color: #1d7043;
+    }
+
+    .download-links a:active {
+      color: #155b35;
+    }
+
+    .download-links a:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
     }
 
     .notification-button {
@@ -375,6 +478,15 @@
       alt="Chat de WhatsApp con SaltaBot, cuenta de empresa verificada"
       hidden
     >
+    <img
+      class="state-image"
+      data-state-image="post-consent"
+      src="assets/chat-joaco.png"
+      width="1179"
+      height="2556"
+      alt="Chat de WhatsApp con los mensajes de agradecimiento y descarga de Anima"
+      hidden
+    >
     <div class="final-identity" id="final-identity" aria-hidden="true" hidden>
       <img
         class="final-avatar"
@@ -398,6 +510,33 @@
       </div>
     </div>
 
+    <section
+      class="post-consent-layer"
+      id="post-consent-layer"
+      aria-label="Nuevos mensajes de SaltaBot"
+      hidden
+    >
+      <div class="unread-divider" role="separator" aria-label="2 mensajes no leídos">
+        2 mensajes no leídos
+      </div>
+
+      <article class="post-message">
+        <p>¡Gracias por aceptar compartir tus datos! Tu autorización se registró correctamente.</p>
+        <time datetime="00:06">00:06</time>
+      </article>
+
+      <article class="post-message">
+        <p>También podés descargar Anima para registrar cómo te sentís y acceder a herramientas de bienestar.</p>
+        <p class="download-links">
+          Descargala desde
+          <a href="../frontent-2/index.html" aria-label="Abrir Anima desde App Store">App Store</a>
+          o
+          <a href="../frontent-2/index.html" aria-label="Abrir Anima desde Google Play">Google Play</a>.
+        </p>
+        <time datetime="00:06">00:06</time>
+      </article>
+    </section>
+
     <a
       class="consent-link"
       id="consent-link"
@@ -419,7 +558,8 @@
 
     <iframe
       class="health-transition-layer"
-      src="../frontent-2-extention/index.html"
+      id="health-transition-layer"
+      data-src="../frontent-2-extention/index.html"
       title="HealthApp"
       tabindex="-1"
       aria-hidden="true"
@@ -434,6 +574,8 @@
     const notificationButton = document.querySelector("#notification-button");
     const consentLink = document.querySelector("#consent-link");
     const finalIdentity = document.querySelector("#final-identity");
+    const postConsentLayer = document.querySelector("#post-consent-layer");
+    const healthTransitionLayer = document.querySelector("#health-transition-layer");
     const liveStatus = document.querySelector("#live-status");
     const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     let isTransitioningToHealth = false;
@@ -441,10 +583,12 @@
     const labels = {
       mami: "Chat de WhatsApp con Mami",
       notification: "Chat con Mami y una notificación de SaltaBot",
-      "salta-bot": "Chat de WhatsApp con SaltaBot, cuenta de empresa verificada"
+      "salta-bot": "Chat de WhatsApp con SaltaBot, cuenta de empresa verificada",
+      "post-consent": "Chat de WhatsApp con los mensajes de agradecimiento y descarga de Anima"
     };
 
     const showState = state => {
+      const isSaltaBotChat = state === "salta-bot" || state === "post-consent";
       app.dataset.state = state;
       app.setAttribute("aria-label", labels[state]);
       images.forEach(image => {
@@ -453,12 +597,28 @@
       notificationBanner.hidden = state !== "notification";
       notificationButton.hidden = state !== "notification";
       consentLink.hidden = state !== "salta-bot";
-      finalIdentity.hidden = state !== "salta-bot";
+      finalIdentity.hidden = !isSaltaBotChat;
+      postConsentLayer.hidden = state !== "post-consent";
+
+      if (state === "salta-bot" && !healthTransitionLayer.hasAttribute("src")) {
+        healthTransitionLayer.src = healthTransitionLayer.dataset.src;
+      } else if (state === "post-consent") {
+        healthTransitionLayer.removeAttribute("src");
+      }
     };
 
-    if (location.hash === "#salta-bot") {
-      showState("salta-bot");
+    const initialState = location.hash === "#post-consent"
+      ? "post-consent"
+      : location.hash === "#salta-bot"
+        ? "salta-bot"
+        : null;
+
+    if (initialState) {
+      showState(initialState);
       history.replaceState(null, "", `${location.pathname}${location.search}`);
+      if (initialState === "post-consent") {
+        liveStatus.textContent = "SaltaBot envió dos mensajes nuevos: agradecimiento y descarga de Anima.";
+      }
     }
 
     consentLink.addEventListener("click", event => {
