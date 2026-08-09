@@ -1,0 +1,20 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - button "Volver" [ref=e4] [cursor=pointer]
+    - button "Reiniciar" [ref=e7] [cursor=pointer]
+  - main [ref=e8]:
+    - region [ref=e9]:
+      - heading "¿Cómo te sentís ahora?" [level=1] [ref=e10]
+      - paragraph [ref=e11]: Ubicá el punto donde mejor represente lo que sentís. También puede quedar entre dos emociones.
+    - 'application "Selector emocional. Selección actual: Sorpresa, con algo de Felicidad" [ref=e14]':
+      - generic: Enfado
+      - generic: Disgusto
+      - generic: Tristeza
+      - generic: Felicidad
+      - generic: Sorpresa
+      - generic: Miedo
+    - generic [ref=e17]:
+      - generic [ref=e18]: Tu selección
+      - paragraph [ref=e19]: Sorpresa, con algo de Felicidad
+    - paragraph [ref=e20]: Arrastrá el punto o usá las flechas del teclado para ajustar tu selección.
+    - button "Continuar" [ref=e21] [cursor=pointer]
