@@ -1,0 +1,1806 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Observatorio de Salud Mental — Provincia de Salta</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      --white: oklch(1 0 0);
+      --blue: oklch(0.56 0.18 255);
+      --naranja: oklch(0.72 0.18 50);
+      --rojo: oklch(0.58 0.19 28);
+      --verde: oklch(0.60 0.14 155);
+      --fondo: oklch(0.965 0.006 270);
+      --surface: oklch(0.975 0.004 270);
+      --tinta: oklch(0.14 0.004 270);
+      --tenue: oklch(0.56 0.012 250);
+      --divider: oklch(0.90 0.005 270);
+      --sombra: 0 1px 2px oklch(0.4 0.01 270 / 0.06), 0 8px 24px oklch(0.4 0.01 270 / 0.07);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--fondo);
+      color: var(--tinta);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, select, input { font: inherit; color: inherit; }
+
+    button:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    .sr-only {
+      position: absolute;
+      overflow: hidden;
+      width: 1px;
+      height: 1px;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    /* --- Barra superior --- */
+
+    .topbar {
+      position: sticky;
+      z-index: 500;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--divider);
+      background: oklch(1 0 0 / 0.97);
+      backdrop-filter: blur(20px) saturate(1.2);
+      -webkit-backdrop-filter: blur(20px) saturate(1.2);
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .crest {
+      display: block;
+      width: 42px;
+      height: 42px;
+      flex: none;
+      border-radius: 13px;
+      object-fit: cover;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.0625rem;
+      font-weight: 720;
+      letter-spacing: -0.025em;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--tenue);
+      font-size: 0.8125rem;
+      letter-spacing: -0.01em;
+    }
+
+    .filtros {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .segmented {
+      display: flex;
+      padding: 3px;
+      border-radius: 999px;
+      background: oklch(0.92 0.004 270);
+      gap: 2px;
+    }
+
+    .seg-btn {
+      min-width: 46px;
+      padding: 7px 14px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: oklch(0.32 0.008 270);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 620;
+      letter-spacing: -0.01em;
+      transition: background-color 160ms ease-out, color 160ms ease-out;
+    }
+
+    .seg-btn:hover { color: var(--tinta); }
+
+    .seg-btn[aria-pressed="true"] {
+      background: var(--white);
+      box-shadow: 0 1px 3px oklch(0.4 0.01 270 / 0.16);
+      color: var(--tinta);
+    }
+
+    .campo {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .campo select {
+      padding: 9px 32px 9px 14px;
+      border: 1px solid var(--divider);
+      border-radius: 999px;
+      appearance: none;
+      background: var(--white);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 560;
+      letter-spacing: -0.01em;
+    }
+
+    .campo::after {
+      position: absolute;
+      right: 13px;
+      border-top: 5px solid oklch(0.5 0.01 270);
+      border-right: 4px solid transparent;
+      border-left: 4px solid transparent;
+      content: "";
+      pointer-events: none;
+    }
+
+    .btn-exportar {
+      padding: 9px 16px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: var(--blue);
+      color: var(--white);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 620;
+      letter-spacing: -0.01em;
+      transition: filter 160ms ease-out;
+    }
+
+    .btn-exportar:hover { filter: brightness(1.07); }
+    .btn-exportar:active { filter: brightness(0.94); }
+
+    /* --- Layout --- */
+
+    .dash {
+      display: grid;
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 22px 32px 72px;
+      gap: 20px;
+    }
+
+    .card {
+      border: 1px solid var(--divider);
+      border-radius: 26px;
+      background: var(--white);
+      box-shadow: var(--sombra);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 22px 26px 0;
+      gap: 20px;
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .card-head p {
+      max-width: 62ch;
+      margin: 5px 0 0;
+      color: var(--tenue);
+      font-size: 0.875rem;
+      letter-spacing: -0.01em;
+    }
+
+    .card-body { padding: 20px 26px 26px; }
+
+    /* --- KPIs --- */
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi {
+      display: flex;
+      min-height: 152px;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 18px 14px;
+      border: 1px solid var(--divider);
+      border-radius: 22px;
+      background: var(--white);
+      box-shadow: var(--sombra);
+    }
+
+    .kpi-label {
+      margin: 0;
+      color: var(--tenue);
+      font-size: 0.6875rem;
+      font-weight: 620;
+      letter-spacing: 0.045em;
+      text-transform: uppercase;
+    }
+
+    .kpi-valor {
+      display: flex;
+      align-items: baseline;
+      margin: 12px 0 0;
+      font-size: 2.25rem;
+      font-weight: 730;
+      gap: 3px;
+      letter-spacing: -0.035em;
+      line-height: 1;
+    }
+
+    .kpi-unidad {
+      font-size: 1rem;
+      font-weight: 620;
+      letter-spacing: -0.02em;
+      opacity: 0.55;
+    }
+
+    .kpi-pie {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-top: 12px;
+      gap: 10px;
+    }
+
+    .delta {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px 3px 7px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 640;
+      gap: 3px;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .delta.bien { background: oklch(0.94 0.05 155); color: oklch(0.42 0.11 155); }
+    .delta.mal { background: oklch(0.95 0.04 30); color: oklch(0.47 0.16 28); }
+    .delta.neutro { background: oklch(0.94 0.004 270); color: var(--tenue); }
+
+    .kpi-spark { flex: none; }
+
+    /* --- Mapa --- */
+
+    .metricas {
+      display: flex;
+      margin: 16px 0 18px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 8px 15px;
+      border: 1px solid var(--divider);
+      border-radius: 999px;
+      background: oklch(0.97 0.003 270);
+      cursor: pointer;
+      font-size: 0.8125rem;
+      font-weight: 580;
+      letter-spacing: -0.01em;
+      transition: background-color 160ms ease-out, color 160ms ease-out, border-color 160ms ease-out;
+    }
+
+    .pill:hover { background: oklch(0.93 0.004 270); }
+
+    .pill[aria-pressed="true"] {
+      border-color: transparent;
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    .mapa-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 336px;
+      gap: 20px;
+    }
+
+    .mapa-col { min-width: 0; }
+
+    #mapa {
+      position: relative;
+      height: 580px;
+      border: 1px solid var(--divider);
+      border-radius: 20px;
+      background: oklch(0.94 0.004 270);
+    }
+
+    /* Capa decorativa: los mismos polígonos difuminados, para el efecto de calor. */
+    .pane-calor {
+      filter: blur(19px) saturate(1.3);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .pane-etiquetas { pointer-events: none; }
+
+    .leaflet-container {
+      overflow: hidden;
+      border-radius: 20px;
+      font: inherit;
+    }
+
+    .leaflet-popup-content-wrapper {
+      border-radius: 18px;
+      box-shadow: var(--sombra);
+    }
+
+    .leaflet-popup-content { margin: 15px 17px; }
+
+    .leaflet-tooltip {
+      padding: 6px 11px;
+      border: 0;
+      border-radius: 999px;
+      background: oklch(0.16 0.006 270 / 0.92);
+      box-shadow: none;
+      color: var(--white);
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    .leaflet-tooltip::before { display: none; }
+
+    .popup-zona h3 {
+      margin: 0;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .popup-zona .popup-sector {
+      margin: 2px 0 11px;
+      color: var(--tenue);
+      font-size: 0.8125rem;
+    }
+
+    .popup-zona dl {
+      display: grid;
+      margin: 0;
+      grid-template-columns: 1fr auto;
+      gap: 6px 16px;
+      font-size: 0.8125rem;
+    }
+
+    .popup-zona dt { color: var(--tenue); }
+    .popup-zona dd { margin: 0; font-weight: 640; text-align: right; }
+
+    .popup-destacado {
+      margin: 11px 0 0;
+      padding-top: 10px;
+      border-top: 1px solid var(--divider);
+      font-size: 0.8125rem;
+    }
+
+    .leyenda {
+      display: flex;
+      align-items: center;
+      margin-top: 14px;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+    }
+
+    .leyenda-titulo {
+      color: var(--tenue);
+      font-size: 0.6875rem;
+      font-weight: 620;
+      letter-spacing: 0.045em;
+      text-transform: uppercase;
+    }
+
+    .leyenda-escala {
+      display: flex;
+      gap: 2px;
+    }
+
+    .leyenda-item {
+      display: grid;
+      min-width: 78px;
+      padding-top: 6px;
+      gap: 5px;
+      text-align: center;
+    }
+
+    .leyenda-item .swatch {
+      height: 10px;
+      border-radius: 3px;
+    }
+
+    .leyenda-item span {
+      color: var(--tenue);
+      font-size: 0.6875rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mapa-nota {
+      margin: 12px 0 0;
+      color: var(--tenue);
+      font-size: 0.75rem;
+      letter-spacing: -0.005em;
+    }
+
+    /* --- Ranking --- */
+
+    .ranking {
+      display: flex;
+      overflow: hidden;
+      height: 580px;
+      flex-direction: column;
+      border: 1px solid var(--divider);
+      border-radius: 20px;
+      background: oklch(0.98 0.003 270);
+    }
+
+    .ranking-head {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .ranking-head h3 {
+      margin: 0;
+      font-size: 0.9375rem;
+      font-weight: 680;
+      letter-spacing: -0.02em;
+    }
+
+    .ranking-head p {
+      margin: 3px 0 0;
+      color: var(--tenue);
+      font-size: 0.75rem;
+    }
+
+    .ranking-lista {
+      overflow-y: auto;
+      padding: 8px;
+      margin: 0;
+      flex: 1;
+      list-style: none;
+      scrollbar-gutter: stable;
+    }
+
+    .rank-item {
+      display: grid;
+      width: 100%;
+      padding: 9px 10px;
+      border: 0;
+      border-radius: 14px;
+      background: transparent;
+      cursor: pointer;
+      gap: 6px;
+      text-align: left;
+      transition: background-color 140ms ease-out;
+    }
+
+    .rank-item:hover,
+    .rank-item.activo { background: oklch(0.93 0.008 260); }
+
+    .rank-fila {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .rank-nombre {
+      overflow: hidden;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .rank-valor {
+      flex: none;
+      font-size: 0.875rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 680;
+    }
+
+    .rank-barra {
+      height: 7px;
+      border-radius: 999px;
+      background: oklch(0.90 0.004 270);
+    }
+
+    .rank-barra span {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      transition: width 260ms ease-out;
+    }
+
+    /* --- Gráficos --- */
+
+    .charts {
+      display: grid;
+      gap: 22px;
+    }
+
+    .chart-box { min-width: 0; }
+
+    .chart-titulo {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin: 0 0 8px;
+      gap: 12px;
+    }
+
+    .chart-titulo h3 {
+      margin: 0;
+      font-size: 0.9375rem;
+      font-weight: 680;
+      letter-spacing: -0.02em;
+    }
+
+    .chart-titulo span {
+      color: var(--tenue);
+      font-size: 0.8125rem;
+    }
+
+    .chart-host svg { display: block; }
+
+    /* --- Tabs --- */
+
+    .tab-lista {
+      display: inline-flex;
+      padding: 4px;
+      border-radius: 999px;
+      background: oklch(0.93 0.004 270);
+      gap: 3px;
+    }
+
+    .tab-btn {
+      padding: 9px 20px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: oklch(0.30 0.008 270);
+      cursor: pointer;
+      font-size: 0.9375rem;
+      font-weight: 620;
+      letter-spacing: -0.015em;
+      transition: background-color 160ms ease-out, color 160ms ease-out;
+    }
+
+    .tab-btn[aria-selected="true"] {
+      background: var(--white);
+      box-shadow: 0 1px 3px oklch(0.4 0.01 270 / 0.18);
+      color: var(--tinta);
+    }
+
+    .tab-panel[hidden] { display: none; }
+
+    .tab-panel { padding-top: 22px; }
+
+    .barra-apilada {
+      display: flex;
+      overflow: hidden;
+      height: 34px;
+      border-radius: 999px;
+      gap: 2px;
+    }
+
+    .barra-apilada span {
+      display: grid;
+      min-width: 2px;
+      color: oklch(1 0 0 / 0.95);
+      font-size: 0.75rem;
+      font-weight: 660;
+      place-items: center;
+      transition: width 260ms ease-out;
+    }
+
+    .leyenda-estados {
+      display: flex;
+      margin-top: 14px;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+    }
+
+    .leyenda-estados div {
+      display: flex;
+      align-items: center;
+      font-size: 0.8125rem;
+      gap: 7px;
+    }
+
+    .leyenda-estados i {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+    }
+
+    .leyenda-estados b {
+      font-variant-numeric: tabular-nums;
+      font-weight: 660;
+    }
+
+    .estado-edad {
+      display: grid;
+      margin-top: 26px;
+      gap: 12px;
+    }
+
+    .estado-edad > h4 {
+      margin: 0;
+      color: var(--tenue);
+      font-size: 0.6875rem;
+      font-weight: 620;
+      letter-spacing: 0.045em;
+      text-transform: uppercase;
+    }
+
+    .edad-fila {
+      display: grid;
+      align-items: center;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .edad-fila strong {
+      font-size: 0.875rem;
+      font-weight: 620;
+    }
+
+    .edad-fila .barra-apilada { height: 20px; }
+    .edad-fila .barra-apilada span { font-size: 0; }
+
+    .asoc-lista {
+      display: grid;
+      margin: 0;
+      padding: 0;
+      gap: 4px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 32px;
+      list-style: none;
+    }
+
+    .asoc-item {
+      display: grid;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--divider);
+      gap: 7px;
+    }
+
+    .asoc-fila {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .asoc-nombre { font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.015em; }
+
+    .asoc-meta {
+      display: flex;
+      align-items: center;
+      color: var(--tenue);
+      font-size: 0.8125rem;
+      gap: 10px;
+      white-space: nowrap;
+    }
+
+    .asoc-meta b {
+      color: var(--tinta);
+      font-variant-numeric: tabular-nums;
+      font-weight: 680;
+    }
+
+    .asoc-chip {
+      padding: 2px 9px;
+      border-radius: 999px;
+      color: var(--white);
+      font-size: 0.6875rem;
+      font-weight: 620;
+    }
+
+    .asoc-barra {
+      height: 6px;
+      border-radius: 999px;
+      background: oklch(0.93 0.004 270);
+    }
+
+    .asoc-barra span {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .factor-lista {
+      display: grid;
+      margin: 0;
+      padding: 0;
+      gap: 10px;
+      list-style: none;
+    }
+
+    .factor-item {
+      display: grid;
+      align-items: center;
+      padding: 18px 22px;
+      border: 1px solid var(--divider);
+      border-radius: 26px;
+      background: oklch(0.985 0.002 270);
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 20px;
+    }
+
+    .factor-item.destacado {
+      border-color: transparent;
+      background: var(--naranja);
+      color: var(--white);
+    }
+
+    .factor-item h4 {
+      margin: 0;
+      font-size: 1.0625rem;
+      font-weight: 640;
+      letter-spacing: -0.02em;
+    }
+
+    .factor-item p {
+      max-width: 64ch;
+      margin: 4px 0 0;
+      color: var(--tenue);
+      font-size: 0.8125rem;
+    }
+
+    .factor-item.destacado p { color: oklch(1 0 0 / 0.86); }
+
+    .factor-valor {
+      font-size: 1.5rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .factor-corr {
+      display: grid;
+      min-width: 128px;
+      gap: 5px;
+      justify-items: end;
+    }
+
+    .factor-corr small {
+      font-size: 0.6875rem;
+      font-weight: 620;
+      letter-spacing: 0.04em;
+      opacity: 0.7;
+      text-transform: uppercase;
+    }
+
+    .factor-corr .medidor {
+      width: 128px;
+      height: 7px;
+      border-radius: 999px;
+      background: oklch(0.90 0.004 270);
+    }
+
+    .factor-item.destacado .factor-corr .medidor { background: oklch(1 0 0 / 0.3); }
+
+    .factor-corr .medidor span {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .factor-item.destacado .factor-corr .medidor span { background: var(--white); }
+
+    /* --- Tabla --- */
+
+    .tabla {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .tabla th {
+      padding: 0 14px 10px;
+      border-bottom: 1px solid var(--divider);
+      color: var(--tenue);
+      font-size: 0.6875rem;
+      font-weight: 620;
+      letter-spacing: 0.045em;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .tabla th.num, .tabla td.num { text-align: right; }
+
+    .tabla td {
+      padding: 13px 14px;
+      border-bottom: 1px solid oklch(0.94 0.004 270);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tabla tbody tr { cursor: pointer; transition: background-color 140ms ease-out; }
+    .tabla tbody tr:hover { background: oklch(0.97 0.006 260); }
+
+    .tabla .zona-nombre { font-weight: 640; letter-spacing: -0.015em; }
+    .tabla .zona-sector { color: var(--tenue); font-size: 0.75rem; }
+
+    .indice {
+      display: inline-flex;
+      min-width: 46px;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 680;
+    }
+
+    .accion-chip {
+      display: inline-block;
+      padding: 4px 11px;
+      border: 1px solid var(--divider);
+      border-radius: 999px;
+      background: oklch(0.97 0.003 270);
+      font-size: 0.75rem;
+      font-weight: 580;
+      white-space: nowrap;
+    }
+
+    .pie {
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 0 32px 48px;
+      color: var(--tenue);
+      font-size: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .aviso {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      margin: 0;
+      padding: 7px 13px;
+      border-radius: 999px;
+      background: oklch(1 0 0 / 0.88);
+      box-shadow: var(--sombra);
+      color: var(--tenue);
+      font-size: 0.75rem;
+    }
+
+    @media (max-width: 1360px) {
+      .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .mapa-layout { grid-template-columns: minmax(0, 1fr); }
+      .ranking { height: auto; max-height: 420px; }
+      .asoc-lista { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 1080px) {
+      .topbar { flex-wrap: wrap; padding: 14px 20px; }
+      .dash, .pie { padding-left: 20px; padding-right: 20px; }
+      .factor-item { grid-template-columns: minmax(0, 1fr) auto; }
+      .factor-corr { grid-column: 1 / -1; justify-items: start; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="crest" src="assets/salta-municipalidad.png" alt="Municipalidad de Salta">
+      <div>
+        <h1>Observatorio de Salud Mental</h1>
+        <p>Provincia de Salta · Ministerio de Salud Pública · Detección temprana</p>
+      </div>
+    </div>
+
+    <div class="filtros">
+      <div class="segmented" id="periodos" role="group" aria-label="Período"></div>
+      <label class="sr-only" for="filtro-edad">Grupo etario</label>
+      <div class="campo"><select id="filtro-edad"></select></div>
+      <label class="sr-only" for="filtro-sexo">Sexo</label>
+      <div class="campo"><select id="filtro-sexo"></select></div>
+      <button class="btn-exportar" id="exportar" type="button">Exportar CSV</button>
+    </div>
+  </header>
+
+  <main class="dash">
+    <section class="kpis" id="kpis" aria-label="Indicadores generales"></section>
+
+    <section class="card" aria-labelledby="mapa-titulo">
+      <div class="card-head">
+        <div>
+          <h2 id="mapa-titulo">Mapa de vulnerabilidad — Salta Capital</h2>
+          <p id="mapa-desc">Elegí una métrica para ver su mediana por barrio. El color más intenso marca la zona con peor situación relativa.</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="metricas" id="metricas" role="group" aria-label="Métrica del mapa"></div>
+        <div class="mapa-layout">
+          <div class="mapa-col">
+            <div id="mapa" role="application" aria-label="Mapa de calor de Salta Capital"></div>
+            <div class="leyenda" id="leyenda"></div>
+            <p class="mapa-nota">La división por barrios es esquemática y se usa con fines ilustrativos: no representa límites administrativos oficiales. Los valores son simulados sobre la base de la estructura poblacional de Salta Capital.</p>
+          </div>
+          <aside class="ranking">
+            <div class="ranking-head">
+              <h3 id="ranking-titulo">Ranking por barrio</h3>
+              <p id="ranking-sub">Ordenado de peor a mejor situación</p>
+            </div>
+            <ul class="ranking-lista" id="ranking"></ul>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="tendencias-titulo">
+      <div class="card-head">
+        <div>
+          <h2 id="tendencias-titulo">Tendencias</h2>
+          <p>Evolución del estado de ánimo declarado y del volumen de registros recibidos en el período seleccionado.</p>
+        </div>
+      </div>
+      <div class="card-body charts">
+        <div class="chart-box">
+          <div class="chart-titulo">
+            <h3>Mediana de estado de ánimo</h3>
+            <span id="animo-resumen"></span>
+          </div>
+          <div class="chart-host" id="chart-animo"></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-titulo">
+            <h3>Registros diarios</h3>
+            <span id="registros-resumen"></span>
+          </div>
+          <div class="chart-host" id="chart-registros"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="analisis-titulo">
+      <div class="card-head">
+        <div>
+          <h2 id="analisis-titulo">Análisis de la población monitoreada</h2>
+          <p>Qué sienten, con qué lo asocian y qué hábitos acompañan esos estados.</p>
+        </div>
+        <div class="tab-lista" role="tablist" aria-label="Vista del análisis">
+          <button class="tab-btn" id="tab-estados" type="button" role="tab" aria-selected="false" aria-controls="panel-estados" data-tab="estados">Estados</button>
+          <button class="tab-btn" id="tab-asociaciones" type="button" role="tab" aria-selected="false" aria-controls="panel-asociaciones" data-tab="asociaciones">Asociaciones</button>
+          <button class="tab-btn" id="tab-factores" type="button" role="tab" aria-selected="true" aria-controls="panel-factores" data-tab="factores">Factores de vida</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="tab-panel" id="panel-estados" role="tabpanel" aria-labelledby="tab-estados" hidden></div>
+        <div class="tab-panel" id="panel-asociaciones" role="tabpanel" aria-labelledby="tab-asociaciones" hidden></div>
+        <div class="tab-panel" id="panel-factores" role="tabpanel" aria-labelledby="tab-factores"></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="zonas-titulo">
+      <div class="card-head">
+        <div>
+          <h2 id="zonas-titulo">Zonas priorizadas</h2>
+          <p>Barrios con mayor índice de riesgo en el período. Al hacer clic se centra el mapa en la zona.</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Barrio</th>
+              <th class="num" scope="col">Población monitoreada</th>
+              <th class="num" scope="col">Índice de riesgo</th>
+              <th class="num" scope="col">Variación</th>
+              <th scope="col">Tendencia</th>
+              <th class="num" scope="col">Alertas</th>
+              <th scope="col">Acción sugerida</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-zonas"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <p>Datos simulados con fines de demostración. Las señales provienen de integraciones con Apple Health y Samsung Health, con consentimiento explícito de la persona usuaria y agregación por zona: el tablero nunca expone registros individuales.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="data/salta-zonas.js"></script>
+  <script>
+    const D = window.SALTA_DATA;
+
+    const estado = { periodo: "M", edad: "todas", sexo: "todos", metrica: "riesgo", tab: "factores" };
+    let datos = null;
+
+    // --- Formato ---
+
+    const nf = decimales =>
+      new Intl.NumberFormat("es-AR", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
+
+    const num = (valor, decimales = 0) => nf(decimales).format(valor);
+    const conUnidad = (valor, metrica) => num(valor, metrica.decimales) + metrica.unidad;
+    const fechaCorta = new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short" });
+    const fechaLarga = new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "long", year: "numeric" });
+
+    const metricaPorId = id => D.metricas.find(metrica => metrica.id === id);
+
+    // Los colores de la escala de ánimo van de oscuros a claros: el texto encima
+    // se elige según la luminosidad declarada en el oklch.
+    const tintaSobre = color => {
+      const luminosidad = Number((color.match(/oklch\(([\d.]+)/) || [])[1]);
+      return luminosidad > 0.64 ? "oklch(0.20 0.02 260)" : "oklch(1 0 0)";
+    };
+
+    // --- Escalas de color: índice 0 es siempre la mejor situación ---
+
+    const RAMPAS = {
+      riesgo: [
+        "oklch(0.90 0.09 105)",
+        "oklch(0.87 0.13 88)",
+        "oklch(0.80 0.16 66)",
+        "oklch(0.72 0.18 50)",
+        "oklch(0.58 0.19 28)"
+      ],
+      animo: [
+        "oklch(0.74 0.17 75)",
+        "oklch(0.70 0.16 140)",
+        "oklch(0.68 0.10 220)",
+        "oklch(0.60 0.16 250)",
+        "oklch(0.52 0.19 285)"
+      ],
+      cobertura: [
+        "oklch(0.54 0.18 258)",
+        "oklch(0.66 0.15 256)",
+        "oklch(0.76 0.11 254)",
+        "oklch(0.86 0.07 252)",
+        "oklch(0.93 0.04 250)"
+      ]
+    };
+
+    // Cinco tramos por cuantiles sobre los 18 barrios.
+    const calcularCortes = metricaId => {
+      const valores = Object.values(datos.porZona)
+        .map(zona => zona[metricaId])
+        .sort((a, b) => a - b);
+      const cortes = [0.2, 0.4, 0.6, 0.8].map(p => valores[Math.floor(p * valores.length)]);
+      return { min: valores[0], max: valores[valores.length - 1], cortes };
+    };
+
+    const tramoDe = (valor, cortes) => {
+      let indice = 0;
+      while (indice < 4 && valor >= cortes.cortes[indice]) indice += 1;
+      return indice;
+    };
+
+    const colorDe = (valor, metrica, cortes) => {
+      const tramo = tramoDe(valor, cortes);
+      return RAMPAS[metrica.rampa][metrica.mejorAlto ? 4 - tramo : tramo];
+    };
+
+    // --- Helpers SVG ---
+
+    const escala = (valor, desde, hasta, aDesde, aHasta) => {
+      if (hasta === desde) return (aDesde + aHasta) / 2;
+      return aDesde + ((valor - desde) / (hasta - desde)) * (aHasta - aDesde);
+    };
+
+    const agrupar = (serie, maximo) => {
+      if (serie.length <= maximo) return serie;
+      const tamano = Math.ceil(serie.length / maximo);
+      const grupos = [];
+      for (let indice = 0; indice < serie.length; indice += tamano) {
+        const bloque = serie.slice(indice, indice + tamano);
+        const promedio = clave => bloque.reduce((total, dia) => total + dia[clave], 0) / bloque.length;
+        grupos.push({
+          fecha: bloque[Math.floor(bloque.length / 2)].fecha,
+          animo: promedio("animo"),
+          p25: promedio("p25"),
+          p75: promedio("p75"),
+          registros: promedio("registros")
+        });
+      }
+      return grupos;
+    };
+
+    const sparkline = (valores, color, ancho = 82, alto = 30) => {
+      if (valores.length < 2) return "";
+      const min = Math.min(...valores);
+      const max = Math.max(...valores);
+      const puntos = valores.map((valor, indice) => {
+        const x = escala(indice, 0, valores.length - 1, 1, ancho - 1);
+        const y = escala(valor, min, max, alto - 3, 3);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      return `<svg class="kpi-spark" width="${ancho}" height="${alto}" viewBox="0 0 ${ancho} ${alto}" fill="none" aria-hidden="true">
+        <polyline points="${puntos.join(" ")}" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+    };
+
+    /** Área de la mediana de ánimo con banda de percentiles 25–75. */
+    const graficoAnimo = (host, serie) => {
+      const ancho = Math.max(320, host.clientWidth);
+      const alto = 260;
+      const margen = { arriba: 12, derecha: 12, abajo: 26, izquierda: 34 };
+      const anchoUtil = ancho - margen.izquierda - margen.derecha;
+      const altoUtil = alto - margen.arriba - margen.abajo;
+      const puntos = agrupar(serie, 180);
+      const x = indice => margen.izquierda + escala(indice, 0, Math.max(1, puntos.length - 1), 0, anchoUtil);
+      const y = valor => margen.arriba + escala(valor, 0, 100, altoUtil, 0);
+
+      const grilla = [0, 25, 50, 75, 100]
+        .map(
+          valor => `<line x1="${margen.izquierda}" y1="${y(valor)}" x2="${ancho - margen.derecha}" y2="${y(valor)}"
+            stroke="oklch(0.88 0.004 270)" stroke-width="1" stroke-dasharray="2 4"/>
+            <text x="${margen.izquierda - 8}" y="${y(valor) + 4}" text-anchor="end" font-size="11" fill="oklch(0.6 0.01 260)">${valor}</text>`
+        )
+        .join("");
+
+      const areaBanda = [
+        ...puntos.map((punto, indice) => `${indice === 0 ? "M" : "L"}${x(indice).toFixed(1)},${y(punto.p75).toFixed(1)}`),
+        ...puntos
+          .slice()
+          .reverse()
+          .map((punto, indice) => `L${x(puntos.length - 1 - indice).toFixed(1)},${y(punto.p25).toFixed(1)}`),
+        "Z"
+      ].join("");
+
+      const linea = puntos
+        .map((punto, indice) => `${indice === 0 ? "M" : "L"}${x(indice).toFixed(1)},${y(punto.animo).toFixed(1)}`)
+        .join("");
+
+      const pasoEtiqueta = Math.max(1, Math.floor(puntos.length / 6));
+      const etiquetas = puntos
+        .map((punto, indice) =>
+          indice % pasoEtiqueta === 0 || indice === puntos.length - 1
+            ? `<text x="${x(indice).toFixed(1)}" y="${alto - 6}" text-anchor="middle" font-size="11" fill="oklch(0.6 0.01 260)">${fechaCorta.format(punto.fecha)}</text>`
+            : ""
+        )
+        .join("");
+
+      host.innerHTML = `<svg width="${ancho}" height="${alto}" viewBox="0 0 ${ancho} ${alto}" role="img"
+        aria-label="Evolución de la mediana de estado de ánimo">
+        <rect x="${margen.izquierda}" y="${y(34)}" width="${anchoUtil}" height="${y(0) - y(34)}" fill="oklch(0.6 0.16 25 / 0.05)"/>
+        ${grilla}
+        <line x1="${margen.izquierda}" y1="${y(34)}" x2="${ancho - margen.derecha}" y2="${y(34)}"
+          stroke="oklch(0.62 0.17 28)" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.55"/>
+        <text x="${margen.izquierda + 7}" y="${y(34) - 7}" font-size="11" fill="oklch(0.55 0.15 28)">Umbral de alerta</text>
+        <path d="${areaBanda}" fill="oklch(0.56 0.18 255 / 0.14)"/>
+        <path d="${linea}" fill="none" stroke="oklch(0.56 0.18 255)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+        ${etiquetas}
+      </svg>`;
+    };
+
+    /** Barras del volumen diario de registros. */
+    const graficoRegistros = (host, serie) => {
+      const ancho = Math.max(320, host.clientWidth);
+      const alto = 180;
+      const margen = { arriba: 12, derecha: 12, abajo: 26, izquierda: 42 };
+      const anchoUtil = ancho - margen.izquierda - margen.derecha;
+      const altoUtil = alto - margen.arriba - margen.abajo;
+      const puntos = agrupar(serie, 62);
+      const max = Math.max(...puntos.map(punto => punto.registros)) * 1.12;
+      const paso = anchoUtil / puntos.length;
+      const anchoBarra = Math.max(2, paso - Math.min(6, paso * 0.32));
+      const y = valor => margen.arriba + escala(valor, 0, max, altoUtil, 0);
+
+      const grilla = [0, 0.5, 1]
+        .map(fraccion => {
+          const valor = max * fraccion;
+          return `<line x1="${margen.izquierda}" y1="${y(valor)}" x2="${ancho - margen.derecha}" y2="${y(valor)}"
+            stroke="oklch(0.88 0.004 270)" stroke-width="1" stroke-dasharray="2 4"/>
+            <text x="${margen.izquierda - 8}" y="${y(valor) + 4}" text-anchor="end" font-size="11" fill="oklch(0.6 0.01 260)">${num(valor)}</text>`;
+        })
+        .join("");
+
+      const barras = puntos
+        .map((punto, indice) => {
+          const x = margen.izquierda + indice * paso + (paso - anchoBarra) / 2;
+          const altura = Math.max(1, y(0) - y(punto.registros));
+          return `<rect x="${x.toFixed(1)}" y="${y(punto.registros).toFixed(1)}" width="${anchoBarra.toFixed(1)}"
+            height="${altura.toFixed(1)}" rx="${Math.min(3, anchoBarra / 2).toFixed(1)}" fill="oklch(0.56 0.18 255 / 0.55)"/>`;
+        })
+        .join("");
+
+      const pasoEtiqueta = Math.max(1, Math.floor(puntos.length / 6));
+      const etiquetas = puntos
+        .map((punto, indice) =>
+          indice % pasoEtiqueta === 0
+            ? `<text x="${(margen.izquierda + indice * paso + paso / 2).toFixed(1)}" y="${alto - 6}" text-anchor="middle" font-size="11" fill="oklch(0.6 0.01 260)">${fechaCorta.format(punto.fecha)}</text>`
+            : ""
+        )
+        .join("");
+
+      host.innerHTML = `<svg width="${ancho}" height="${alto}" viewBox="0 0 ${ancho} ${alto}" role="img"
+        aria-label="Registros diarios recibidos">${grilla}${barras}${etiquetas}</svg>`;
+    };
+
+    // --- KPIs ---
+
+    const delta = (actual, previo, mejorAlto, sufijo = "%") => {
+      if (!previo) return { clase: "neutro", texto: "sin base previa", flecha: "" };
+      const variacion = ((actual - previo) / Math.abs(previo)) * 100;
+      if (Math.abs(variacion) < 0.35) return { clase: "neutro", texto: "estable", flecha: "" };
+      const mejora = mejorAlto ? variacion > 0 : variacion < 0;
+      return {
+        clase: mejora ? "bien" : "mal",
+        flecha: variacion > 0 ? "↑" : "↓",
+        texto: `${num(Math.abs(variacion), 1)}${sufijo}`
+      };
+    };
+
+    const renderKpis = () => {
+      const { provincia, provinciaPrevio, serie } = datos;
+      const serieAnimo = serie.map(dia => dia.animo);
+      const serieRegistros = serie.map(dia => dia.registros);
+      const serieAlertas = serie.map(dia => dia.alertas);
+      const serieRiesgo = serie.map(dia => dia.riesgo);
+
+      const tarjetas = [
+        {
+          label: "Población monitoreada",
+          valor: num(provincia.poblacionMonitoreada),
+          unidad: "",
+          delta: delta(provincia.cobertura, provinciaPrevio.cobertura, true),
+          spark: sparkline(serieRegistros, "oklch(0.56 0.18 255)")
+        },
+        {
+          label: `Registros · ${datos.periodo.nombre.toLowerCase()}`,
+          valor: num(provincia.registros),
+          unidad: "",
+          delta: delta(provincia.registros, provinciaPrevio.registros, true),
+          spark: sparkline(serieRegistros, "oklch(0.56 0.18 255)")
+        },
+        {
+          label: "Alertas tempranas",
+          valor: num(provincia.alertasTotales),
+          unidad: "",
+          delta: delta(provincia.alertasTotales, provinciaPrevio.alertasTotales, false),
+          spark: sparkline(serieAlertas, "oklch(0.72 0.18 50)")
+        },
+        {
+          label: "Índice de riesgo",
+          valor: num(provincia.riesgo, 1),
+          unidad: "/100",
+          delta: delta(provincia.riesgo, provinciaPrevio.riesgo, false),
+          spark: sparkline(serieRiesgo, "oklch(0.58 0.19 28)")
+        },
+        {
+          label: "Mediana de ánimo",
+          valor: num(provincia.animo, 1),
+          unidad: `/100 · ${D.nombreEstado(provincia.animo)}`,
+          delta: delta(provincia.animo, provinciaPrevio.animo, true),
+          spark: sparkline(serieAnimo, "oklch(0.60 0.14 155)")
+        },
+        {
+          label: "Señal → contacto",
+          valor: num(provincia.diasHastaContacto, 1),
+          unidad: " días",
+          delta: delta(provincia.diasHastaContacto, provinciaPrevio.diasHastaContacto, false),
+          spark: sparkline(serieRiesgo, "oklch(0.50 0.10 268)")
+        }
+      ];
+
+      document.querySelector("#kpis").innerHTML = tarjetas
+        .map(
+          tarjeta => `<article class="kpi">
+            <p class="kpi-label">${tarjeta.label}</p>
+            <p class="kpi-valor">${tarjeta.valor}<span class="kpi-unidad">${tarjeta.unidad}</span></p>
+            <div class="kpi-pie">
+              <span class="delta ${tarjeta.delta.clase}">${tarjeta.delta.flecha} ${tarjeta.delta.texto}</span>
+              ${tarjeta.spark}
+            </div>
+          </article>`
+        )
+        .join("");
+    };
+
+    // --- Mapa ---
+
+    let mapa = null;
+    let capaCalor = null;
+    let capaZonas = null;
+    const capasPorZona = {};
+    let cortesActuales = null;
+
+    const hayLeaflet = typeof L !== "undefined";
+
+    const iniciarMapa = () => {
+      mapa = L.map("mapa", {
+        zoomControl: true,
+        scrollWheelZoom: false,
+        attributionControl: true
+      });
+
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 19
+      }).addTo(mapa);
+
+      mapa.createPane("calor");
+      mapa.getPane("calor").style.zIndex = 350;
+      mapa.getPane("calor").classList.add("pane-calor");
+
+      mapa.createPane("etiquetas");
+      mapa.getPane("etiquetas").style.zIndex = 450;
+      mapa.getPane("etiquetas").classList.add("pane-etiquetas");
+
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png", {
+        pane: "etiquetas",
+        maxZoom: 19
+      }).addTo(mapa);
+
+      capaCalor = L.geoJSON(D.zonas, {
+        pane: "calor",
+        interactive: false,
+        style: { stroke: false, fillOpacity: 0.92 }
+      }).addTo(mapa);
+
+      capaZonas = L.geoJSON(D.zonas, {
+        style: { color: "oklch(1 0 0)", weight: 1.4, fillOpacity: 0.32 },
+        onEachFeature: (feature, capa) => {
+          const id = feature.properties.id;
+          capasPorZona[id] = capa;
+          capa.bindTooltip("", { sticky: true });
+          capa.on("mouseover", () => resaltar(id, true));
+          capa.on("mouseout", () => resaltar(id, false));
+          capa.on("click", () => capa.openPopup());
+        }
+      }).addTo(mapa);
+
+      mapa.fitBounds(capaZonas.getBounds(), { padding: [14, 14] });
+    };
+
+    const resaltar = (id, activo) => {
+      const capa = capasPorZona[id];
+      if (capa) capa.setStyle({ weight: activo ? 3.4 : 1.4, fillOpacity: activo ? 0.5 : 0.32 });
+      document.querySelectorAll(".rank-item").forEach(item => {
+        item.classList.toggle("activo", activo && item.dataset.zona === id);
+      });
+    };
+
+    const popupZona = (id, metrica) => {
+      const zona = D.zonas.features.find(feature => feature.properties.id === id).properties;
+      const valores = datos.porZona[id];
+      const posicion = ordenarZonas(metrica).findIndex(item => item.id === id) + 1;
+      const filas = ["riesgo", "animo", "sueno", "ejercicio", "ansiedad"]
+        .map(metricaId => {
+          const def = metricaPorId(metricaId);
+          return `<dt>${def.corto}</dt><dd>${conUnidad(valores[metricaId], def)}</dd>`;
+        })
+        .join("");
+
+      return `<div class="popup-zona">
+        <h3>${zona.nombre}</h3>
+        <p class="popup-sector">${zona.sector} · ${num(valores.poblacionMonitoreada)} personas monitoreadas</p>
+        <dl>${filas}</dl>
+        <p class="popup-destacado"><strong>${metrica.corto}:</strong> ${conUnidad(valores[metrica.id], metrica)} — puesto ${posicion} de ${D.zonas.features.length}</p>
+      </div>`;
+    };
+
+    // Orden de peor a mejor situación según la métrica activa.
+    const ordenarZonas = metrica =>
+      Object.entries(datos.porZona)
+        .map(([id, valores]) => ({
+          id,
+          nombre: D.zonas.features.find(feature => feature.properties.id === id).properties.nombre,
+          valor: valores[metrica.id]
+        }))
+        .sort((a, b) => (metrica.mejorAlto ? a.valor - b.valor : b.valor - a.valor));
+
+    const renderMapa = () => {
+      const metrica = metricaPorId(estado.metrica);
+      cortesActuales = calcularCortes(metrica.id);
+      document.querySelector("#mapa-desc").textContent = metrica.descripcion;
+
+      if (hayLeaflet && mapa) {
+        const pintar = feature => ({ fillColor: colorDe(datos.porZona[feature.properties.id][metrica.id], metrica, cortesActuales) });
+        capaCalor.setStyle(pintar);
+        capaZonas.setStyle(feature => ({ ...pintar(feature), color: "oklch(1 0 0)", weight: 1.4, fillOpacity: 0.32 }));
+        capaZonas.eachLayer(capa => {
+          const id = capa.feature.properties.id;
+          capa.setTooltipContent(
+            `<strong>${capa.feature.properties.nombre}</strong> · ${conUnidad(datos.porZona[id][metrica.id], metrica)}`
+          );
+          capa.bindPopup(popupZona(id, metrica), { maxWidth: 280 });
+        });
+      } else {
+        renderMapaFallback(metrica);
+      }
+
+      renderLeyenda(metrica);
+    };
+
+    /** Sin conexión no hay tiles ni Leaflet: se dibujan los polígonos como SVG plano. */
+    const renderMapaFallback = metrica => {
+      const anillos = D.zonas.features.map(feature => feature.geometry.coordinates[0]);
+      const todas = anillos.flat();
+      const lons = todas.map(punto => punto[0]);
+      const lats = todas.map(punto => punto[1]);
+      const ancho = 900;
+      const alto = 580;
+      const proyectar = ([lon, lat]) =>
+        `${escala(lon, Math.min(...lons), Math.max(...lons), 12, ancho - 12).toFixed(1)},${escala(lat, Math.max(...lats), Math.min(...lats), 12, alto - 12).toFixed(1)}`;
+
+      const formas = D.zonas.features
+        .map(feature => {
+          const id = feature.properties.id;
+          const color = colorDe(datos.porZona[id][metrica.id], metrica, cortesActuales);
+          const puntos = feature.geometry.coordinates[0].map(proyectar).join(" ");
+          return `<polygon points="${puntos}" fill="${color}" stroke="oklch(1 0 0)" stroke-width="1.5">
+            <title>${feature.properties.nombre}: ${conUnidad(datos.porZona[id][metrica.id], metrica)}</title>
+          </polygon>`;
+        })
+        .join("");
+
+      document.querySelector("#mapa").innerHTML = `<svg viewBox="0 0 ${ancho} ${alto}" width="100%" height="100%"
+        role="img" aria-label="Mapa esquemático de Salta Capital">
+        <g filter="url(#difuso)" opacity="0.85">${formas}</g>
+        <defs><filter id="difuso"><feGaussianBlur stdDeviation="14"/></filter></defs>
+        ${formas}
+      </svg>`;
+      document.querySelector("#mapa").insertAdjacentHTML(
+        "beforeend",
+        '<p class="aviso">Sin conexión a los servidores de mapas: se muestra el esquema de barrios sin capa base.</p>'
+      );
+    };
+
+    const renderLeyenda = metrica => {
+      const { min, max, cortes } = cortesActuales;
+      const limites = [min, ...cortes, max];
+      const tramos = limites.slice(0, 5).map((desde, indice) => ({
+        color: RAMPAS[metrica.rampa][metrica.mejorAlto ? 4 - indice : indice],
+        etiqueta: `${num(desde, metrica.decimales)}–${num(limites[indice + 1], metrica.decimales)}`
+      }));
+
+      document.querySelector("#leyenda").innerHTML = `<span class="leyenda-titulo">${metrica.label}</span>
+        <div class="leyenda-escala">
+          ${tramos
+            .map(
+              tramo => `<div class="leyenda-item">
+                <div class="swatch" style="background:${tramo.color}"></div>
+                <span>${tramo.etiqueta}</span>
+              </div>`
+            )
+            .join("")}
+        </div>`;
+    };
+
+    const renderRanking = () => {
+      const metrica = metricaPorId(estado.metrica);
+      const orden = ordenarZonas(metrica);
+      const max = Math.max(...orden.map(item => item.valor)) || 1;
+
+      document.querySelector("#ranking-titulo").textContent = metrica.corto + " por barrio";
+      document.querySelector("#ranking-sub").textContent = metrica.mejorAlto
+        ? "De menor a mayor valor (peor situación primero)"
+        : "De mayor a menor valor (peor situación primero)";
+
+      document.querySelector("#ranking").innerHTML = orden
+        .map(item => {
+          const color = colorDe(item.valor, metrica, cortesActuales);
+          return `<li><button class="rank-item" type="button" data-zona="${item.id}">
+            <span class="rank-fila">
+              <span class="rank-nombre">${item.nombre}</span>
+              <span class="rank-valor">${conUnidad(item.valor, metrica)}</span>
+            </span>
+            <span class="rank-barra"><span style="width:${((item.valor / max) * 100).toFixed(1)}%;background:${color}"></span></span>
+          </button></li>`;
+        })
+        .join("");
+    };
+
+    // --- Tendencias ---
+
+    const renderTendencias = () => {
+      const { serie, provincia, provinciaPrevio } = datos;
+      const primera = serie[0];
+      const ultima = serie[serie.length - 1];
+
+      document.querySelector("#animo-resumen").textContent =
+        `${fechaCorta.format(primera.fecha)} – ${fechaLarga.format(ultima.fecha)} · mediana ${num(provincia.animo, 1)} (${D.nombreEstado(provincia.animo)})`;
+      document.querySelector("#registros-resumen").textContent =
+        `${num(provincia.registros)} registros · ${num(provincia.registros - provinciaPrevio.registros)} respecto del período anterior`;
+
+      graficoAnimo(document.querySelector("#chart-animo"), serie);
+      graficoRegistros(document.querySelector("#chart-registros"), serie);
+    };
+
+    // --- Tabs ---
+
+    const barraApilada = (tramos, conEtiqueta) =>
+      `<div class="barra-apilada">${tramos
+        .map(
+          tramo => `<span style="width:${tramo.porcentaje.toFixed(2)}%;background:${tramo.color};color:${tintaSobre(tramo.color)}" title="${tramo.label}: ${num(tramo.porcentaje, 1)}%">${
+            conEtiqueta && tramo.porcentaje > 7 ? `${num(tramo.porcentaje, 0)}%` : ""
+          }</span>`
+        )
+        .join("")}</div>`;
+
+    const renderEstados = () => {
+      const { estados, estadosPorEdad } = datos;
+      document.querySelector("#panel-estados").innerHTML = `
+        ${barraApilada(estados, true)}
+        <div class="leyenda-estados">
+          ${estados
+            .map(
+              estadoItem => `<div><i style="background:${estadoItem.color}"></i>${estadoItem.label} <b>${num(estadoItem.porcentaje, 1)}%</b></div>`
+            )
+            .join("")}
+        </div>
+        <div class="estado-edad">
+          <h4>Desglose por grupo etario</h4>
+          ${estadosPorEdad
+            .map(
+              grupo => `<div class="edad-fila">
+                <strong>${grupo.label}</strong>
+                ${barraApilada(grupo.tramos, false)}
+              </div>`
+            )
+            .join("")}
+        </div>`;
+    };
+
+    const renderAsociaciones = () => {
+      const asociaciones = datos.asociaciones;
+      const max = Math.max(...asociaciones.map(item => item.frecuencia));
+      const colorEstado = valor =>
+        (D.estadosEscala.find(escalaItem => valor < escalaItem.hasta) || D.estadosEscala[5]).color;
+
+      document.querySelector("#panel-asociaciones").innerHTML = `<ul class="asoc-lista">
+        ${asociaciones
+          .map(
+            item => `<li class="asoc-item">
+              <span class="asoc-fila">
+                <span class="asoc-nombre">${item.nombre}</span>
+                <span class="asoc-meta">
+                  <b>${num(item.frecuencia, 0)}%</b>
+                  <span class="asoc-chip" style="background:${colorEstado(item.animoMedio)};color:${tintaSobre(colorEstado(item.animoMedio))}">${item.estado}</span>
+                </span>
+              </span>
+              <span class="asoc-barra"><span style="width:${((item.frecuencia / max) * 100).toFixed(1)}%"></span></span>
+            </li>`
+          )
+          .join("")}
+      </ul>`;
+    };
+
+    const renderFactores = () => {
+      document.querySelector("#panel-factores").innerHTML = `<ul class="factor-lista">
+        ${datos.factores
+          .map((factor, indice) => {
+            const metrica = metricaPorId(factor.metrica);
+            return `<li class="factor-item${indice === 0 ? " destacado" : ""}">
+              <div>
+                <h4>${factor.label}</h4>
+                <p>${factor.lectura}</p>
+              </div>
+              <div class="factor-valor">${conUnidad(factor.valor, metrica)}</div>
+              <div class="factor-corr">
+                <small>Correlación con el ánimo</small>
+                <div class="medidor"><span style="width:${(Math.abs(factor.correlacion) * 100).toFixed(0)}%"></span></div>
+                <small>${factor.correlacion > 0 ? "+" : "−"}${num(Math.abs(factor.correlacion), 2)}</small>
+              </div>
+            </li>`;
+          })
+          .join("")}
+      </ul>`;
+    };
+
+    const renderTabs = () => {
+      renderEstados();
+      renderAsociaciones();
+      renderFactores();
+      document.querySelectorAll(".tab-btn").forEach(boton => {
+        const activo = boton.dataset.tab === estado.tab;
+        boton.setAttribute("aria-selected", String(activo));
+        document.querySelector(`#panel-${boton.dataset.tab}`).hidden = !activo;
+      });
+    };
+
+    // --- Tabla de zonas priorizadas ---
+
+    const renderTabla = () => {
+      const metricaRiesgo = metricaPorId("riesgo");
+      const cortesRiesgo = calcularCortes("riesgo");
+
+      document.querySelector("#tabla-zonas").innerHTML = datos.zonasPriorizadas
+        .slice(0, 8)
+        .map(zona => {
+          const color = colorDe(zona.riesgo, metricaRiesgo, cortesRiesgo);
+          const variacion = zona.deltaRiesgo;
+          const clase = Math.abs(variacion) < 0.3 ? "neutro" : variacion > 0 ? "mal" : "bien";
+          const flecha = Math.abs(variacion) < 0.3 ? "" : variacion > 0 ? "↑" : "↓";
+          return `<tr data-zona="${zona.id}">
+            <td>
+              <div class="zona-nombre">${zona.nombre}</div>
+              <div class="zona-sector">${zona.sector}</div>
+            </td>
+            <td class="num">${num(zona.poblacionMonitoreada)}</td>
+            <td class="num"><span class="indice" style="background:${color};color:${tintaSobre(color)}">${num(zona.riesgo, 1)}</span></td>
+            <td class="num"><span class="delta ${clase}">${flecha} ${num(Math.abs(variacion), 1)}</span></td>
+            <td>${sparkline(zona.tendencia, "oklch(0.50 0.02 268)", 96, 26)}</td>
+            <td class="num">${num(zona.alertas)}</td>
+            <td><span class="accion-chip">${zona.accion}</span></td>
+          </tr>`;
+        })
+        .join("");
+    };
+
+    // --- Controles ---
+
+    const renderControles = () => {
+      document.querySelector("#periodos").innerHTML = D.periodos
+        .map(
+          periodo => `<button class="seg-btn" type="button" data-periodo="${periodo.id}"
+            aria-pressed="${periodo.id === estado.periodo}" title="${periodo.nombre}">${periodo.label}</button>`
+        )
+        .join("");
+
+      document.querySelector("#filtro-edad").innerHTML = D.edades
+        .map(edad => `<option value="${edad.id}">${edad.label}</option>`)
+        .join("");
+
+      document.querySelector("#filtro-sexo").innerHTML = D.sexos
+        .map(sexo => `<option value="${sexo.id}">${sexo.label}</option>`)
+        .join("");
+
+      document.querySelector("#metricas").innerHTML = D.metricas
+        .map(
+          metrica => `<button class="pill" type="button" data-metrica="${metrica.id}"
+            aria-pressed="${metrica.id === estado.metrica}">${metrica.corto}</button>`
+        )
+        .join("");
+    };
+
+    const refrescar = () => {
+      datos = D.agregado(estado);
+      renderKpis();
+      renderMapa();
+      renderRanking();
+      renderTendencias();
+      renderTabs();
+      renderTabla();
+    };
+
+    const exportarCsv = () => {
+      const columnas = ["barrio", "sector", "poblacion_monitoreada", ...D.metricas.map(metrica => metrica.id)];
+      const filas = D.zonas.features.map(feature => {
+        const id = feature.properties.id;
+        const valores = datos.porZona[id];
+        return [
+          feature.properties.nombre,
+          feature.properties.sector,
+          valores.poblacionMonitoreada,
+          ...D.metricas.map(metrica => valores[metrica.id].toFixed(2))
+        ].join(",");
+      });
+      const csv = [columnas.join(","), ...filas].join("\n");
+      const enlace = document.createElement("a");
+      enlace.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      enlace.download = `salta-observatorio-${estado.periodo}-${estado.edad}-${estado.sexo}.csv`;
+      enlace.click();
+      URL.revokeObjectURL(enlace.href);
+    };
+
+    // --- Eventos ---
+
+    document.querySelector("#periodos").addEventListener("click", evento => {
+      const boton = evento.target.closest("[data-periodo]");
+      if (!boton) return;
+      estado.periodo = boton.dataset.periodo;
+      document.querySelectorAll("#periodos .seg-btn").forEach(item => {
+        item.setAttribute("aria-pressed", String(item.dataset.periodo === estado.periodo));
+      });
+      refrescar();
+    });
+
+    document.querySelector("#filtro-edad").addEventListener("change", evento => {
+      estado.edad = evento.target.value;
+      refrescar();
+    });
+
+    document.querySelector("#filtro-sexo").addEventListener("change", evento => {
+      estado.sexo = evento.target.value;
+      refrescar();
+    });
+
+    document.querySelector("#metricas").addEventListener("click", evento => {
+      const boton = evento.target.closest("[data-metrica]");
+      if (!boton) return;
+      estado.metrica = boton.dataset.metrica;
+      document.querySelectorAll("#metricas .pill").forEach(item => {
+        item.setAttribute("aria-pressed", String(item.dataset.metrica === estado.metrica));
+      });
+      renderMapa();
+      renderRanking();
+    });
+
+    document.querySelector("#ranking").addEventListener("mouseover", evento => {
+      const boton = evento.target.closest("[data-zona]");
+      if (boton) resaltar(boton.dataset.zona, true);
+    });
+
+    document.querySelector("#ranking").addEventListener("mouseout", evento => {
+      const boton = evento.target.closest("[data-zona]");
+      if (boton) resaltar(boton.dataset.zona, false);
+    });
+
+    document.querySelector("#ranking").addEventListener("click", evento => {
+      const boton = evento.target.closest("[data-zona]");
+      if (boton) enfocarZona(boton.dataset.zona);
+    });
+
+    document.querySelector("#tabla-zonas").addEventListener("click", evento => {
+      const fila = evento.target.closest("[data-zona]");
+      if (fila) enfocarZona(fila.dataset.zona);
+    });
+
+    const enfocarZona = id => {
+      const capa = capasPorZona[id];
+      if (!capa || !mapa) return;
+      document.querySelector("#mapa").scrollIntoView({ behavior: "smooth", block: "center" });
+      mapa.fitBounds(capa.getBounds(), { padding: [80, 80], maxZoom: 15 });
+      capa.openPopup();
+    };
+
+    document.querySelector(".tab-lista").addEventListener("click", evento => {
+      const boton = evento.target.closest("[data-tab]");
+      if (!boton) return;
+      estado.tab = boton.dataset.tab;
+      document.querySelectorAll(".tab-btn").forEach(item => {
+        const activo = item.dataset.tab === estado.tab;
+        item.setAttribute("aria-selected", String(activo));
+        document.querySelector(`#panel-${item.dataset.tab}`).hidden = !activo;
+      });
+    });
+
+    document.querySelector("#exportar").addEventListener("click", exportarCsv);
+
+    let redibujar;
+    window.addEventListener("resize", () => {
+      clearTimeout(redibujar);
+      redibujar = setTimeout(renderTendencias, 160);
+    });
+
+    // --- Arranque ---
+
+    renderControles();
+    if (hayLeaflet) iniciarMapa();
+    refrescar();
+  </script>
+</body>
+</html>
