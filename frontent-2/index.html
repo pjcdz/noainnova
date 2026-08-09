@@ -1195,8 +1195,24 @@
       color: color-mix(in oklab, var(--ink) 67%, var(--panel-edge));
     }
 
+    [data-view="choice"] {
+      background: oklch(0.79 0.004 270);
+    }
+
     .choice-panel {
       top: var(--status-height);
+      --panel-edge: oklch(0.82 0.022 220);
+      --panel-center: oklch(0.90 0.012 220);
+      --ink: oklch(0.18 0.014 225);
+      --action: oklch(0.62 0.11 220);
+      --action-edge: oklch(0.78 0.07 220);
+      background: linear-gradient(180deg, var(--panel-center) 0%, var(--panel-edge) 100%);
+    }
+
+    .choice-panel .icon-button {
+      border-color: oklch(1 0 0 / 0.92);
+      background: oklch(0.98 0.004 220 / 0.88);
+      color: var(--ink);
     }
 
     .choice-close {
@@ -1378,8 +1394,10 @@
     }
 
     .summary-header {
-      background: linear-gradient(to bottom, oklch(0.965 0.006 270) 72%, oklch(0.965 0.006 270 / 0.94));
+      background: linear-gradient(to bottom, oklch(0.965 0.006 270 / 0.96) 72%, oklch(0.965 0.006 270 / 0.88));
       color: oklch(0.10 0 0);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
     .summary-header .icon-button {
@@ -1841,8 +1859,49 @@
       }
 
       .mood-next,
-      .step-next {
+      .step-next,
+      .choice-next {
         bottom: 14px;
+      }
+
+      .mood-cloud {
+        width: 220px;
+        height: 62px;
+        margin-top: 52px;
+        transform: scale(0.76);
+        transform-origin: top center;
+      }
+
+      .choice-title {
+        max-width: 260px;
+        margin-top: 5px;
+        font-size: 1.5rem;
+        line-height: 1.1;
+      }
+
+      .log-type-list {
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .log-type-card {
+        min-height: 62px;
+        padding: 8px 12px;
+        border-radius: 20px;
+      }
+
+      .log-type-kicker {
+        margin-bottom: 2px;
+        font-size: 0.75rem;
+      }
+
+      .log-type-card strong {
+        font-size: 1rem;
+      }
+
+      .log-type-card small {
+        margin-top: 2px;
+        font-size: 0.8125rem;
       }
 
       .reminder-panel {
@@ -2363,6 +2422,10 @@
       batteryLevel.textContent = lateView ? "77" : (Number(moodRange.value) <= 55 ? "78" : "77");
       if (isSummary) summaryView.scrollTop = 0;
       if (name === "calendar") requestAnimationFrame(() => { calendarView.scrollTop = 64; });
+      else {
+        document.querySelector("#calendar-help").classList.remove("is-open");
+        document.querySelector("#calendar-info").setAttribute("aria-expanded", "false");
+      }
       const heading = document.querySelector(`[data-view="${name}"] h1, [data-view="${name}"] [role="button"]`);
       if (heading && name !== "logged") requestAnimationFrame(() => heading.focus?.({ preventScroll: true }));
     };
@@ -2453,6 +2516,12 @@
       document.querySelectorAll("[data-log-type]").forEach(option => {
         option.setAttribute("aria-pressed", String(option === button));
       });
+    });
+
+    document.querySelector(".choice-next").addEventListener("click", () => {
+      const isMood = selectedLogType === "mood";
+      document.querySelector('[data-view="mood"] .flow-title').textContent = isMood ? "Estado de ánimo" : "Emoción";
+      document.querySelector("#mood-heading").textContent = isMood ? "¿Cómo te sentiste en general hoy?" : "Elige cómo te sientes ahora";
     });
 
     feelingChips.addEventListener("click", event => {
@@ -2559,7 +2628,13 @@
     });
 
     document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && emotionModal.classList.contains("is-open")) closeEmotionModal();
+      if (event.key !== "Escape") return;
+      if (emotionModal.classList.contains("is-open")) closeEmotionModal();
+      else if (calendarHelp.classList.contains("is-open")) {
+        calendarHelp.classList.remove("is-open");
+        calendarInfo.setAttribute("aria-expanded", "false");
+        calendarInfo.focus();
+      }
     });
   </script>
 </body>
