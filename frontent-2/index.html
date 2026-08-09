@@ -23,6 +23,7 @@
       --z-sticky: 20;
       --z-modal: 40;
       --z-status: 60;
+      --z-splash: 100;
     }
 
     * {
@@ -67,6 +68,80 @@
       overflow: hidden;
       background: oklch(0.79 0.004 270);
       isolation: isolate;
+    }
+
+    .splash-screen {
+      position: absolute;
+      z-index: var(--z-splash);
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      background: var(--white);
+      transition: opacity 240ms ease-out;
+    }
+
+    .splash-screen.is-leaving {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .splash-logo {
+      width: 208px;
+      animation: splash-enter 650ms ease-out both, splash-breathe 3.4s ease-in-out 650ms infinite;
+    }
+
+    .splash-logo svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .splash-cta {
+      min-width: 220px;
+      min-height: 52px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--blue);
+      color: var(--white);
+      cursor: pointer;
+      font-size: 1.1875rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      animation: splash-cta-enter 500ms ease-out 500ms both;
+      transition: filter 180ms ease-out, transform 180ms ease-out;
+    }
+
+    .splash-cta:hover {
+      filter: brightness(1.06);
+    }
+
+    .splash-cta:active {
+      filter: brightness(0.94);
+      transform: scale(0.985);
+    }
+
+    @keyframes splash-enter {
+      from { opacity: 0; transform: scale(0.86); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes splash-breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    @keyframes splash-cta-enter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .splash-logo {
+        animation: splash-enter 650ms ease-out both;
+      }
     }
 
     .status-bar {
@@ -2545,14 +2620,17 @@
       overflow-y: auto;
       border-radius: 42px 42px 0 0;
       padding: 26px 20px 28px;
-      background: oklch(0.205 0.006 270);
-      color: var(--white);
+      background: var(--white);
+      color: oklch(0.16 0 0);
     }
 
     .chat-help-close {
       position: absolute;
       top: 16px;
       right: 16px;
+      --ink: oklch(0.16 0 0);
+      --action-edge: oklch(0.82 0.006 270);
+      background: oklch(0.95 0.004 270);
     }
 
     .chat-help-panel h2 {
@@ -2564,7 +2642,7 @@
 
     .chat-help-panel p {
       margin: 0 0 18px;
-      color: oklch(0.78 0.006 270);
+      color: oklch(0.45 0.006 270);
       font-size: 0.9375rem;
       line-height: 1.4;
     }
@@ -2599,6 +2677,23 @@
 </head>
 <body>
   <main class="app-frame" id="app" aria-live="off">
+    <div class="splash-screen" id="splash">
+      <div class="splash-logo" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420">
+          <defs>
+            <radialGradient id="anima-bloom" cx="50%" cy="42%" r="68%">
+              <stop offset="0" stop-color="#eef7fb"></stop>
+              <stop offset=".55" stop-color="#8fc3e6"></stop>
+              <stop offset="1" stop-color="#4f95c9"></stop>
+            </radialGradient>
+          </defs>
+          <path d="M160 12C195 12 204 73 234 80C271 78 305 96 310 128C315 159 278 177 275 206C279 245 258 281 225 291C198 300 177 278 160 270C141 279 119 301 91 291C56 281 36 245 44 207C39 178 5 161 10 128C15 96 49 78 86 80C116 73 125 12 160 12Z" fill="url(#anima-bloom)"></path>
+          <text x="160" y="380" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif" font-size="46" font-weight="700" letter-spacing="-1.6" fill="#302432">Anima</text>
+        </svg>
+      </div>
+      <button class="splash-cta" id="splash-start" type="button">Comenzar</button>
+    </div>
+
     <div class="status-bar" aria-hidden="true">
       <span id="status-time">21:26</span>
       <div class="status-icons">
@@ -3015,20 +3110,6 @@
         </div>
       </div>
 
-      <div class="chat-help-overlay" id="chat-help-overlay">
-        <div class="chat-help-backdrop" id="chat-help-backdrop"></div>
-        <div class="chat-help-panel" role="dialog" aria-modal="true" aria-labelledby="chat-help-title">
-          <button class="icon-button chat-help-close" id="chat-help-close" type="button" aria-label="Cerrar">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m3 3 8 8M11 3l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          </button>
-          <h2 id="chat-help-title">Estás acá y eso ya cuenta</h2>
-          <p>Elegí lo que te resulte posible ahora. No hace falta explicar nada.</p>
-          <div class="chat-help-lines">
-            <a class="chat-help-line" href="tel:135">135<span>desde CABA y GBA, gratis</span></a>
-            <a class="chat-help-line" href="tel:08003451435">0800 345 1435<span>desde todo el país</span></a>
-          </div>
-        </div>
-      </div>
     </section>
 
     <nav class="bottom-nav" id="bottom-nav" aria-label="Navegación de estado de ánimo" hidden>
@@ -3067,6 +3148,21 @@
       <h2 class="modal-heading" id="modal-heading">¿Qué describe mejor esta sensación?</h2>
       <ul class="emotion-list" id="emotion-list" role="radiogroup" aria-label="Todas las emociones"></ul>
     </section>
+
+    <div class="chat-help-overlay" id="chat-help-overlay">
+      <div class="chat-help-backdrop" id="chat-help-backdrop"></div>
+      <div class="chat-help-panel" role="dialog" aria-modal="true" aria-labelledby="chat-help-title">
+        <button class="icon-button chat-help-close" id="chat-help-close" type="button" aria-label="Cerrar">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m3 3 8 8M11 3l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <h2 id="chat-help-title">Ayuda emocional</h2>
+        <p>Elegí lo que te resulte posible ahora. No hace falta explicar nada.</p>
+        <div class="chat-help-lines">
+          <a class="chat-help-line" href="tel:135">135<span>Salta</span></a>
+          <a class="chat-help-line" href="tel:08003451435">0800 345 1435<span>desde todo el país</span></a>
+        </div>
+      </div>
+    </div>
 
     <p class="sr-only" id="live-status" aria-live="polite"></p>
   </main>
@@ -4006,6 +4102,12 @@
       else if (chatHelpOverlay.classList.contains("is-open")) chatHelpOverlay.classList.remove("is-open");
       else if (chatClearBackdrop.classList.contains("is-open")) chatClearBackdrop.classList.remove("is-open");
       else if (currentView === "charts") showView("summary");
+    });
+
+    document.querySelector("#splash-start").addEventListener("click", () => {
+      const splash = document.querySelector("#splash");
+      splash.classList.add("is-leaving");
+      splash.addEventListener("transitionend", () => splash.remove(), { once: true });
     });
 
     showView("summary");
