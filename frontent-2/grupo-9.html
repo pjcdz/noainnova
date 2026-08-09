@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grupo 9 — NOA Innova</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      --acento: oklch(0% 0 0);
+      --fondo: oklch(0.975 0.004 80);
+      --tinta: oklch(0.14 0.004 270);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: 100svh;
+      padding: 4vh 4vw;
+      overflow: hidden;
+      background: var(--fondo);
+      color: var(--tinta);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .stage {
+      display: flex;
+      width: 100%;
+      max-width: 1180px;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(1rem, 2.4vh, 1.75rem);
+      text-align: center;
+    }
+
+    h1,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      color: var(--tinta);
+      font-size: clamp(5.5rem, 18vw, 13rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      text-wrap: balance;
+      will-change: opacity, transform;
+      animation: subir 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    h1 span {
+      color: var(--acento);
+    }
+
+    p {
+      color: var(--tinta);
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      will-change: opacity, transform;
+      animation: subir 620ms cubic-bezier(0.16, 1, 0.3, 1) 140ms both;
+    }
+
+    @keyframes subir {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    body.is-leaving>.stage {
+      will-change: filter, opacity, transform;
+      animation: salir 420ms cubic-bezier(0.25, 1, 0.5, 1) both;
+    }
+
+    @keyframes salir {
+      from {
+        filter: blur(0);
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      to {
+        filter: blur(3px);
+        opacity: 0;
+        transform: scale(0.985);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      h1,
+      p {
+        animation: none;
+      }
+
+      body.is-leaving>.stage {
+        animation: desvanecer 100ms linear both;
+      }
+    }
+
+    @keyframes desvanecer {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="stage">
+    <h1>Grupo <span>9</span></h1>
+    <p>NOA Innova</p>
+  </main>
+
+  <script>
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    let isLeaving = false;
+
+    document.addEventListener("keydown", event => {
+      const isSpace = event.code === "Space" || event.key === " ";
+      if (!isSpace || event.repeat || isLeaving) return;
+
+      event.preventDefault();
+      isLeaving = true;
+      document.body.classList.add("is-leaving");
+
+      window.setTimeout(() => {
+        window.location.href = "presentacion.html";
+      }, reduceMotion.matches ? 100 : 420);
+    });
+  </script>
+  <script src="presentation-flow.js" defer></script>
+</body>
+
+</html>

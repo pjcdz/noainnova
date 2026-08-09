@@ -3181,35 +3181,8 @@
       outline-offset: 3px;
     }
 
-    [data-view="mood"] .range-group:focus-within {
-      position: relative;
-      z-index: 11;
-      border-radius: 999px;
-      outline: 3px solid #0a84ff;
-      outline-offset: 3px;
-    }
-
-    [data-view="mood"] .range-group:focus-within .range-shell {
-      background: transparent;
-      box-shadow: none;
-    }
-
-    [data-view="mood"] .range-group:focus-within .range-labels {
-      opacity: 0;
-    }
-
     [data-view="mood"] .range-group:focus-within .mood-range {
       outline: 0;
-    }
-
-    [data-view="mood"] .range-group:focus-within .mood-range::-webkit-slider-thumb {
-      background: transparent;
-      box-shadow: none;
-    }
-
-    [data-view="mood"] .range-group:focus-within .mood-range::-moz-range-thumb {
-      background: transparent;
-      box-shadow: none;
     }
 
     .mood-flower svg {
@@ -5071,5 +5044,6 @@
 
     showView("mood");
   </script>
+  <script src="presentation-flow.js" defer></script>
 </body>
 </html>
