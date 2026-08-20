@@ -1,0 +1,413 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{local-overleaf}
+
+\begin{document}
+\RaggedRight
+
+\makeanimacover
+
+% 2
+\kicker{01 · Lectura ejecutiva}
+\section{La oportunidad}
+\sectionintro{Anima puede transformar una demostración premiada en una capacidad pública concreta: escuchar señales de bienestar, comprender patrones territoriales y orientar respuestas oportunas.}
+
+\begin{navycard}
+  \whitecardtitle{Una propuesta nacida en Salta}
+  El proyecto obtuvo el primer premio del Hackathon NOA Innova 2026. La comunicación oficial del Municipio destacó un ecosistema digital orientado a la prevención y al abordaje de situaciones vinculadas con la salud mental y el suicidio, con autorización de las personas usuarias y criterios de seguridad y privacidad.
+\end{navycard}
+\sourceinline{Fuente: Municipalidad de Salta, 10 de agosto de 2026.}{https://prensa.municipalidadsalta.gob.ar/un-proyecto-para-abordar-la-salud-mental-fue-premiado-en-el-hackathon-noa-innova-2026/}
+
+\vspace{5mm}
+\begin{minipage}[t]{.31\textwidth}
+  \begin{softcard}[height=42mm]
+    \cardtitle{Ciudadanía}
+    Un registro breve y voluntario que ayuda a reconocer cómo se siente una persona y a acercarle recursos de cuidado.
+  \end{softcard}
+\end{minipage}\hfill
+\begin{minipage}[t]{.31\textwidth}
+  \begin{softcard}[height=42mm]
+    \cardtitle{Territorio}
+    Información agregada por zona y grupo para detectar tendencias sin exponer historias individuales.
+  \end{softcard}
+\end{minipage}\hfill
+\begin{minipage}[t]{.31\textwidth}
+  \begin{softcard}[height=42mm]
+    \cardtitle{Gestión pública}
+    Un observatorio que traduzca señales en prioridades, seguimiento y mejores decisiones de política pública.
+  \end{softcard}
+\end{minipage}
+
+\vspace{4mm}
+\begin{terracard}
+  \cardtitle{Punto de partida honesto}
+  Hoy existe una demostración visual e interactiva. Sirve para comprender la experiencia y el potencial del producto, pero todavía no constituye un sistema municipal productivo. El siguiente paso responsable no es fijar un precio aislado: es definir, junto con el Municipio, el alcance del primer piloto.
+\end{terracard}
+
+\vspace{4mm}
+\begin{softcard}
+  \cardtitle{Hipótesis a validar}
+  Un piloto debe demostrar que una experiencia voluntaria, protegida y medible puede producir información territorial útil sin exponer casos individuales ni sustituir la atención profesional.
+\end{softcard}
+
+\clearpage
+
+% 3
+\kicker{02 · La aplicación}
+\section{Qué es Anima}
+\sectionintro{Una experiencia de bienestar emocional que conecta a la persona, un canal de acompañamiento y la lectura agregada para la gestión pública.}
+
+\begin{minipage}[t]{.37\textwidth}
+  \vspace{0pt}\centering
+  \phoneframe[.54\linewidth]{\AnimaMoodImage}
+  \par\vspace{2mm}{\footnotesize\color{Muted}Vista de la demostración actual.}
+\end{minipage}\hfill
+\begin{minipage}[t]{.59\textwidth}
+  \vspace{0pt}
+  \begin{card}[fontupper=\small,top=3mm,bottom=3mm]
+    \cardtitle{1. Registro y consentimiento}
+    La persona expresa cómo se siente mediante una interacción breve y no diagnóstica. Todo contexto adicional requiere una finalidad explícita y consentimiento verificable.
+  \end{card}
+  \begin{card}[fontupper=\small,top=3mm,bottom=3mm]
+    \cardtitle{2. Acompañamiento}
+    WhatsApp funciona como puerta de entrada, recordatorio y canal de orientación. No reemplaza a profesionales ni servicios de emergencia.
+  \end{card}
+  \begin{card}[fontupper=\small,top=3mm,bottom=3mm]
+    \cardtitle{3. Observatorio municipal}
+    El Municipio visualiza indicadores agregados por zona, período y grupo. El objetivo es decidir dónde reforzar prevención, comunicación o capacidad territorial.
+  \end{card}
+\end{minipage}
+
+\vspace{4mm}
+\begin{softcard}
+  \cardtitle{Experiencia ciudadana}
+  \begin{minipage}[t]{.31\linewidth}\vspace{0pt}
+    \textbf{Interacción breve}\par
+    Una experiencia simple y comprensible.
+  \end{minipage}\hfill
+  \begin{minipage}[t]{.31\linewidth}\vspace{0pt}
+    \textbf{Lenguaje de cuidado}\par
+    Sin diagnóstico ni etiquetas personales.
+  \end{minipage}\hfill
+  \begin{minipage}[t]{.31\linewidth}\vspace{0pt}
+    \textbf{Participación voluntaria}\par
+    La persona decide cuándo registrar cómo se siente.
+  \end{minipage}
+\end{softcard}
+
+\vspace{4mm}
+\begin{navycard}
+  \whitecardtitle{Principio rector}
+  La plataforma no busca etiquetar ni diagnosticar personas. Busca convertir registros voluntarios y protegidos en conocimiento colectivo útil para el cuidado y la planificación.
+\end{navycard}
+
+\clearpage
+
+% 4
+\kicker{03 · Valor público}
+\section{Cómo se traduce en capacidad municipal}
+\sectionintro{La tecnología sólo genera valor cuando conecta una señal con una decisión, una responsabilidad y una forma de evaluar el resultado.}
+
+\begin{center}
+\begin{tikzpicture}[node distance=5mm]
+  \node[rounded corners=2mm,fill=Sky,minimum width=37mm,minimum height=24mm,align=center,text=Navy,font=\small\bfseries] (a) {Registro\\voluntario};
+  \node[rounded corners=2mm,fill=Sand,minimum width=37mm,minimum height=24mm,align=center,text=Navy,font=\small\bfseries,right=of a] (b) {Protección y\\agregación};
+  \node[rounded corners=2mm,fill=Sage!20,minimum width=37mm,minimum height=24mm,align=center,text=Navy,font=\small\bfseries,right=of b] (c) {Lectura\\territorial};
+  \node[rounded corners=2mm,fill=Terracotta!14,minimum width=37mm,minimum height=24mm,align=center,text=Navy,font=\small\bfseries,right=of c] (d) {Decisión y\\seguimiento};
+  \draw[-{Latex[length=2.2mm]},thick,color=Muted] (a)--(b);
+  \draw[-{Latex[length=2.2mm]},thick,color=Muted] (b)--(c);
+  \draw[-{Latex[length=2.2mm]},thick,color=Muted] (c)--(d);
+\end{tikzpicture}
+\end{center}
+
+\vspace{3mm}
+\begin{minipage}[t]{.48\textwidth}
+  \begin{softcard}[height=59mm]
+    \cardtitle{Preguntas que el tablero debería responder}
+    \begin{itemize}
+      \item ¿Qué zonas muestran un cambio sostenido?
+      \item ¿Dónde hay baja cobertura de registros?
+      \item ¿Qué grupos requieren acciones preventivas?
+      \item ¿Qué intervención municipal conviene priorizar?
+    \end{itemize}
+  \end{softcard}
+\end{minipage}\hfill
+\begin{minipage}[t]{.48\textwidth}
+  \begin{softcard}[height=59mm]
+    \cardtitle{Decisiones que podría habilitar}
+    \begin{itemize}
+      \item Reforzar campañas o talleres en una zona.
+      \item Coordinar recursos con CAPS e instituciones.
+      \item Evaluar alcance, participación y continuidad.
+      \item Detectar vacíos de información antes de actuar.
+    \end{itemize}
+  \end{softcard}
+\end{minipage}
+
+\vspace{5mm}
+\begin{terracard}
+  \cardtitle{La unidad de valor no es “tener un dashboard”}
+  Es poder tomar una decisión concreta con información suficiente, protegida, explicable y actualizada a la frecuencia que la gestión realmente necesita.
+\end{terracard}
+
+\vspace{4mm}
+\begin{softcard}
+  \cardtitle{Cómo se evaluaría el piloto}
+  Participación y cobertura territorial · calidad y oportunidad de los datos · decisiones municipales documentadas · cumplimiento de privacidad y respuesta humana.
+\end{softcard}
+
+\clearpage
+
+% 5
+\kicker{04 · Punto de partida}
+\section{De demostración a piloto}
+\sectionintro{La demo permite conversar sobre el producto. El piloto debe probar una capacidad operativa acotada, medible y segura.}
+
+\begin{card}
+  \begin{minipage}[t]{.21\linewidth}\vspace{0pt}
+    {\small\bfseries\color{Sage}ESTADO ACTUAL}\par\smallskip
+    {\Large\bfseries\color{Navy}Demostración}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{.74\linewidth}\vspace{0pt}
+    \begin{itemize}
+      \item Flujo visual de registro emocional y contacto por WhatsApp.
+      \item Dashboard y mapa demostrativos.
+      \item Narrativa de consentimiento e integraciones.
+      \item Hoja de ruta de producto en cinco etapas.
+    \end{itemize}
+  \end{minipage}
+\end{card}
+
+\vspace{3mm}
+\begin{card}
+  \begin{minipage}[t]{.21\linewidth}\vspace{0pt}
+    {\small\bfseries\color{Terracotta}PRÓXIMO NIVEL}\par\smallskip
+    {\Large\bfseries\color{Navy}Piloto}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{.74\linewidth}\vspace{0pt}
+    \begin{itemize}
+      \item Definir población, territorio, duración y fecha de inicio.
+      \item Construir backend, base de datos e integraciones reales.
+      \item Acordar consentimiento, roles, auditoría y retención.
+      \item Operar un protocolo humano con capacidad de respuesta.
+      \item Medir indicadores y criterios de aceptación.
+    \end{itemize}
+  \end{minipage}
+\end{card}
+
+\vspace{5mm}
+\begin{navycard}
+  \whitecardtitle{Propuesta para el primer contrato}
+  Un alcance deliberadamente acotado: experiencia ciudadana, canal de WhatsApp y observatorio agregado, en una población y un territorio definidos, con acompañamiento clínico y gobernanza de datos. Las integraciones avanzadas, los beneficios y la IA quedan fuera hasta validar los fundamentos.
+\end{navycard}
+
+\vspace{5mm}
+\begin{center}
+\begin{tikzpicture}[node distance=2.2mm]
+  \node[rounded corners=2.5mm,fill=Sky,text=Navy,font=\bfseries\scriptsize,minimum width=25mm,minimum height=7mm] (d) {Demo actual};
+  \node[rounded corners=2.5mm,fill=Sky,text=Navy,font=\bfseries\scriptsize,minimum width=34mm,minimum height=7mm,right=of d] (a) {Definición conjunta};
+  \node[rounded corners=2.5mm,fill=Terracotta!18,text=Navy,font=\bfseries\scriptsize,minimum width=32mm,minimum height=7mm,right=of a] (p) {Piloto controlado};
+  \node[rounded corners=2.5mm,fill=Sky,text=Navy,font=\bfseries\scriptsize,minimum width=26mm,minimum height=7mm,right=of p] (e) {Evaluación};
+  \node[rounded corners=2.5mm,fill=Sky,text=Navy,font=\bfseries\scriptsize,minimum width=27mm,minimum height=7mm,right=of e] (s) {Decisión de escala};
+\end{tikzpicture}
+\end{center}
+
+\clearpage
+
+% 6
+\kicker{05 · Evolución del producto}
+\section{Hoja de ruta propuesta}
+\sectionintro{Las cinco etapas originales se conservan, pero se ordenan por riesgo y valor. La primera es la candidata al piloto; las demás se habilitan sólo con evidencia.}
+
+\phase{1}{Núcleo del piloto}{Bot de WhatsApp para convocatoria y acompañamiento; aplicación de registro emocional; observatorio municipal con información agregada y mapa.}
+\phase{2}{Historial e integraciones autorizadas}{Calendario personal e integraciones con fuentes de salud o actividad, únicamente con consentimiento, finalidad definida y validación de calidad.}
+\phase{3}{Perfiles poblacionales}{Segmentaciones agregadas que ayuden a comprender patrones colectivos, sin convertirlas en etiquetas individuales ni decisiones automáticas.}
+\phase{4}{Beneficios saludables}{Incentivos vinculados con acciones de cuidado o acceso a recursos. No se premian crisis, cantidad de registros ni rachas emocionales.}
+\phase{5}{IA acotada y supervisada}{Funciones específicas, trazables y evaluadas. Sin diagnóstico, tratamiento ni conversación clínica autónoma.}
+
+\begin{terracard}
+  \cardtitle{Puerta de avance}
+  Cada etapa debe tener un propósito municipal, datos habilitantes, responsables, criterios de aceptación y una revisión de privacidad y seguridad antes de pasar a la siguiente.
+\end{terracard}
+
+\clearpage
+
+% 7
+\kicker{06 · Definiciones prioritarias}
+\section{Primera ronda de decisiones}
+\sectionintro{Estas definiciones permiten transformar la propuesta en un alcance ejecutable, con responsables y criterios verificables.}
+
+\subsection{Alcance y modalidad de trabajo}
+\decision{1}{¿La necesidad inmediata es una demostración, un piloto controlado o un sistema municipal productivo?}
+\decision{2}{¿Qué etapas deben formar parte del primer contrato?}
+\decision{3}{¿Cuál es la ventana esperada de lanzamiento?}
+\decision{4}{¿Quién desarrollará y operará cada componente: Equipo Anima, Municipio o un esquema conjunto?}
+
+\subsection{Datos disponibles}
+\decision{5}{¿Qué conjuntos de datos existen actualmente y quién es responsable de cada uno?}
+\decision{6}{¿Qué nivel de detalle tienen: ciudad, barrio, radio censal, CAPS o domicilio?}
+\decision{7}{¿Con qué frecuencia se actualizan?}
+\decision{8}{¿En qué formato están: CSV, Excel, base SQL, API o sistema cerrado?}
+
+\clearpage
+
+% 8
+\kicker{06 · Definiciones prioritarias}
+\section{Segunda ronda de decisiones}
+\sectionintro{El observatorio, WhatsApp y los incentivos sólo deben construirse cuando su uso, acceso y propósito estén definidos.}
+
+\subsection{Observatorio y mapa}
+\decision{9}{¿Cuál será el mínimo de personas necesario para mostrar una zona sin riesgo de reidentificación?}
+\decision{10}{¿Quiénes podrán acceder, filtrar y exportar información?}
+\decision{11}{¿Se necesitan distintos roles y permisos?}
+\decision{12}{¿El mapa debe actualizarse en tiempo real, diariamente o mensualmente?}
+\decision{13}{¿Qué decisión concreta debería poder tomar el Municipio mirando el dashboard?}
+
+\subsection{WhatsApp e incentivos}
+\decision{14}{¿La Municipalidad ya cuenta con Meta Business Manager, número verificado y cuenta de WhatsApp Business?}
+\decision{15}{¿De dónde surgirá la lista de destinatarios y existe consentimiento explícito para recibir mensajes?}
+\decision{16}{¿Qué comportamiento saludable se quiere incentivar?}
+
+\clearpage
+
+% 9
+\kicker{07 · Condiciones de confianza}
+\section{Privacidad, seguridad y respuesta humana}
+\sectionintro{En salud mental, la confianza no es un complemento técnico: es una condición de existencia del proyecto.}
+
+\begin{minipage}[t]{.48\textwidth}
+  \begin{card}
+    \cardtitle{Gobernanza de datos}
+    \begin{itemize}
+      \item Minimización: recopilar sólo lo indispensable.
+      \item Consentimiento claro, específico y revocable.
+      \item Pseudonimización y separación de identidades.
+      \item Resultados agregados con umbral mínimo por zona.
+      \item Roles, trazabilidad de accesos y exportaciones.
+      \item Retención, eliminación e incidentes documentados.
+      \item QR de beneficios separado de registros emocionales.
+    \end{itemize}
+  \end{card}
+\end{minipage}\hfill
+\begin{minipage}[t]{.48\textwidth}
+  \begin{card}
+    \cardtitle{Respuesta humana}
+    \begin{itemize}
+      \item El equipo de psicología define y aprueba el umbral.
+      \item Se acuerdan responsable, horario y tiempo de respuesta.
+      \item Cada señal tiene una acción posible y un cierre registrable.
+      \item Se define qué ocurre fuera de horario o sin capacidad.
+      \item Riesgo agudo y emergencias siguen protocolos específicos.
+      \item La plataforma no promete una atención que el sistema no pueda brindar.
+    \end{itemize}
+  \end{card}
+\end{minipage}
+
+\vspace{5mm}
+\begin{navycard}
+  \whitecardtitle{Límite explícito}
+  Ningún umbral individual, alerta automática, diagnóstico o recomendación clínica se habilita sólo por decisión de producto. Requiere conducción profesional, protocolo aprobado, capacidad real de respuesta y validación legal.
+\end{navycard}
+
+\vspace{4mm}
+\begin{terracard}
+  \cardtitle{Lenguaje preciso}
+  Hasta demostrar que la reidentificación es materialmente imposible, los datos deben describirse como \textbf{pseudonimizados}, no como anónimos.
+\end{terracard}
+
+\clearpage
+
+% 10
+\kicker{08 · Propuesta económica}
+\section{Hacia una cotización defendible}
+\sectionintro{Este documento no fija un monto. La propuesta económica se emitirá cuando el Municipio y el Equipo Anima hayan cerrado las definiciones que cambian materialmente el alcance.}
+
+\begin{navycard}
+  \whitecardtitle{No se solicita aprobar un presupuesto en esta instancia}
+  Se solicita acordar el problema a resolver, la primera etapa, la población, los datos disponibles, el modelo operativo y los criterios de éxito. Con esa base se entregará una cotización formal, comparable y trazable.
+\end{navycard}
+
+\vspace{4mm}
+\begin{minipage}[t]{.48\textwidth}
+  \begin{softcard}
+    \cardtitle{La cotización deberá separar}
+    \begin{enumerate}
+      \item Implementación inicial del piloto.
+      \item Requisitos y aportes a cargo del Municipio.
+      \item Operación y soporte recurrentes.
+      \item Expansiones opcionales posteriores.
+    \end{enumerate}
+  \end{softcard}
+\end{minipage}\hfill
+\begin{minipage}[t]{.48\textwidth}
+  \begin{softcard}
+    \cardtitle{La cotización deberá explicitar}
+    \begin{enumerate}
+      \item Entregables y exclusiones.
+      \item Hitos de aceptación y pagos.
+      \item Responsables y dependencias.
+      \item Costos recurrentes y vigencia.
+    \end{enumerate}
+  \end{softcard}
+\end{minipage}
+
+\vspace{4mm}
+\begin{terracard}
+  \cardtitle{Variables que determinan la inversión}
+  Alcance funcional · cantidad de personas y zonas · canales e integraciones · estado y calidad de los datos · requisitos de infraestructura · cobertura humana y clínica · soporte esperado · propiedad y entrega de activos · criterios de aceptación.
+\end{terracard}
+
+\vspace{8mm}
+\begin{softcard}
+  \cardtitle{Resultado esperado}
+  Una propuesta económica formal para el piloto, con precio, cronograma, supuestos, responsabilidades y opción de continuidad; no una suma preliminar de costos aislados.
+\end{softcard}
+
+\vspace{5mm}
+\subsection{Secuencia para llegar al monto}
+\begin{minipage}[t]{.31\textwidth}
+  \begin{card}[height=31mm]
+    \numberbadge{1}\hspace{2mm}{\bfseries\color{Navy}Cerrar alcance}\par\smallskip
+    {\small Funciones, población, territorio y responsabilidades.}
+  \end{card}
+\end{minipage}\hfill
+\begin{minipage}[t]{.31\textwidth}
+  \begin{card}[height=31mm]
+    \numberbadge{2}\hspace{2mm}{\bfseries\color{Navy}Cotizar}\par\smallskip
+    {\small Entregables, cronograma, supuestos y costos recurrentes.}
+  \end{card}
+\end{minipage}\hfill
+\begin{minipage}[t]{.31\textwidth}
+  \begin{card}[height=31mm]
+    \numberbadge{3}\hspace{2mm}{\bfseries\color{Navy}Aprobar}\par\smallskip
+    {\small Hitos, aceptación, pagos y condiciones de continuidad.}
+  \end{card}
+\end{minipage}
+
+\clearpage
+
+% 11
+\kicker{09 · Cierre}
+\section{Próximos pasos}
+\sectionintro{El objetivo inmediato es acordar una mesa de alcance y convertir la propuesta en un piloto acotado, seguro y evaluable.}
+
+\phase{1}{Designar contrapartes}{Nombrar un referente institucional, uno técnico y uno clínico para conducir las definiciones.}
+\phase{2}{Realizar la mesa de alcance}{Resolver las 16 preguntas prioritarias y documentar decisiones, dudas y responsables.}
+\phase{3}{Relevar datos y capacidades}{Confirmar fuentes, formatos, frecuencia, autorizaciones, sistemas existentes y capacidad de respuesta.}
+\phase{4}{Diseñar el piloto}{Acordar población, zona, canales, protocolo, indicadores de éxito y criterios de aceptación.}
+\phase{5}{Emitir la propuesta formal}{Presentar alcance, cronograma, responsabilidades, inversión y operación recurrente para aprobación.}
+
+\begin{navycard}
+  \whitecardtitle{Una decisión concreta para esta reunión}
+  Acordar si la Municipalidad desea avanzar con una etapa de definición conjunta orientada a diseñar el primer piloto de Anima en la ciudad de Salta.
+\end{navycard}
+
+\vspace{5mm}
+\subsection{Fuentes institucionales}
+\sourceitem{1. Proyecto ganador del Hackathon NOA Innova 2026}{https://prensa.municipalidadsalta.gob.ar/un-proyecto-para-abordar-la-salud-mental-fue-premiado-en-el-hackathon-noa-innova-2026/}
+\sourceitem{2. Apertura del encuentro NOA Innova 2026}{https://prensa.municipalidadsalta.gob.ar/con-mas-de-600-participantes-comenzo-el-noa-innova-hackathon-2026/}
+
+\vspace{10mm}
+{\centering\animaWordmark\par
+\small\color{Muted}Tecnología cívica para comprender, cuidar y decidir mejor.\par}
+
+\end{document}

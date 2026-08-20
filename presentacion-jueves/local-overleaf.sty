@@ -1,0 +1,187 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{local-overleaf}[2026/08/19 Anima institutional proposal]
+
+\RequirePackage{fontspec}
+\setmainfont{texgyreheros}[
+  Extension=.otf,
+  UprightFont=*-regular,
+  BoldFont=*-bold,
+  ItalicFont=*-italic,
+  BoldItalicFont=*-bolditalic,
+  Scale=MatchLowercase
+]
+\setsansfont{texgyreheros}[
+  Extension=.otf,
+  UprightFont=*-regular,
+  BoldFont=*-bold,
+  ItalicFont=*-italic,
+  BoldItalicFont=*-bolditalic,
+  Scale=MatchLowercase
+]
+
+\RequirePackage[spanish,es-nodecimaldot]{babel}
+\RequirePackage[a4paper,top=21mm,bottom=20mm,left=20mm,right=20mm,headheight=16pt,headsep=8mm,footskip=12mm]{geometry}
+\RequirePackage{xcolor}
+\definecolor{Ink}{HTML}{173042}
+\definecolor{Navy}{HTML}{173E57}
+\definecolor{Terracotta}{HTML}{C86F50}
+\definecolor{Sage}{HTML}{82998A}
+\definecolor{Sky}{HTML}{DCEAF0}
+\definecolor{Sand}{HTML}{F3EDE2}
+\definecolor{Mist}{HTML}{F7F8F7}
+\definecolor{Line}{HTML}{D6DDD9}
+\definecolor{Muted}{HTML}{64727B}
+\definecolor{White}{HTML}{FFFFFF}
+
+\RequirePackage{graphicx}
+\RequirePackage{tikz}
+\usetikzlibrary{calc,positioning,shapes.geometric,arrows.meta}
+\RequirePackage{eso-pic}
+\RequirePackage{tabularx}
+\RequirePackage{array}
+\RequirePackage{booktabs}
+\RequirePackage{enumitem}
+\RequirePackage{microtype}
+\RequirePackage{ragged2e}
+\RequirePackage{parskip}
+\RequirePackage{fancyhdr}
+\RequirePackage{lastpage}
+\RequirePackage{titlesec}
+\RequirePackage{hyperref}
+\RequirePackage{xurl}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+\RequirePackage{needspace}
+\RequirePackage{xparse}
+
+\color{Ink}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\linespread{1.06}
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\setlist[itemize]{leftmargin=1.35em,itemsep=.35em,topsep=.35em,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.55em,itemsep=.4em,topsep=.35em,parsep=0pt}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=Navy,
+  urlcolor=Navy,
+  pdftitle={Anima - Propuesta para un piloto municipal de bienestar emocional},
+  pdfsubject={Documento de definición conjunta},
+  pdfauthor={Equipo Anima},
+  pdfcreator={LaTeX + Tectonic}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\scriptsize\bfseries\color{Navy} ANIMA}
+\fancyhead[R]{\scriptsize\color{Muted} Documento de definición conjunta}
+\fancyfoot[L]{\scriptsize\color{Muted} Preparado por Equipo Anima · para la Municipalidad de Salta}
+\fancyfoot[R]{\scriptsize\color{Muted} \thepage\ / \pageref*{LastPage}}
+\renewcommand{\headrulewidth}{0.35pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{Line}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrulewidth}{0pt}
+
+\titleformat{\section}
+  {\normalfont\bfseries\color{Navy}\fontsize{24}{28}\selectfont}
+  {}{0pt}{}
+\titleformat{\subsection}
+  {\normalfont\bfseries\color{Navy}\fontsize{14}{17}\selectfont}
+  {}{0pt}{}
+\titlespacing*{\section}{0pt}{0pt}{9pt}
+\titlespacing*{\subsection}{0pt}{12pt}{5pt}
+
+\newcommand{\kicker}[1]{{\small\bfseries\color{Terracotta}\MakeUppercase{#1}\par}\vspace{2pt}}
+\newcommand{\sectionintro}[1]{{\large\color{Muted}\RaggedRight #1\par}\vspace{7pt}}
+
+\providecommand{\AnimaMoodImage}{assets/anima-mood-neutral.jpg}
+\providecommand{\AnimaLogoMarkImage}{assets/anima-logo-neutral.png}
+\newcommand{\animaWordmark}{%
+  \raisebox{-.18\height}{\includegraphics[height=8mm]{\AnimaLogoMarkImage}}%
+  \hspace{2mm}{\bfseries\fontsize{21}{23}\selectfont\color{Navy}Anima}%
+}
+
+\newtcolorbox{card}[1][]{
+  enhanced,breakable,colback=White,colframe=Line,
+  boxrule=.6pt,arc=2mm,left=4.2mm,right=4.2mm,top=3.4mm,bottom=3.4mm,
+  before skip=5pt,after skip=5pt,before upper=\RaggedRight,#1
+}
+\newtcolorbox{navycard}[1][]{
+  enhanced,breakable,colback=Navy,colframe=Navy,coltext=White,
+  boxrule=0pt,arc=2mm,left=4.5mm,right=4.5mm,top=4mm,bottom=4mm,
+  before skip=5pt,after skip=5pt,before upper=\RaggedRight,#1
+}
+\newtcolorbox{softcard}[1][]{
+  enhanced,breakable,colback=Mist,colframe=Mist,
+  boxrule=0pt,arc=2mm,left=4.2mm,right=4.2mm,top=3.6mm,bottom=3.6mm,
+  before skip=5pt,after skip=5pt,before upper=\RaggedRight,#1
+}
+\newtcolorbox{terracard}[1][]{
+  enhanced,breakable,colback=Terracotta!8,colframe=Terracotta!35,
+  boxrule=.7pt,arc=2mm,left=4.2mm,right=4.2mm,top=3.5mm,bottom=3.5mm,
+  before skip=5pt,after skip=5pt,before upper=\RaggedRight,#1
+}
+
+\newcommand{\cardtitle}[1]{{\bfseries\color{Navy}\RaggedRight #1\par}\smallskip}
+\newcommand{\whitecardtitle}[1]{{\bfseries\color{White}\RaggedRight #1\par}\smallskip}
+\newcommand{\numberbadge}[1]{\tikz[baseline=-.55ex]{\node[circle,fill=Terracotta,text=White,font=\bfseries\small,minimum size=6mm,inner sep=0pt]{#1};}}
+\newcommand{\pill}[1]{\tikz[baseline=-.6ex]{\node[rounded corners=2.5mm,fill=Sky,text=Navy,font=\bfseries\scriptsize,inner xsep=2.8mm,inner ysep=1.3mm]{#1};}}
+
+\NewDocumentCommand{\decision}{m m}{%
+  \begin{card}[top=4.7mm,bottom=4.7mm,before skip=3mm,after skip=3mm]
+    \begin{tabularx}{\linewidth}{@{}>{\centering\arraybackslash}m{8mm}>{\RaggedRight\arraybackslash}X@{}}
+      \numberbadge{#1} & #2
+    \end{tabularx}
+  \end{card}%
+}
+
+\newcommand{\statusrow}[3]{%
+  \noindent\begin{minipage}[t]{.22\linewidth}\scriptsize\bfseries\color{#1}#2\end{minipage}%
+  \begin{minipage}[t]{.75\linewidth}\raggedright#3\end{minipage}\par\vspace{4pt}%
+}
+
+\newcommand{\phase}[3]{%
+  \begin{softcard}
+    \begin{minipage}[t]{9mm}\vspace{0pt}\numberbadge{#1}\end{minipage}%
+    \begin{minipage}[t]{\dimexpr\linewidth-10mm\relax}\vspace{0pt}
+      {\bfseries\color{Navy}\RaggedRight #2}\par\smallskip\RaggedRight #3
+    \end{minipage}
+  \end{softcard}%
+}
+
+\newcommand{\sourceitem}[2]{{\small\bfseries\color{Navy}#1}\par{\footnotesize\color{Muted}\href{#2}{Ver nota oficial en prensa.municipalidadsalta.gob.ar}\par}\vspace{6pt}}
+\newcommand{\sourceinline}[2]{{\footnotesize\color{Muted}\href{#2}{#1}\par}}
+
+\newcommand{\makeanimacover}{%
+  \thispagestyle{empty}
+  \AddToShipoutPictureBG*{\AtPageLowerLeft{\includegraphics[width=\paperwidth,height=\paperheight]{assets/cover-background.png}}}
+  \vspace*{7mm}
+  {\animaWordmark\par}
+  \vspace{23mm}
+  \kicker{Propuesta institucional}
+  {\bfseries\fontsize{34}{39}\selectfont\color{Navy}Una nueva capacidad municipal\par para comprender y acompañar\par el bienestar emocional\par}
+  \vspace{7mm}
+  {\fontsize{17}{22}\selectfont\color{Ink}Documento de definición conjunta para un piloto en la ciudad de Salta\par}
+  \vspace{11mm}
+  \begin{minipage}{.62\textwidth}
+    \begin{navycard}
+      {\bfseries Proyecto ganador del Hackathon NOA Innova 2026}\par\smallskip
+      {\small Una experiencia ciudadana de registro voluntario, un canal de acompañamiento y un observatorio territorial para orientar decisiones públicas.}
+    \end{navycard}
+  \end{minipage}
+  \vfill
+  \begin{minipage}{.58\textwidth}
+    {\small\color{Muted}\textbf{Preparado por}\par Equipo Anima\par\medskip
+    \textbf{Destinatario}\par Municipalidad de la Ciudad de Salta\par\medskip
+    \textbf{Fecha}\par Agosto de 2026}
+  \end{minipage}
+  \clearpage
+}
+
+\newcommand{\phoneframe}[2][.29\textwidth]{%
+  \begin{tikzpicture}
+    \node[rounded corners=5mm,fill=Ink,inner sep=1.4mm] {\includegraphics[width=#1]{#2}};
+  \end{tikzpicture}%
+}
