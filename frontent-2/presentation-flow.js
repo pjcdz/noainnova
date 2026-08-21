@@ -23,11 +23,21 @@
     decodeURIComponent(first.pathname) === decodeURIComponent(second.pathname);
 
   const whatsappUrl = steps[3];
-  let currentStep = samePage(currentUrl, whatsappUrl)
-    ? currentUrl.hash === "#post-consent" ? 6 : 3
-    : steps.findIndex((step, index) => index !== 6 && samePage(currentUrl, step));
+  const stepFromUrl = url => samePage(url, whatsappUrl)
+    ? url.hash === "#post-consent" ? 6 : 3
+    : steps.findIndex((step, index) => index !== 6 && samePage(url, step));
+  let currentStep = stepFromUrl(currentUrl);
+
+  if (
+    currentStep === 3 &&
+    document.querySelector("#app")?.dataset.state === "post-consent"
+  ) {
+    currentStep = 6;
+  }
   let isTransitioning = false;
+  let isControlledByParent = false;
   const stepMessageType = "presentation-flow:step";
+  const activeStepMessageType = "presentation-flow:active-step";
 
   if (currentStep === -1) return;
 
@@ -40,25 +50,105 @@
     }, "*");
   };
 
+  const broadcastCurrentStep = () => {
+    document.querySelectorAll("iframe").forEach(frame => {
+      frame.contentWindow?.postMessage({
+        type: activeStepMessageType,
+        step: currentStep
+      }, "*");
+    });
+  };
+
   window.addEventListener("message", event => {
     const data = event.data;
+    const hasValidStep =
+      data &&
+      Number.isInteger(data.step) &&
+      data.step >= 0 &&
+      data.step < steps.length;
+
+    if (
+      hasValidStep &&
+      data.type === activeStepMessageType &&
+      event.source === window.parent
+    ) {
+      isControlledByParent = true;
+      currentStep = data.step;
+      broadcastCurrentStep();
+      return;
+    }
+
     const comesFromChildFrame = Array.from(document.querySelectorAll("iframe"))
       .some(frame => frame.contentWindow === event.source);
 
     if (
       !comesFromChildFrame ||
-      !data ||
+      !hasValidStep ||
       data.type !== stepMessageType ||
-      !Number.isInteger(data.step) ||
-      data.step < 0 ||
-      data.step >= steps.length
+      data.step === currentStep
     ) return;
 
     currentStep = data.step;
+    broadcastCurrentStep();
     announceCurrentStep();
   });
 
-  announceCurrentStep();
+  document.querySelectorAll("iframe").forEach(frame => {
+    frame.addEventListener("load", broadcastCurrentStep);
+  });
+  broadcastCurrentStep();
+
+  const syncAnimatedStep = () => {
+    let activeStep = currentStep;
+    let hasExplicitAnimatedState = false;
+    const app = document.querySelector("#app");
+
+    if (samePage(currentUrl, whatsappUrl)) {
+      if (app?.classList.contains("is-anima-active")) {
+        activeStep = 7;
+        hasExplicitAnimatedState = true;
+      } else if (app?.classList.contains("is-health-active")) {
+        activeStep = 4;
+        hasExplicitAnimatedState = true;
+      }
+      else if (app?.dataset.state === "post-consent") activeStep = 6;
+      else activeStep = 3;
+    } else if (samePage(currentUrl, steps[4])) {
+      if (document.body.classList.contains("is-dashboard-active")) {
+        activeStep = 5;
+        hasExplicitAnimatedState = true;
+      } else {
+        activeStep = 4;
+      }
+    } else if (samePage(currentUrl, steps[5])) {
+      if (document.body.classList.contains("is-chat-active")) {
+        activeStep = 6;
+        hasExplicitAnimatedState = true;
+      } else {
+        activeStep = 5;
+      }
+    }
+
+    if (isControlledByParent && !hasExplicitAnimatedState) return;
+    if (activeStep === currentStep) return;
+    currentStep = activeStep;
+    broadcastCurrentStep();
+    announceCurrentStep();
+  };
+
+  const stateObserver = new MutationObserver(syncAnimatedStep);
+  stateObserver.observe(document.body, {
+    attributes: true,
+    attributeFilter: ["class"]
+  });
+
+  const app = document.querySelector("#app");
+  if (app && app !== document.body) {
+    stateObserver.observe(app, {
+      attributes: true,
+      attributeFilter: ["class", "data-state"]
+    });
+  }
 
   const navigateTo = nextStep => {
     if (isTransitioning || nextStep < 0 || nextStep >= steps.length) return;
