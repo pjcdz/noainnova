@@ -171,6 +171,22 @@
       gap: 24px;
     }
 
+    .aviso-clinico {
+      margin: 0;
+      padding: 12px 32px;
+      background: oklch(0.27 0.07 35);
+      color: oklch(0.99 0.01 90);
+      font-size: 1rem;
+      font-weight: 650;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .aviso-clinico a {
+      color: inherit;
+      font-weight: 800;
+    }
+
     .brand {
       display: flex;
       align-items: center;
@@ -1000,6 +1016,7 @@
 
     @media (max-width: 1080px) {
       .topbar-inner { flex-wrap: wrap; padding: 14px 20px; }
+      .aviso-clinico { padding-left: 20px; padding-right: 20px; }
       .dash, .pie { padding-left: 20px; padding-right: 20px; }
       .factor-item { grid-template-columns: minmax(0, 1fr) auto; }
       .factor-corr { grid-column: 1 / -1; justify-items: start; }
@@ -1027,6 +1044,7 @@
         <button class="btn-exportar" id="exportar" type="button">Exportar CSV</button>
       </div>
     </div>
+    <p class="aviso-clinico"><strong>Esto no es un tratamiento.</strong> No reemplaza la atención profesional. Los números de esta pantalla son simulados. Ante una emergencia, llamá al <a href="tel:135">135</a> (Salta) o al <a href="tel:08003451435">0800 345 1435</a> (desde todo el país).</p>
   </header>
 
   <main class="dash">
