@@ -1,0 +1,45 @@
+name: Bug
+description: Algo de la demostración no se comporta como debería.
+title: "[Bug] "
+labels: []
+body:
+  - type: textarea
+    id: que-hiciste
+    attributes:
+      label: Qué hiciste
+      description: Los pasos, en orden, para volver a verlo.
+    validations:
+      required: true
+  - type: textarea
+    id: que-esperabas
+    attributes:
+      label: Qué esperabas
+    validations:
+      required: true
+  - type: textarea
+    id: que-viste
+    attributes:
+      label: Qué viste
+    validations:
+      required: true
+  - type: dropdown
+    id: pantalla
+    attributes:
+      label: Pantalla
+      options:
+        - App de Anima (frontent-2/index.html)
+        - Tablero institucional (frontent-2/dashboard.html)
+        - WhatsApp (frontend-3-whatsapp)
+        - Consentimiento municipal (frontent-2-extention)
+        - Recorrido con flechas (grupo-9 y siguientes)
+        - Documentación
+        - Otra
+    validations:
+      required: true
+  - type: input
+    id: entorno
+    attributes:
+      label: Navegador y tamaño de ventana
+      placeholder: Chrome, laptop de 1440 px
+    validations:
+      required: true

@@ -106,6 +106,64 @@
       height: auto;
     }
 
+    .aviso-view.is-active {
+      z-index: calc(var(--z-status) + 1);
+      display: flex;
+      align-items: stretch;
+      background: oklch(0.97 0.02 85);
+      color: oklch(0.18 0.03 45);
+    }
+
+    .aviso-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      width: 100%;
+      padding: 36px 24px 32px;
+    }
+
+    .aviso-kicker {
+      margin: 0;
+      color: oklch(0.38 0.08 40);
+      font-size: 0.875rem;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .aviso-panel h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 760;
+      letter-spacing: -0.035em;
+      line-height: 1.12;
+    }
+
+    .aviso-panel p {
+      margin: 0;
+      font-size: 1.1875rem;
+      font-weight: 640;
+      line-height: 1.4;
+    }
+
+    .aviso-panel a {
+      color: oklch(0.34 0.13 28);
+      font-weight: 800;
+    }
+
+    .aviso-continuar {
+      margin-top: 8px;
+      min-height: 52px;
+      border: 0;
+      border-radius: 999px;
+      background: oklch(0.28 0.07 35);
+      color: oklch(0.99 0.01 90);
+      cursor: pointer;
+      font-size: 1.0625rem;
+      font-weight: 740;
+    }
+
     .splash-cta {
       min-width: 220px;
       min-height: 52px;
@@ -1560,6 +1618,27 @@
       background: oklch(0.965 0.006 270);
     }
 
+    .clinical-card {
+      margin: 0 0 16px;
+      padding: 14px 16px;
+      border: 2px solid oklch(0.42 0.09 40);
+      border-radius: 16px;
+      background: oklch(0.96 0.035 80);
+      color: oklch(0.18 0.03 45);
+      font-size: 1rem;
+      font-weight: 650;
+      line-height: 1.4;
+    }
+
+    .clinical-card p {
+      margin: 0;
+    }
+
+    .clinical-card a {
+      color: oklch(0.34 0.13 28);
+      font-weight: 800;
+    }
+
     .state-card {
       background:
         radial-gradient(circle at 50% 0%, oklch(0.93 0.045 190), var(--white) 58%);
@@ -2711,6 +2790,24 @@
       transform: scale(0.94);
     }
 
+    .clinical-inline {
+      margin: 0 0 10px;
+      padding: 12px 12px 13px;
+      border: 2px solid oklch(0.42 0.09 40);
+      border-radius: 16px;
+      background: oklch(0.96 0.035 80);
+      color: oklch(0.18 0.03 45);
+      font-size: 0.9375rem;
+      font-weight: 650;
+      line-height: 1.35;
+      text-align: center;
+    }
+
+    .clinical-inline a {
+      color: oklch(0.34 0.13 28);
+      font-weight: 800;
+    }
+
     .chat-privacy {
       margin: 8px 0 0;
       color: oklch(0.52 0.006 270);
@@ -2831,8 +2928,9 @@
 
     .chat-help-panel p {
       margin: 0 0 18px;
-      color: oklch(0.45 0.006 270);
-      font-size: 0.9375rem;
+      color: oklch(0.2 0.02 40);
+      font-size: 1rem;
+      font-weight: 640;
       line-height: 1.4;
     }
 
@@ -3452,6 +3550,16 @@
       </div>
     </div>
 
+    <section class="view aviso-view is-active" data-view="aviso" aria-labelledby="aviso-heading">
+      <div class="aviso-panel">
+        <p class="aviso-kicker">Aviso</p>
+        <h1 id="aviso-heading">Esto no es un tratamiento.</h1>
+        <p>No reemplaza la atención profesional.</p>
+        <p>Ante una emergencia, llamá al <a href="tel:135">135</a> (Salta) o al <a href="tel:08003451435">0800 345 1435</a> (desde todo el país).</p>
+        <button class="aviso-continuar" type="button" data-go="mood">Ver la demostración</button>
+      </div>
+    </section>
+
     <section class="view" data-view="choice" aria-labelledby="choice-heading">
       <div class="flow-panel mood-theme choice-panel">
         <button class="icon-button choice-close" type="button" data-go="summary" aria-label="Cerrar">
@@ -3648,6 +3756,9 @@
       </header>
 
       <div class="summary-content">
+        <aside class="clinical-card" aria-label="Aviso clínico">
+          <p><strong>Esto no es un tratamiento.</strong> No reemplaza la atención profesional. Ante una emergencia, llamá al <a href="tel:135">135</a> (Salta) o al <a href="tel:08003451435">0800 345 1435</a> (desde todo el país).</p>
+        </aside>
         <div class="date-row">
           <h2 id="date-label">Hoy, 8 ago</h2>
           <button class="log-button" type="button" data-go="choice">Registrar</button>
@@ -3856,6 +3967,7 @@
       <div class="chat-messages" id="chat-messages" aria-live="polite"></div>
 
       <div class="chat-footer">
+        <p class="clinical-inline"><strong>Esto no es un tratamiento.</strong> No reemplaza la atención profesional. Ante una emergencia, llamá al <a href="tel:135">135</a>.</p>
         <form class="chat-form" id="chat-form">
           <label class="sr-only" for="chat-input">Tu mensaje</label>
           <textarea class="chat-textarea" id="chat-input" rows="1" placeholder="Escribí lo que quieras"></textarea>
@@ -4006,7 +4118,7 @@
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m3 3 8 8M11 3l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
         <h2 id="chat-help-title">Ayuda emocional</h2>
-        <p>Elegí lo que te resulte posible ahora. No hace falta explicar nada.</p>
+        <p><strong>Esto no es un tratamiento</strong> y no reemplaza la atención profesional. Ante una emergencia, llamá ahora.</p>
         <div class="chat-help-lines">
           <a class="chat-help-line" href="tel:135">135<span>Salta</span></a>
           <a class="chat-help-line" href="tel:08003451435">0800 345 1435<span>desde todo el país</span></a>
@@ -4401,7 +4513,7 @@
       }
       if (name === "chat") renderChat();
       const heading = document.querySelector(`[data-view="${name}"] h1, [data-view="${name}"] [role="button"]`);
-      if (heading && name !== "logged") {
+      if (heading && name !== "logged" && name !== "aviso") {
         if (!heading.matches("button, a, input, select, textarea, [tabindex]")) heading.setAttribute("tabindex", "-1");
         requestAnimationFrame(() => heading.focus({ preventScroll: true }));
       }
@@ -5280,7 +5392,7 @@
       splash.addEventListener("transitionend", () => splash.remove(), { once: true });
     });
 
-    showView("mood");
+    showView("aviso");
   </script>
   <script src="presentation-flow.js" defer></script>
 </body>

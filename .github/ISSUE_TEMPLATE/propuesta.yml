@@ -1,0 +1,34 @@
+name: Propuesta
+description: Una idea para la demostración o para la documentación.
+title: "[Propuesta] "
+labels: []
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qué problema resuelve
+      description: Contalo para alguien que no conoce al equipo.
+    validations:
+      required: true
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Qué proponés
+    validations:
+      required: true
+  - type: textarea
+    id: a-quien
+    attributes:
+      label: A quién afecta
+      description: Por ejemplo, alguien que recorre la demo, un desarrollador que clona el repo, o un municipio que mira el tablero.
+    validations:
+      required: true
+  - type: checkboxes
+    id: alcance
+    attributes:
+      label: Alcance
+      options:
+        - label: Entiendo que este repositorio es una demostración estática y que un backend, una base de datos o un despliegue real no se construyen acá.
+          required: true
+        - label: Si la propuesta cambia el aviso clínico, el texto lo redacta Martín y lo revisa un clínico antes de publicarse.
+          required: false
