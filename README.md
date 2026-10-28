@@ -39,16 +39,16 @@ Hace falta Git y Python 3. No hay `package.json`, no hay Supabase y no hay un co
 ```bash
 git clone https://github.com/pjcdz/noainnova.git
 cd noainnova
-python3 -m http.server 8000
+python3 -m http.server 3000
 ```
 
-Abrí [http://localhost:8000/frontent-2/index.html](http://localhost:8000/frontent-2/index.html).
+Abrí [http://localhost:3000/](http://localhost:3000/). Esa dirección abre la app.
 
 Otras entradas, con el mismo servidor:
 
-- Recorrido de la demostración, con las flechas del teclado: [http://localhost:8000/frontent-2/grupo-9.html](http://localhost:8000/frontent-2/grupo-9.html)
-- Tablero institucional: [http://localhost:8000/frontent-2/dashboard.html](http://localhost:8000/frontent-2/dashboard.html)
-- Conversación de WhatsApp: [http://localhost:8000/frontend-3-whatsapp/index.html](http://localhost:8000/frontend-3-whatsapp/index.html)
+- Recorrido de la demostración, con las flechas del teclado: [http://localhost:3000/frontent-2/grupo-9.html](http://localhost:3000/frontent-2/grupo-9.html)
+- Tablero institucional: [http://localhost:3000/frontent-2/dashboard.html](http://localhost:3000/frontent-2/dashboard.html)
+- Conversación de WhatsApp: [http://localhost:3000/frontend-3-whatsapp/index.html](http://localhost:3000/frontend-3-whatsapp/index.html)
 
 Conviene usar el servidor y no abrir los archivos con `file://`. Varias pantallas se cargan entre carpetas y el navegador bloquea eso como archivo local.
 

@@ -9,12 +9,12 @@ Hace falta Git y Python 3.
 ```bash
 git clone https://github.com/pjcdz/noainnova.git
 cd noainnova
-python3 -m http.server 8000
+python3 -m http.server 3000
 ```
 
-Abrí [http://localhost:8000/frontent-2/index.html](http://localhost:8000/frontent-2/index.html).
+Abrí [http://localhost:3000/](http://localhost:3000/).
 
-Para recorrer la demostración completa, abrí [http://localhost:8000/frontent-2/grupo-9.html](http://localhost:8000/frontent-2/grupo-9.html) y usá las flechas del teclado. El tablero está en `frontent-2/dashboard.html`. La recreación de WhatsApp está en `frontend-3-whatsapp/index.html`.
+Para recorrer la demostración completa, abrí [http://localhost:3000/frontent-2/grupo-9.html](http://localhost:3000/frontent-2/grupo-9.html) y usá las flechas del teclado. El tablero está en `frontent-2/dashboard.html`. La recreación de WhatsApp está en `frontend-3-whatsapp/index.html`.
 
 No hace falta `npm install` ni `supabase start`. Si un cambio solo se ve abriendo el HTML con `file://`, revisalo también con el servidor: los pasajes entre carpetas dependen de eso.
 
