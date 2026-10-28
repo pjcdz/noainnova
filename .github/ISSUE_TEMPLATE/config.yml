@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Código de conducta
+    url: https://github.com/pjcdz/noainnova/blob/main/CODE_OF_CONDUCT.md
+    about: Para reportar un comportamiento, escribinos como indica el código de conducta. No abras un issue público.
